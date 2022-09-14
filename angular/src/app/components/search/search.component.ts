@@ -20,7 +20,7 @@ export class SearchComponent {
 
   public onSubmit(form: FormGroup) {
     if (form.valid) {
-      this.router.navigate(['search', {q: encodeURIComponent(form.get('input')?.value)}]);
+      this.router.navigate(['search', {q: form.get('input')?.value}]);
     }
   }
 

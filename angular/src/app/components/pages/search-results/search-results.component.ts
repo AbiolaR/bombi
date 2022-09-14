@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { LibgenService } from 'src/app/services/libgen.service';
 
 
 @Component({
@@ -9,22 +10,12 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class SearchResultsComponent implements OnInit {
 
-  constructor(private route: ActivatedRoute) {
+  constructor(private route: ActivatedRoute, private libgenService: LibgenService) {
     route.params.subscribe(async params => {
       if (params['q']) {
         console.warn(decodeURIComponent(params['q']));
         
-        const options = {
-          mirror: 'http://libgen.is',
-          query: 'philosophy of religion',
-          count: 5
-        }
-
-        try {
-          //const data = await libgen.search(options);
-        } catch (err) {
-          console.warn(err);
-        }
+        libgenService.search(params['q']);
       
         /*try {
           const data = await libgen.search(options)
