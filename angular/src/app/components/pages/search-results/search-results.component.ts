@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { LibgenService } from 'src/app/services/libgen.service';
+import { Book } from 'src/app/models/book';
+import { BookService } from 'src/app/services/book.service';
 
 
 @Component({
@@ -10,34 +11,23 @@ import { LibgenService } from 'src/app/services/libgen.service';
 })
 export class SearchResultsComponent implements OnInit {
 
-  constructor(private route: ActivatedRoute, private libgenService: LibgenService) {
+  books: Book[] = [];
+
+  constructor(private route: ActivatedRoute, private searchService: BookService) {
     route.params.subscribe(async params => {
       if (params['q']) {
-        console.warn(decodeURIComponent(params['q']));
-        
-        libgenService.search(params['q']);
-      
-        /*try {
-          const data = await libgen.search(options)
-          let n = data.length;
-          console.log('top ' + n + ' results for "' +
-                      options.query + '"');
-          while (n--){
-            console.log('***********');
-            console.log('Title: ' + data[n].title);
-            console.log('Author: ' + data[n].author);
-            console.log('Download: ' +
-                        'http://gen.lib.rus.ec/book/index.php?md5=' +
-                        data[n].md5.toLowerCase());
+        searchService.search(params['q']).subscribe({
+          next: (books) => {
+            this.books = books;
           }
-          return true
-        } catch (err) {
-          return console.error(err)
-        }*/
-
+        });
 
       }
     })
+  }
+
+  private validFormat(format: string) {
+    return (format == 'epub' || format == 'mobi');
   }
 
   ngOnInit(): void {

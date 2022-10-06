@@ -14,13 +14,17 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SearchResultsComponent } from './components/pages/search-results/search-results.component';
 import { SearchComponent } from './components/search/search.component';
 import { HttpClientModule } from '@angular/common/http';
+import { BookComponent } from './components/book/book.component';
+import { DownloadClusterComponent } from './components/download-cluster/download-cluster.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     HomeComponent,
     SearchResultsComponent,
-    SearchComponent
+    SearchComponent,
+    BookComponent,
+    DownloadClusterComponent
   ],
   imports: [
     BrowserModule,

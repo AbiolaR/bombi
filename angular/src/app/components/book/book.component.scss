@@ -1,0 +1,97 @@
+.book {
+    display: flex;
+    width: 100%;
+}
+
+.book-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.cover {
+    height: 6em;
+    width: auto;
+    margin-right: 1em;
+}
+
+.lang {
+    margin-right: 1em;
+    height: 1em;
+    width: auto;
+}
+
+
+
+.title {
+    display: inline-block;
+    width: 28.5em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
+}
+
+.head {
+    display: flex;
+    align-items: baseline;
+}
+
+/*.download {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    margin-left: auto;
+}*/
+
+app-download-cluster {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    margin-left: auto;
+}
+
+/*.desktop {
+    display: inherit;
+}*/
+
+.mobile {
+    display: none;
+}
+
+@media screen and (max-width: 700px) {
+    .cover {
+        height: 7em;
+    }
+
+    .title {
+        width: 11em;
+        font-size: 20px;
+        line-height: 22px;
+    }
+
+    h3 {
+        font-size: 15px;
+        line-height: 17px;
+    }
+
+    /*.download {
+        flex-direction: row;
+        justify-content: space-evenly;
+        width: 100%;
+    }*/
+
+    app-download-cluster {
+        flex-direction: row;
+        justify-content: space-evenly;
+        width: 100%;
+    }
+
+    .desktop {
+        display: none;
+    }
+    
+    .mobile {
+        display: inherit;
+    }
+    
+}

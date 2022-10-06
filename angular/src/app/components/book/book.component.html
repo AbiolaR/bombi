@@ -1,0 +1,15 @@
+<div *ngIf="book" class="book">
+    <img class="cover" src="{{book.cover_url == 'img/blank.png' ? '/assets/images/covers/blank.png' : 'https://libgen.li/' + book.cover_url}}"/>
+    <div class="book-details">
+        <div>
+            <div class="head">
+                <img class="lang" src="/assets/images/flags/{{book.language}}.svg"/>
+                <h1 class="title">{{book.title}}</h1>
+            </div>
+            <h3>{{book.author || "author unknown"}}</h3>
+        </div>
+        <app-download-cluster [book]="book" class="mobile"></app-download-cluster>
+    </div>
+    <app-download-cluster [book]="book" class="desktop"></app-download-cluster>
+</div>
+<hr>

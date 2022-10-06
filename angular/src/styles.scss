@@ -4,12 +4,12 @@ html, body { height: 100%; width: 100%;}
 body { 
     margin: 0; 
     font-family: Roboto, "Helvetica Neue", sans-serif;     
+    background-color: #fffbeb;
 }
 
 app-root {
-    width: 70%;
-    height: 100%;
-    
+    width: 50%;
+    height: 100%;    
 }
 
 .page {
@@ -18,4 +18,10 @@ app-root {
     align-items: center;
     height: 100%;
     width: 100%;
+}
+
+@media screen and (max-width: 400px) {
+    app-root {
+        width: 90%;
+    }
 }
