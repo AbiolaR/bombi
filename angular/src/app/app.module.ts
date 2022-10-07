@@ -15,6 +15,7 @@ import { SearchResultsComponent } from './components/pages/search-results/search
 import { SearchComponent } from './components/search/search.component';
 import { HttpClientModule } from '@angular/common/http';
 import { BookComponent } from './components/book/book.component';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { DownloadClusterComponent } from './components/download-cluster/download-cluster.component';
 
 @NgModule({
@@ -36,7 +37,8 @@ import { DownloadClusterComponent } from './components/download-cluster/download
     MatButtonModule,
     FormsModule,
     ReactiveFormsModule,
-    HttpClientModule
+    HttpClientModule,
+    MatProgressSpinnerModule
   ],
   providers: [],
   bootstrap: [AppComponent]

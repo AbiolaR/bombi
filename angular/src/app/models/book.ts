@@ -6,5 +6,6 @@ export interface Book {
     language: string,
     filesize: number,
     extension: string,
+    filename: string,
     cover_url: string,
 }

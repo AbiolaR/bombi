@@ -18,12 +18,13 @@ export class BookService {
     return this.http.get<Book[]>(`${this.apiUrl}search?q=${searchString}`);
   }
 
-  public download(md5Hash: string, filename: string): Observable<Blob> {
-    return this.http.get(`${this.apiUrl}download?md5=${md5Hash}&filename=${filename}`, 
+  public download(md5Hash: string): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}download?md5=${md5Hash}`, 
     {responseType: 'blob'});
   }
 
   public sendToKindle(md5Hash: string, filename: string): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}send?md5=${md5Hash}&filename=${filename}`);
+    return this.http.post<any>(`${this.apiUrl}send`, 
+      {md5: md5Hash, filename: filename});
   }
 }

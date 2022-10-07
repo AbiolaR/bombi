@@ -1,0 +1,30 @@
+button.loading {
+    mat-spinner {
+        display: inline;
+    }
+    span {
+        display: none;
+    }
+}
+
+button {
+    width: 100%;
+    height: 2.5em;
+    
+    mat-spinner {
+        position: absolute;
+        transform: initial;
+        inset: 0;
+        zoom: 0.3;
+        margin: auto;
+        display: none;
+    
+        ::ng-deep circle {
+            stroke: #303030 !important;
+        }
+    }
+
+    mat-icon {
+        vertical-align: middle;
+    }
+}

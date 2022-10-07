@@ -12,35 +12,28 @@ export class DownloadClusterComponent {
   constructor(private bookService: BookService) {}
 
   @Input()
-  book: Book | undefined;
+  book!: Book;
 
-  public download() {
-    if (!this.book){
-      return
-    }
-
-    const filename = `${this.book.title.replace(' ', '_')}.${this.book.extension}`;
-
-    this.bookService.download(this.book.md5, `temp_file.${this.book.extension}`).subscribe({
+  public download(button: any) {
+    button.classList.add('loading');
+    this.bookService.download(this.book.md5).subscribe({
       next: (file) => {
         const anchor = window.document.createElement('a');
         anchor.href = window.URL.createObjectURL(file);
-        anchor.download = filename;
+        anchor.download = this.book.filename;
         document.body.appendChild(anchor);
         anchor.click();
         document.body.removeChild(anchor);
-        window.URL.revokeObjectURL(anchor.href);        
+        window.URL.revokeObjectURL(anchor.href);    
+        button.classList.remove('loading');    
       }
     })
   }
 
-  public sendToKindle() {
-    if (!this.book){
-      return
-    }
-
-    const filename = `${this.book.title.replace(' ', '_')}.${this.book.extension}`;
-
-    this.bookService.sendToKindle(this.book.md5, `temp_file.${this.book.extension}`).subscribe({});
+  public sendToKindle(button: any) {
+    button.classList.add('loading');
+    this.bookService.sendToKindle(this.book.md5, this.book.filename).subscribe(() => {
+      button.classList.remove('loading');
+    });
   }
 }
