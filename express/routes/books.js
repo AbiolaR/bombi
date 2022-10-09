@@ -70,10 +70,7 @@ router.post('/send', async(req, res) => {
 
   filename = filename.replace('.epub', '.mobi');
 
-  console.log(filename);
-  console.log(filePath);
   var result = await mailservice.sendFileToKindle(filePath, filename);
-  console.log('process completed');
   res.json(result);
 });
 
