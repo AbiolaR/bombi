@@ -1,3 +1,4 @@
 export const environment = {
-  production: true
+  production: true,
+  apiServerUrl: `https://bombi.tinym.de/api`
 };
