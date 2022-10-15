@@ -1,6 +1,6 @@
-var DEC = require('./sec-man').DEC;
-var nodemailer = require('nodemailer');
-var fs = require('fs');
+const { DEC } = require('./secman');
+const nodemailer = require('nodemailer');
+const fs = require('fs');
 
 const EMAIL_USERNAME = DEC('U2FsdGVkX1/BOVsuuHLZSv6HtP1DfHEHcI08D4vNe9c=');
 const EMAIL_PASSWORD = DEC('U2FsdGVkX18pqmzHNBqcgdZ5DBiNHnxYcB9/y9bTZOM=');

@@ -1,6 +1,6 @@
 var cryptoJS = require('crypto-js');
 
-const DEC = (string) => {
+module.exports.DEC = (string) => {
     if (process.env.SEC_MAN_KEY) {
         return cryptoJS.AES.decrypt(string, process.env.SEC_MAN_KEY).toString(cryptoJS.enc.Utf8);
     } else {
@@ -8,7 +8,7 @@ const DEC = (string) => {
     }
 }
 
-const ENC = (string) => {
+module.exports.ENC = (string) => {
     if (process.env.SEC_MAN_KEY) {
         return cryptoJS.AES.encrypt(string, process.env.SEC_MAN_KEY).toString();
     } else {
@@ -16,6 +16,4 @@ const ENC = (string) => {
     }
 }
 
-
-module.exports.ENC = ENC;
-module.exports.DEC = DEC;
+module.exports.TOKEN_SECRET = this.DEC('U2FsdGVkX185sh04QOyoMo9x7PA+XefduAbYokB587mDMQzOOU+ldqyqt6/Xvx7A');
