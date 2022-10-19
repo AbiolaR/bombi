@@ -1,7 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { MatMenuTrigger } from '@angular/material/menu';
 import { ActivatedRoute } from '@angular/router';
 import { Book } from 'src/app/models/book';
 import { BookService } from 'src/app/services/book.service';
+import { UserService } from 'src/app/services/user.service';
+import { ProfileDialogComponent } from '../../dialog/profile-dialog/profile-dialog.component';
 
 
 @Component({
@@ -10,10 +14,10 @@ import { BookService } from 'src/app/services/book.service';
   styleUrls: ['./search-results.component.scss']
 })
 export class SearchResultsComponent implements OnInit {
-
   books: Book[] = [];
 
-  constructor(private route: ActivatedRoute, private searchService: BookService) {
+  constructor(private route: ActivatedRoute, private searchService: BookService, private dialog: MatDialog, 
+    public userService: UserService) {
     route.params.subscribe(async params => {
       if (params['q']) {
         searchService.search(params['q']).subscribe({
@@ -26,8 +30,10 @@ export class SearchResultsComponent implements OnInit {
     })
   }
 
-  private validFormat(format: string) {
-    return (format == 'epub' || format == 'mobi');
+  openProfileDialog() {
+    this.dialog.open(ProfileDialogComponent, {
+      width: '30%'
+    });
   }
 
   ngOnInit(): void {

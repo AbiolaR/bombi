@@ -17,7 +17,8 @@ const UserSchema = mongoose.Schema({
     username: { type: String, required: true },
     password: { type: String, required: true },
     email: { type: String, required: true },
-    eReaderEmail: String
+    eReaderEmail: String,
+    eReader: String
 });
 
 const User = mongoose.model('User', UserSchema);
@@ -30,9 +31,16 @@ module.exports.findUser = (username, callback) => {
     });
 }
 
-module.exports.saveUser = (user, callback) => {  
+module.exports.createUser = (user, callback) => {  
     new User(user).save((err) => {
         if (err) callback(err);
         callback('saved user succesfully')
     });
+}
+
+module.exports.updateUser = (userdata, callback) => {
+    User.findOneAndUpdate({ username: userdata.username }, userdata, (err, user) => {
+        if (err) callback(err);
+        callback(user);
+    })
 }

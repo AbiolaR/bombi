@@ -4,3 +4,26 @@ app-search {
     align-items: center;
     justify-content: first baseline;
 }
+
+button {
+    position: relative;
+    float: right;
+    width: 100px;
+    height: 53px;
+    margin: 3px 0 0 10px;
+    background-color: #d8e0ff;
+}
+
+.mat-dialog-container {
+    width: 20%;
+}
+
+::ng-deep.mat-menu-panel {
+    max-width: none !important;
+  }
+
+@media screen and (max-width: 700px) {
+    .mat-dialog-container {
+        width: 100%;
+    }
+}

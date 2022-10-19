@@ -1,2 +1,11 @@
+<button mat-stroked-button (click)="openProfileDialog()" *ngIf="userService.getUserData()">
+    <mat-icon>perm_identity</mat-icon>
+</button>
+<button mat-stroked-button [matMenuTriggerFor]="loginMenu" *ngIf="!userService.getUserData()">
+    <mat-icon>perm_identity</mat-icon>
+</button>
 <app-search></app-search>
 <app-book *ngFor="let book of books" [book]="book"></app-book>
+<mat-menu #loginMenu="matMenu">
+    <app-login></app-login>
+</mat-menu>

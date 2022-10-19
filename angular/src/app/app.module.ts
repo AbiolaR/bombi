@@ -17,6 +17,13 @@ import { HttpClientModule } from '@angular/common/http';
 import { BookComponent } from './components/book/book.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { DownloadClusterComponent } from './components/download-cluster/download-cluster.component';
+import { LoginComponent } from './components/login/login.component';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatCardModule } from '@angular/material/card';
+import { ProfileDialogComponent } from './components/dialog/profile-dialog/profile-dialog.component';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatSelectModule } from '@angular/material/select';
+import { MatMenuModule } from '@angular/material/menu'
 
 @NgModule({
   declarations: [
@@ -25,7 +32,9 @@ import { DownloadClusterComponent } from './components/download-cluster/download
     SearchResultsComponent,
     SearchComponent,
     BookComponent,
-    DownloadClusterComponent
+    DownloadClusterComponent,
+    LoginComponent,
+    ProfileDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -38,7 +47,12 @@ import { DownloadClusterComponent } from './components/download-cluster/download
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatDialogModule,
+    MatCardModule,
+    MatTabsModule,
+    MatSelectModule,
+    MatMenuModule
   ],
   providers: [],
   bootstrap: [AppComponent]

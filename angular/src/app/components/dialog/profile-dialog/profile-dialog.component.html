@@ -1,0 +1,32 @@
+<mat-dialog-content *ngIf="userData">
+    <button id="lgtBtn" mat-stroked-button color="warn" (click)="logout()">
+        logout
+    </button>
+        <h1>{{userData.username}}</h1>
+        <hr>
+        <p>Your email: {{userData.email}}</p>
+        <mat-tab-group mat-stretch-tabs (selectedTabChange)="setEReader($event.index)"
+                        [(selectedIndex)]="activeEReader">
+            <mat-tab label="Kindle">
+                <mat-form-field>
+                    <mat-label>Enter your Kindles E-Mail here</mat-label>
+                    <input matInput [(ngModel)]="userData.eReaderEmail"/>
+                </mat-form-field>
+            </mat-tab>
+            <mat-tab label="Tolino">
+                <button mat-stroked-button>
+                    login
+                </button>
+
+            </mat-tab>
+        </mat-tab-group>
+</mat-dialog-content>
+<mat-dialog-actions *ngIf="dataHasChanged()">    
+    <button mat-stroked-button color="primary"  (click)="save()">
+        save
+    </button>
+    <button mat-stroked-button (click)="close()">
+        close
+    </button>
+
+</mat-dialog-actions>

@@ -1,0 +1,34 @@
+mat-card-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin: 15px;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-btn {
+    margin-top: 30px;
+}
+
+.forgot-pass-btn {
+    margin-top: -30px;
+    margin-left: auto;
+    font-size: 12px;
+    line-height: 18px;
+    height: 18px;
+    background-color: transparent;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+    transition: background-color 5000s ease-in-out 0s;
+}

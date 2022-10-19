@@ -20,10 +20,10 @@ const EMAIL_PASSWORD = DEC('U2FsdGVkX18pqmzHNBqcgdZ5DBiNHnxYcB9/y9bTZOM=');
 const connection = `smtps://${EMAIL_USERNAME}:${EMAIL_PASSWORD}@smtp.strato.de`;
 const mail = nodemailer.createTransport(connection);
 
-const sendFileToKindle = async (filePath, filename) => {
+const sendFileToKindle = async (recipient, filePath, filename) => {
     var mailOptions = {
         from: EMAIL_USERNAME,
-        to: 'nelehollmann37_ky2kbb@kindle.com',
+        to: recipient,
         subject: 'new book',
         text: 'new book',
         attachments: [{
@@ -32,18 +32,7 @@ const sendFileToKindle = async (filePath, filename) => {
         }]
     }
 
-    var result = await mail.sendMail(mailOptions); /*(error, info) => {
-        if (error) {
-            console.warn(error);
-            fs.unlinkSync(filePath);
-            return {error: `could not send file via mail: ${error}`};
-        } else {
-            console.log('file sent successfully')
-            fs.unlinkSync(filePath);
-            return {success: 'file sent successfully'}
-        }
-    });*/
-    console.log(result);
+    var result = await mail.sendMail(mailOptions);
     fs.unlinkSync(filePath);
     if (result.accepted.length > 0) {
         console.log('file sent successfully')

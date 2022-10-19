@@ -8,7 +8,8 @@ const util = require('util');
 const stream = require('stream');
 const pipeline = util.promisify(stream.pipeline);
 const convertAsync = util.promisify(ebookconvert);
-
+const { setTimeout } = require("timers/promises");
+const { spawn } = require('child_process');
 
 /* GET users listing. */
 router.get('/search', async(req, res, next) => {
@@ -57,6 +58,7 @@ router.get('/download', async(req, res, next) => {
 router.post('/send', async(req, res) => {
   var md5Hash = req.body.md5;
   var filename = req.body.filename;
+  var recipient = req.body.recipient;
 
   if (!md5Hash) {
     res.json({error: "No md5 hash given"});
@@ -66,6 +68,10 @@ router.post('/send', async(req, res) => {
     res.json({error: "No filename given"});
     return;
   }
+  if (!recipient) {
+    res.json({error: "No recipient given"});
+    return;
+  }
 
   var file = await download(md5Hash);
 
@@ -73,7 +79,19 @@ router.post('/send', async(req, res) => {
 
   filename = filename.replace('.epub', '.mobi');
 
-  var result = await mailservice.sendFileToKindle(filePath, filename);
+  var result = await mailservice.sendFileToKindle(recipient, filePath, filename);
+  /*console.error('sending ebook..')
+  const user = 'leojohannesboehm@googlemail.com';
+  const password = '15september00';
+  const partner = '13';
+  const tolino = spawn('python3', ['services/python/tolinoclient.py', '--partner', partner,
+                                    '--user', user, '--password', password, 'inventory']);
+  tolino.stdout.on('data', data => {console.error('out: ',data.toString())});
+  tolino.stderr.on('data', data => {console.error('err: ',data.toString())});
+  //await setTimeout(2000);
+  result = {msg: 'sent to kindle'};*/
+
+
   res.json(result);
 });
 

@@ -11,15 +11,19 @@ module.exports = function authorizeUser(req, res, next) {
             var token = authHeader.split(BEARER)[1];
             
             if (token != null) {
-                jwt.verify(token, TOKEN_SECRET, (err, user) => {
+                var result = jwt.verify(token, TOKEN_SECRET, (err, user) => {
                     if (user) {
-                        next();
+                        req.body.username = user.username;
+                        return true;
                     }
+                    return false;
                 });
+                if (result) return next();
             }
         }
         res.status(401).send('Unauthorized');
     } catch (err) {
+        console.error('error while authorizing: ' + err)
         res.status(403).send('Error while authorizing');
     }
 }
