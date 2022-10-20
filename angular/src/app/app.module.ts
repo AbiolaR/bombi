@@ -20,10 +20,12 @@ import { DownloadClusterComponent } from './components/download-cluster/download
 import { LoginComponent } from './components/login/login.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatCardModule } from '@angular/material/card';
-import { ProfileDialogComponent } from './components/dialog/profile-dialog/profile-dialog.component';
+import { ProfileDialogComponent } from './components/dialogs/profile-dialog/profile-dialog.component';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatSelectModule } from '@angular/material/select';
-import { MatMenuModule } from '@angular/material/menu'
+import { MatMenuModule } from '@angular/material/menu';
+import { EReaderConfigComponent } from './components/ereader-config/ereader-config.component';
+import { RegisterDialogComponent } from './components/dialogs/register-dialog/register-dialog.component'
 
 @NgModule({
   declarations: [
@@ -34,7 +36,9 @@ import { MatMenuModule } from '@angular/material/menu'
     BookComponent,
     DownloadClusterComponent,
     LoginComponent,
-    ProfileDialogComponent
+    ProfileDialogComponent,
+    EReaderConfigComponent,
+    RegisterDialogComponent
   ],
   imports: [
     BrowserModule,

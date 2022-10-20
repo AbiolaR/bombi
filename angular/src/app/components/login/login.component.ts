@@ -1,10 +1,11 @@
 import { HttpResponse, HttpStatusCode } from '@angular/common/http';
 import { Component, Input, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatMenuTrigger } from '@angular/material/menu';
 import { UserData } from 'src/app/models/user-data';
 import { UserService } from 'src/app/services/user.service';
+import { RegisterDialogComponent } from '../dialogs/register-dialog/register-dialog.component';
 
 @Component({
   selector: 'app-login',
@@ -20,7 +21,7 @@ export class LoginComponent implements OnInit {
   usernameError: String = '';
   passwordError: String = '';
 
-  constructor(private userService: UserService) { }
+  constructor(private userService: UserService, private dialog: MatDialog) { }
 
   ngOnInit(): void {
   }
@@ -50,8 +51,10 @@ export class LoginComponent implements OnInit {
     })
   }
 
-  openRegisterDialog() {
-    
+  openRegisterDialog() {    
+    this.dialog.open(RegisterDialogComponent, {
+      width: '30%'
+    })
   }
 
   private clearErrors() {
@@ -60,6 +63,5 @@ export class LoginComponent implements OnInit {
     this.loginForm.get('username')?.setErrors(null);
     this.loginForm.get('password')?.setErrors(null);
   }
-
 
 }

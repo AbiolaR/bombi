@@ -1,8 +1,5 @@
-export interface UserData {
-    status: number,
-    username: String,
-    access_token: String,
-    eReaderEmail: String,
-    email: String,
-    eReader: String
+import { UserRelatedData } from "./user-related-data";
+
+export class UserData extends UserRelatedData {
+    access_token: String = '';
 }

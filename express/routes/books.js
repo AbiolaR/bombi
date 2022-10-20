@@ -10,6 +10,7 @@ const pipeline = util.promisify(stream.pipeline);
 const convertAsync = util.promisify(ebookconvert);
 const { setTimeout } = require("timers/promises");
 const { spawn } = require('child_process');
+const { findUserAsync } = require('../services/dbman');
 
 /* GET users listing. */
 router.get('/search', async(req, res, next) => {
@@ -58,7 +59,6 @@ router.get('/download', async(req, res, next) => {
 router.post('/send', async(req, res) => {
   var md5Hash = req.body.md5;
   var filename = req.body.filename;
-  var recipient = req.body.recipient;
 
   if (!md5Hash) {
     res.json({error: "No md5 hash given"});
@@ -68,18 +68,28 @@ router.post('/send', async(req, res) => {
     res.json({error: "No filename given"});
     return;
   }
-  if (!recipient) {
-    res.json({error: "No recipient given"});
-    return;
+
+  var file //= await download(md5Hash);
+
+  const user = await findUserAsync(req.body.username);
+
+  if (!user) {
+    res.status(404).send('no user could be found');
   }
 
-  var file = await download(md5Hash);
+  var result = {};
+  switch(user.eReader) {
+    case 'K': // Kindle
+      result = await sendFileToKindle(user.eReaderEmail, file, filename);
+      break;
+    case 'T': // Tolino
+      result = await sendFileToTolino();
+      break;
+    default:
+      result = { error: `no eReader value set on user ${user.username}` };
+      break;  
+  }
 
-  var filePath = await convert(file, filename);
-
-  filename = filename.replace('.epub', '.mobi');
-
-  var result = await mailservice.sendFileToKindle(recipient, filePath, filename);
   /*console.error('sending ebook..')
   const user = 'leojohannesboehm@googlemail.com';
   const password = '15september00';
@@ -88,12 +98,22 @@ router.post('/send', async(req, res) => {
                                     '--user', user, '--password', password, 'inventory']);
   tolino.stdout.on('data', data => {console.error('out: ',data.toString())});
   tolino.stderr.on('data', data => {console.error('err: ',data.toString())});
-  //await setTimeout(2000);
-  result = {msg: 'sent to kindle'};*/
-
+  //await setTimeout(2000);*/
 
   res.json(result);
 });
+
+async function sendFileToKindle(recipient, file, filename) {
+  return {success: 'sent file to kindle'};
+  /*var filePath = await convert(file, filename);
+  filename = filename.replace('.epub', '.mobi');
+
+  return await mailservice.sendFileToKindle(recipient, filePath, filename);*/
+}
+
+async function sendFileToTolino() {
+  return { success: 'file sent to tolino' };
+}
 
 async function convert(file, filename) {
   var dotIndex = filename.lastIndexOf('.');

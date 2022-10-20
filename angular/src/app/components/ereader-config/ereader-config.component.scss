@@ -1,0 +1,23 @@
+::ng-deep .mat-tab-body-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;    
+}
+
+mat-tab-group {
+    width: 100%
+}
+
+mat-form-field {
+    width: 100%;
+}
+
+.e-reader-config {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+h4 {
+    margin: 0;
+}

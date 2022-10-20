@@ -249,6 +249,39 @@ class TolinoCloud:
             'sync_data_url'    : 'https://bosh.pageplace.de/bosh/rest/sync-data?paths=publications,audiobooks',
             'downloadinfo_url' : 'https://bosh.pageplace.de/bosh/rest//cloud/downloadinfo/{}/{}/type/external-download'
         },
+        10: {
+            # Weltbild.de
+            'client_id'        : '4c20de744aa8b83b79b692524c7ec6ae',
+            'scope'            : 'ebook_library',
+            'signup_url'       : 'https://www.weltbild.de/go/my_my/my_newRegistration/',
+            'profile_url'      : 'https://www.weltbild.de/go/my_my/my_data/',
+            'token_url'        : 'https://api.weltbild.de/rest/oauth2/token',
+            # 'revoke_url'       : 'https://api.hugendubel.de/rest/oauth2/revoke',
+            'auth_url'         : 'https://www.weltbild.de/oauth/authorize',
+            'login_url'        : 'https://www.weltbild.de/de/account/login',
+            'login_form'       : {
+                'username' : 'username',
+                'password' : 'password',
+                'extra'    : {
+                    'evaluate'           : 'true',
+                    'isOrdering'         : '',
+                    'isOneClickOrdering' : ''
+                }
+            },
+            'login_cookie'     : 'JSESSIONID',
+            'logout_url'       : 'https://www.weltbild.de/de/account/logout',
+            'reader_url'       : 'https://webreader.weltbild.de/library/index.html',
+            'register_url'     : 'https://bosh.pageplace.de/bosh/rest/registerhw',
+            'devices_url'      : 'https://bosh.pageplace.de/bosh/rest/handshake/devices/list',
+            'unregister_url'   : 'https://bosh.pageplace.de/bosh/rest/handshake/devices/delete',
+            'upload_url'       : 'https://bosh.pageplace.de/bosh/rest/upload',
+            'meta_url'         : 'https://bosh.pageplace.de/bosh/rest/meta',
+            'cover_url'        : 'https://bosh.pageplace.de/bosh/rest/cover',
+            'sync_data_url'    : 'https://bosh.pageplace.de/bosh/rest/sync-data?paths=publications,audiobooks',
+            'delete_url'       : 'https://bosh.pageplace.de/bosh/rest/deletecontent',
+            'inventory_url'    : 'https://bosh.pageplace.de/bosh/rest/inventory/delta',
+            'downloadinfo_url' : 'https://bosh.pageplace.de/bosh/rest//cloud/downloadinfo/{}/{}/type/external-download'
+        },
         13: {
             # Hugendubel.de
             'client_id'        : '4c20de744aa8b83b79b692524c7ec6ae',
@@ -388,11 +421,12 @@ class TolinoCloud:
                 self.refresh_token = j['refresh_token']
                 self.token_expires = int(j['expires_in'])
                 #Store new refresh token
-                config = ConfigParser()
-                config.read(self.confpath)
-                config.set('Defaults', 'password', self.refresh_token)
-                with open(self.confpath, 'w') as f:
-                    config.write(f)
+                #config = ConfigParser()
+                #config.read(self.confpath)
+                #config.set('Defaults', 'password', self.refresh_token)
+                #with open(self.confpath, 'w') as f:
+                #    config.write(f)
+                print(self.refresh_token)
             except:
                 raise TolinoException('oauth access token request failed.')
             return
@@ -641,11 +675,14 @@ class TolinoCloud:
             name = filename.split('/')[-1]
         if ext is None:
             ext = filename.split('.')[-1]
+        print('extension is: ', ext)
 
         mime = {
             'pdf'  : 'application/pdf',
             'epub' : 'application/epub+zip'
         }.get(ext.lower(), 'application/pdf')
+
+        print('mime is: ', mime)
 
         r = s.post(c['upload_url'],
             files = [('file', (name, open(filename, 'rb'), mime))],

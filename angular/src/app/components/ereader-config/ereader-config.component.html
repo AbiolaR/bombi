@@ -1,0 +1,25 @@
+<div class="e-reader-config">
+    <h4>Configure your eBook Reader</h4>
+    <mat-tab-group mat-stretch-tabs (selectedTabChange)="setEReader($event.index)"
+        [(selectedIndex)]="activeEReader">    
+        <mat-tab label="Kindle">
+            <mat-form-field>
+                <mat-label>Enter your Kindles E-Mail here</mat-label>
+                <input matInput [(ngModel)]="userRelatedData.eReaderEmail"/>
+            </mat-form-field>
+        </mat-tab>
+        <mat-tab label="Tolino">
+            <mat-form-field>
+                <mat-label>Device ID</mat-label>
+                <input matInput [(ngModel)]="userRelatedData.eReaderDeviceId"/>
+            </mat-form-field>
+            <mat-form-field>
+                <mat-label>Refresh Token</mat-label>
+                <input matInput [(ngModel)]="userRelatedData.eReaderRefreshToken"/>
+            </mat-form-field>
+            <button mat-stroked-button>
+                Test
+            </button>
+        </mat-tab>
+    </mat-tab-group>
+</div>

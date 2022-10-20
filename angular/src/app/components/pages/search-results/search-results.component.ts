@@ -5,7 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Book } from 'src/app/models/book';
 import { BookService } from 'src/app/services/book.service';
 import { UserService } from 'src/app/services/user.service';
-import { ProfileDialogComponent } from '../../dialog/profile-dialog/profile-dialog.component';
+import { ProfileDialogComponent } from '../../dialogs/profile-dialog/profile-dialog.component';
 
 
 @Component({

@@ -1,0 +1,16 @@
+<mat-dialog-content *ngIf="userData">
+    <button id="lgtBtn" mat-stroked-button color="warn" (click)="logout()">
+        Logout
+    </button>
+    <h1>{{userData.username}}</h1>
+    <h5>{{userData.email}}</h5>
+    <app-ereader-config [userRelatedData]="userData"></app-ereader-config>
+</mat-dialog-content>
+<mat-dialog-actions *ngIf="dataHasChanged()">    
+    <button mat-stroked-button color="primary"  (click)="save()">
+        Save
+    </button>
+    <button mat-stroked-button (click)="close()">
+        Cancel
+    </button>
+</mat-dialog-actions>

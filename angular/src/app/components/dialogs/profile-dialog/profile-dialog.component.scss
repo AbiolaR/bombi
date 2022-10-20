@@ -1,0 +1,29 @@
+mat-dialog-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+
+mat-dialog-actions {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+#lgtBtn {
+    position: absolute;
+    right: 24px;
+}
+
+app-ereader-config {
+    width: 100%;
+}
+
+h1 {
+    margin-bottom: 0;
+}
+
+h5 {
+    margin-bottom: 30px;
+}

@@ -1,7 +1,7 @@
-<button mat-stroked-button (click)="openProfileDialog()" *ngIf="userService.getUserData()">
+<button mat-stroked-button (click)="openProfileDialog()" *ngIf="userService.getUserData()?.username">
     <mat-icon>perm_identity</mat-icon>
 </button>
-<button mat-stroked-button [matMenuTriggerFor]="loginMenu" *ngIf="!userService.getUserData()">
+<button mat-stroked-button [matMenuTriggerFor]="loginMenu" *ngIf="!userService.getUserData()?.username">
     <mat-icon>perm_identity</mat-icon>
 </button>
 <app-search></app-search>

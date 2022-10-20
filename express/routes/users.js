@@ -18,10 +18,9 @@ router.post('/login', (req, res, next) => {
             }
             if (bcrypt.compareSync(password, user.password)) {
                 var token = authenticateUser(user.username);
-                res.status(200).send({ username: user.username,
-                                       access_token: token,
-                                       eReaderEmail: user.eReaderEmail,
-                                       email: user.email, eReader: user.eReader });
+                user = sanitize(user._doc);
+                user.access_token = token;
+                res.status(200).send(user);
             } else {
                 res.status(200).send({status: 2, error: 'wrong password'});
             }
@@ -32,14 +31,23 @@ router.post('/login', (req, res, next) => {
 
 });
 
-router.post('/register', (req, res, next) => {
-    const user = req.body.user;
+router.post('/register', async (req, res, next) => {
+    var user = req.body;
+
+    const posUser = await dbman.findUserAsync(user.username);
+
+    if (posUser) {
+        res.status(200).send({status: 2, error: 'user already exists'});
+        return;
+    }
 
     try {
         user.password = bcrypt.hashSync(user.password, bcrypt.genSaltSync(10));
         dbman.createUser(user, (result) => {
             var token = authenticateUser(user.username);
-            res.status(200).send({ token: token });
+            user = sanitize(user);
+            user.access_token = token;
+            res.status(200).send(user);
         })
     } catch (error) {
         res.send({status: 0, error: error});
@@ -61,6 +69,17 @@ router.post('/save', (req, res, next) => {
 
 function authenticateUser(username) {
     return jwt.sign({ username: username }, TOKEN_SECRET, { expiresIn: ONE_YEAR });
+}
+
+function sanitize(user) {
+    user = Object.fromEntries(Object.entries(user).filter(([key, value]) => key != 'password' && !key.startsWith('_')));
+    if (user.eReaderDeviceId && user.eReaderDeviceId.length > 4) {
+        user.eReaderDeviceId = `*****${user.eReaderDeviceId.slice(-4)}`
+    }
+    if (user.eReaderRefreshToken) {
+        user.eReaderRefreshToken = '**********';
+    }
+    return user;
 }
 
 module.exports = router;

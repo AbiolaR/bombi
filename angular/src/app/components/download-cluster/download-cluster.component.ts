@@ -34,18 +34,18 @@ export class DownloadClusterComponent {
     })
   }
 
-  public sendToKindle(button: any) {   
+  public sendToEReader(button: any) {   
 
     const userData = this.userService.getUserData();
     if (!userData) {
       console.warn('please login first');
       return;
     }
-    if (!userData.eReaderEmail) {
+    /*if (!userData.eReaderEmail) {
       console.warn('please set kindle email first');
-    }
+    }*/
     button.classList.add('loading');
-    this.bookService.sendToKindle(userData.eReaderEmail, this.book.md5, this.book.filename)
+    this.bookService.sendToKindle(this.book.md5, this.book.filename)
     .pipe(finalize(() => button.classList.remove('loading')))
     .subscribe({
       error: (error) =>  {
@@ -56,5 +56,16 @@ export class DownloadClusterComponent {
         }
       }
     });
+  }
+
+  currentEReader() {
+    switch(this.userService.getUserData()?.eReaderType) {
+      case 'K': // Kindle
+        return 'Kindle'
+      case 'T': // Tolino
+        return 'Tolino';
+      default:
+        return 'E-Reader';
+    }
   }
 }

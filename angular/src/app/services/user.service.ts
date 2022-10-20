@@ -25,7 +25,7 @@ export class UserService {
   public register(user: User): Observable<UserData> {
     const headers = { 'Content-Type': 'application/json' };
     return this.http.post<UserData>(
-      `${this.userApiUrl}/login`,
+      `${this.userApiUrl}/register`,
       JSON.stringify(user), 
       { headers }
     );
@@ -43,7 +43,7 @@ export class UserService {
 
   public getUserData(): UserData | undefined {
     try {
-      return JSON.parse(localStorage.getItem('userData')!);
+      return Object.assign(new UserData(), JSON.parse(localStorage.getItem('userData')!));
     } catch {
       return undefined;
     }

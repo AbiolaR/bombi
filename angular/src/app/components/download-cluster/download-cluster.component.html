@@ -1,9 +1,9 @@
 <button mat-raised-button color="accent" (click)="download($event.target)">
-    <span>Download <mat-icon>computer</mat-icon></span>
+    <span>Download</span>
     <mat-spinner></mat-spinner>
 </button>
-<button mat-raised-button color="accent" (click)="sendToKindle($event.target)">
-    <span>Kindle <mat-icon>system_update</mat-icon></span>
+<button mat-raised-button color="accent" (click)="sendToEReader($event.target)">
+    <span>Send to {{currentEReader()}}</span>
     <mat-spinner></mat-spinner>
 </button>
 <!--

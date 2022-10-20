@@ -24,10 +24,10 @@ export class BookService {
     {responseType: 'blob'});
   }
 
-  public sendToKindle(recipient: String, md5Hash: String, filename: String): Observable<any> {
+  public sendToKindle(md5Hash: String, filename: String): Observable<any> {
     const headers = { 'Authorization': `Bearer ${this.userService.getUserData()?.access_token}`};
     return this.http.post<any>(`${this.apiUrl}send`, 
-      {recipient: recipient, md5: md5Hash, filename: filename},
+      {md5: md5Hash, filename: filename},
       { headers });
   }
 }

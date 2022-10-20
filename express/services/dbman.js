@@ -17,8 +17,10 @@ const UserSchema = mongoose.Schema({
     username: { type: String, required: true },
     password: { type: String, required: true },
     email: { type: String, required: true },
+    eReaderType: { type: String, required: true },
     eReaderEmail: String,
-    eReader: String
+    eReaderDeviceId: String,
+    eReaderRefreshToken: String
 });
 
 const User = mongoose.model('User', UserSchema);
@@ -26,9 +28,15 @@ const User = mongoose.model('User', UserSchema);
 
 module.exports.findUser = (username, callback) => {
     User.findOne({ username: username }, (err, user) => {
-        if (err) callback(err);
-        callback(user);
+        if (callback) {
+            if (err) callback(err);
+            callback(user);
+        }
     });
+}
+
+module.exports.findUserAsync = async (username) => {
+    return await User.findOne({ username: username });
 }
 
 module.exports.createUser = (user, callback) => {  
