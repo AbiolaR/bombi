@@ -247,7 +247,7 @@ async function search(searchString) {
     ids = rawBookData.match(regexIds).toString();
   } catch(error) {
     console.error(error)
-    return {message: 'no books found'};
+    return [];
   }
   var bookDetails = {};
   try {

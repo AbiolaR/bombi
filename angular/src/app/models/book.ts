@@ -8,4 +8,5 @@ export interface Book {
     extension: string,
     filename: string,
     cover_url: string,
+    message: string,
 }

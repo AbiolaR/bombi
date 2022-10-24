@@ -5,6 +5,7 @@
     <mat-icon>perm_identity</mat-icon>
 </button>
 <app-search></app-search>
+<mat-spinner *ngIf="books.length == 0"></mat-spinner>
 <app-book *ngFor="let book of books" [book]="book"></app-book>
 <mat-menu #loginMenu="matMenu">
     <app-login></app-login>

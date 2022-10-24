@@ -19,9 +19,10 @@ export class SearchResultsComponent implements OnInit {
   constructor(private route: ActivatedRoute, private searchService: BookService, private dialog: MatDialog, 
     public userService: UserService) {
     route.params.subscribe(async params => {
+      this.books = [];
       if (params['q']) {
         searchService.search(params['q']).subscribe({
-          next: (books) => {
+          next: (books) => {        
             this.books = books;
           }
         });
