@@ -14,12 +14,13 @@ import { ProfileDialogComponent } from '../../dialogs/profile-dialog/profile-dia
   styleUrls: ['./search-results.component.scss']
 })
 export class SearchResultsComponent implements OnInit {
-  books: Book[] = [];
+  books: Book[] | undefined;
+  
 
   constructor(private route: ActivatedRoute, private searchService: BookService, private dialog: MatDialog, 
     public userService: UserService) {
     route.params.subscribe(async params => {
-      this.books = [];
+      this.books = undefined;
       if (params['q']) {
         searchService.search(params['q']).subscribe({
           next: (books) => {        
