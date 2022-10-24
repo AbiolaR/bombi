@@ -8,9 +8,10 @@ const util = require('util');
 const stream = require('stream');
 const pipeline = util.promisify(stream.pipeline);
 const convertAsync = util.promisify(ebookconvert);
-const { setTimeout } = require("timers/promises");
-const { spawn } = require('child_process');
-const { findUserAsync } = require('../services/dbman');
+const { findUserAsync, updateUserAsync } = require('../services/dbman');
+const { upload, testAuth } = require('../services/tolinoman');
+const jsdom = require('jsdom');
+
 
 /* GET users listing. */
 router.get('/search', async(req, res, next) => {
@@ -25,7 +26,7 @@ router.get('/search', async(req, res, next) => {
   var bookData = {};
   
   try {
-    if (process.env.STAGE == 'prod') {
+    if (process.env.STAGE == 'prod' || process.env.STAGE == 'staging') {
       bookData = await search(searchString);
     } else {
       bookData = [{"book_id":"6030060","md5":"4f67f6509a61dc38168d146626f5702d","title":"The Straw Doll Cries at Midnight","author":"","language":"eng","filesize":"523087","extension":"epub","filename":"The Straw Doll Cries at Midnight.epub","cover_url":"fictioncovers/2463000/eb36babdfbcac07115e720e03b765016_small.jpg"},{"book_id":"6473323","md5":"eb36babdfbcac07115e720e03b765016","title":"The Tiger at Midnight","author":"","language":"eng","filesize":"1725912","extension":"epub","filename":"The Tiger at Midnight.epub","cover_url":"img/blank.png"},{"book_id":"6618889","md5":"8e3036af66cec7e882eff27d61c8ed0c","title":"The archer at dawn","author":"","language":"eng","filesize":"2927549","extension":"epub","filename":"The archer at dawn.epub","cover_url":"fictioncovers/2609000/8e3036af66cec7e882eff27d61c8ed0c_small.jpg"},{"book_id":"96705404","md5":"36eecaf2700a96aba3ba61ac12412033","title":"The Tiger at Midnight","author":"Swati Teerdhala","language":"eng","filesize":"637882","extension":"epub","filename":"The Tiger at Midnight.epub","cover_url":"img/blank.png"},{"book_id":"96705405","md5":"4dd1421ad88a222c03ff147be5026098","title":"The Chariot at Dusk","author":"Swati Teerdhala","language":"eng","filesize":"5838101","extension":"epub","filename":"The Chariot at Dusk.epub","cover_url":"img/blank.png"},{"book_id":"96705406","md5":"af55cd1cfbbaf2dc6d82e662700ab920","title":"The Archer at Dawn ","author":"Teerdhala, Swati","language":"eng","filesize":"678970","extension":"epub","filename":"The Archer at Dawn .epub","cover_url":"fictioncovers/2005000/4f67f6509a61dc38168d146626f5702d_small.jpg"},{"book_id":"96924857","md5":"67b5c78e8e6bad9d602f59c0dba9b150","title":"The Tiger at Midnight","author":"Teerdhala, Swati","language":"eng","filesize":"2035502","extension":"epub","filename":"The Tiger at Midnight.epub","cover_url":"fictioncovers/2922000/67b5c78e8e6bad9d602f59c0dba9b150_small.jpg"},{"book_id":"96924858","md5":"b218d9e47c09375f25d3fccd9bf66162","title":"The Tiger at Midnight","author":"Teerdhala, Swati","language":"eng","filesize":"1725939","extension":"epub","filename":"The Tiger at Midnight.epub","cover_url":"fictioncovers/2922000/b218d9e47c09375f25d3fccd9bf66162_small.jpg"}];
@@ -45,14 +46,14 @@ router.get('/download', async(req, res, next) => {
     return;
   }
 
-  var file = await download(md5Hash);
+  var book = await download(md5Hash);
   
   try {
-    file.pipe(res);
+    book.file.pipe(res);
     res.set('Content-disposition', 'attachment; filename=book.epub');
     res.set('Content-Type', 'application/octet-stream');
   } catch(error) {
-    res.json(file)
+    book.res.json(file)
   }
 });
 
@@ -69,7 +70,7 @@ router.post('/send', async(req, res) => {
     return;
   }
 
-  var file //= await download(md5Hash);
+  var book = await download(md5Hash);
 
   const user = await findUserAsync(req.body.username);
 
@@ -78,40 +79,69 @@ router.post('/send', async(req, res) => {
   }
 
   var result = {};
-  switch(user.eReader) {
+  switch(user.eReaderType) {
     case 'K': // Kindle
-      result = await sendFileToKindle(user.eReaderEmail, file, filename);
+      result = await sendFileToKindle(user.eReaderEmail, book.file, filename);
       break;
     case 'T': // Tolino
-      result = await sendFileToTolino();
+      result = await sendFileToTolino(book, filename, user);
       break;
     default:
       result = { error: `no eReader value set on user ${user.username}` };
       break;  
   }
 
-  /*console.error('sending ebook..')
-  const user = 'leojohannesboehm@googlemail.com';
-  const password = '15september00';
-  const partner = '13';
-  const tolino = spawn('python3', ['services/python/tolinoclient.py', '--partner', partner,
-                                    '--user', user, '--password', password, 'inventory']);
-  tolino.stdout.on('data', data => {console.error('out: ',data.toString())});
-  tolino.stderr.on('data', data => {console.error('err: ',data.toString())});
-  //await setTimeout(2000);*/
-
   res.json(result);
 });
 
-async function sendFileToKindle(recipient, file, filename) {
-  return {success: 'sent file to kindle'};
-  /*var filePath = await convert(file, filename);
-  filename = filename.replace('.epub', '.mobi');
+router.post('/tolino/test', async(req, res) => {
+  var eReaderDeviceId = req.body.eReaderDeviceId;
+  var eReaderRefreshToken = req.body.eReaderRefreshToken;
+  var username = req.body.username;
 
-  return await mailservice.sendFileToKindle(recipient, filePath, filename);*/
+  if (username) {
+    var user = await findUserAsync(req.body.username);
+
+    if (!user) {
+      res.status(404).send('no user could be found');
+    }
+
+    eReaderDeviceId = user.eReaderDeviceId;
+    eReaderRefreshToken = user.eReaderRefreshToken;
+  }
+
+  var user = { username: username, eReaderDeviceId: eReaderDeviceId, 
+    eReaderRefreshToken: eReaderRefreshToken }
+
+  var result = await testAuth(user);
+  if (result.command && result.refresh_token) {
+    res.send({ refresh_token: result.refresh_token });
+  } else {
+    res.status(401).send();
+  }
+  
+});
+
+async function sendFileToKindle(recipient, file, filename) {
+  //return {success: 'sent file to kindle'};
+  var filePath = await saveToDisk(file, filename);
+  //var filePath = await convert(file, filename);
+  //filename = filename.replace('.epub', '.mobi');
+
+  return await mailservice.sendFileToKindle(recipient, filePath, filename);
 }
 
-async function sendFileToTolino() {
+async function sendFileToTolino(book, filename, user) {
+  const filePath = await saveToDisk(book.file, filename);
+
+  var coverPath;
+  if (book.cover.file) {
+    coverPath = await saveToDisk(book.cover.file, 'cover.jpg');
+  }
+
+  const result = await upload(filePath, coverPath, user); 
+  console.log(result);
+
   return { success: 'file sent to tolino' };
 }
 
@@ -135,6 +165,17 @@ async function convert(file, filename) {
   return outputPath;
 }
 
+async function saveToDisk(file, filename) {
+  var dotIndex = filename.lastIndexOf('.');
+  var name = filename.slice(0, dotIndex).replace(/\s/g, '');;
+  var fileEnding = filename.slice(dotIndex);
+
+  const timestamp = Date.now();
+  const path = `/tmp/app.bombi/${name}_${timestamp}${fileEnding}`;
+  await pipeline(file, fs.createWriteStream(path));
+  return path;
+}
+
 async function download(md5Hash) {
   var config = {
     method: 'get',
@@ -144,6 +185,7 @@ async function download(md5Hash) {
   var result = await axios(config);
   const page = await result.data;
   const regexDownloadURL = new RegExp(/(?<=href=")(.*)(?="><h2>GET<)/g);
+  const regexCoverUrl = new RegExp(/(?<="><img src="\/)(.*)(?=")/g);
 
   var downloadURL = '';
   try {
@@ -162,12 +204,42 @@ async function download(md5Hash) {
     return {error: `book download failed: ${err}`}
   }
 
-  return ebook;
+  var coverUrl = '';
+  try {
+    coverUrl = page.match(regexCoverUrl).toString();
+  } catch (err) {
+    return {error: `error while fetching book cover url: ${err}`}
+  }
+
+  var cover;
+
+  var book = {
+    file: ebook,
+    cover: {
+      file: cover,
+    }
+  }
+
+  if (coverUrl.includes('blank')) {
+    return book;
+  }
+
+  try {
+    const request = await axios.get(`https://libgen.li/${coverUrl}`, {
+      responseType: 'stream',
+    });
+    cover = await request.data;
+  }  catch (err) {
+    return {error: `cover download failed: ${err}`}
+  }
+
+  book.cover.file = cover;
+
+  return book;
 }
 
 async function search(searchString) {
   const regexIds = new RegExp(/(?<=\/json\.php\?object=f&ids\=)(.*)(?="><font)/g);
-  const regexCoverUrls = new RegExp(/(?<="><img src="\/)(.*)(?=")/g);
 
   const rawBookData = await getRawBooks(searchString);
   var ids = '';
@@ -177,26 +249,41 @@ async function search(searchString) {
     console.error(error)
     return {message: 'no books found'};
   }
-  var coverUrls = [];
+  var bookDetails = {};
   try {
-    coverUrls = rawBookData.match(regexCoverUrls).toString().split(',');
+    const parsedDocument = new jsdom.JSDOM(rawBookData).window.document;
+    coverUrls = parseCoverUrls(parsedDocument);
+    authors = parseAuthors(parsedDocument);
+    ids.split(',').forEach((id, index) => {
+      bookDetails[id] = { coverUrl: coverUrls[index], author: authors[index] };
+    })
   } catch(error) {
-    console.error(`something went wrong when extracting cover urls: ${error}`);
+    console.error(`something went wrong when extracting book details: ${error}`);
   }
-  return await getBookData(ids, coverUrls);
+  return await getBookData(ids, bookDetails);
+}
+
+function parseCoverUrls(doc) {
+  const covers = doc.querySelectorAll('tbody:nth-child(2) tr td:nth-child(1) a img');
+  return Array.from(covers).map(cover => cover.src);
+}
+
+function parseAuthors(doc) {
+  const authors = doc.querySelectorAll('tbody:nth-child(2) tr td:nth-child(3)');
+  return Array.from(authors).map(author => author.innerHTML);
 }
 
 async function getRawBooks(searchString) {
   var config = {
     method: 'get',
-    url: `https://libgen.li/index.php?req=${searchString}+ext:epub&columns%5B%5D=t&columns%5B%5D=a&columns%5B%5D=s&columns%5B%5D=y&columns%5B%5D=p&columns%5B%5D=i&objects%5B%5D=f&topics%5B%5D=l&topics%5B%5D=c&topics%5B%5D=f&topics%5B%5D=m&topics%5B%5D=r&topics%5B%5D=s&res=100&covers=on&gmode=on&filesuns=all`,
+    url: `https://libgen.li/index.php?req=${searchString}+ext:epub&columns%5B%5D=t&columns%5B%5D=a&columns%5B%5D=s&columns%5B%5D=y&columns%5B%5D=p&columns%5B%5D=i&objects%5B%5D=f&topics%5B%5D=l&topics%5B%5D=f&res=100&covers=on&gmode=on&filesuns=all`,
   };
 
   const result = await axios(config);
   return await result.data;
 }
 
-async function getBookData(ids, coverUrls) {
+async function getBookData(ids, bookDetails) {
   const fileData = await getFileData(ids);
   editionIds = [];
 
@@ -223,9 +310,10 @@ async function getBookData(ids, coverUrls) {
         console.warn(`no language found for edition: ${editionId}`);
       }
       
-      bookData.push({book_id: key, md5: file.md5, title: edition.title, author: edition.author, 
+      bookData.push({book_id: key, md5: file.md5, title: edition.title, author: edition.author || bookDetails[key].author, 
         language: lang.value, filesize: file.filesize, extension: file.extension, 
-        filename: `${edition.title}.${file.extension}`, cover_url: coverUrls[index]});
+        filename: `${edition.title}.${file.extension}`, cover_url: bookDetails[key].coverUrl});
+
     }
   });
 

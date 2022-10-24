@@ -3,7 +3,7 @@ export class UserRelatedData {
     username: String = '';
     email: String = '';
     eReaderEmail: String = '';
-    eReaderType: String = 'K';
+    eReaderType: String = 'U';
     eReaderRefreshToken: String = '';
     eReaderDeviceId: String = '';
 

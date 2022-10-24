@@ -53,7 +53,7 @@ export class LoginComponent implements OnInit {
 
   openRegisterDialog() {    
     this.dialog.open(RegisterDialogComponent, {
-      width: '30%'
+      width: '500px'
     })
   }
 

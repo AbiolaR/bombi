@@ -32,7 +32,7 @@ export class SearchResultsComponent implements OnInit {
 
   openProfileDialog() {
     this.dialog.open(ProfileDialogComponent, {
-      width: '30%'
+      width: '500px'
     });
   }
 

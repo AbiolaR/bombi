@@ -15,6 +15,16 @@ import datetime
 
 from tolinocloud import TolinoCloud
 
+def test(args):
+    global confpath
+    c = TolinoCloud(args.partner, args.use_device, confpath)
+    refresh_token = c.login(args.user, args.password)
+    print('REFRESH_TOKEN_START{}REFRESH_TOKEN_END'.format(refresh_token))
+    c.register()
+    c.unregister()
+    c.logout()
+    print('SUCCESS')
+
 def inventory(args):
     global confpath
     c = TolinoCloud(args.partner, args.use_device, confpath)
@@ -71,13 +81,15 @@ def unregister(args):
 def upload(args):
     global confpath
     c = TolinoCloud(args.partner, args.use_device, confpath)
-    c.login(args.user, args.password)
+    refresh_token = c.login(args.user, args.password)
+    print('REFRESH_TOKEN_START{}REFRESH_TOKEN_END'.format(refresh_token))
     c.register()
     document_id = c.upload(args.filename, args.name)
-    c.add_cover(document_id, args.cover)
+    if (args.cover):
+        c.add_cover(document_id, args.cover)
     c.unregister()
     c.logout()
-    print('uploaded {} to tolino cloud as {}.'.format(args.filename, document_id))
+    print('SUCCESS')
 
 def download(args):
     global confpath
@@ -155,6 +167,9 @@ parser.add_argument('--debug', action="store_true", help='log additional debuggi
 parser.add_argument('--use-device', action="store_true", help='use existing device credentials instead of signing in')
 
 subparsers = parser.add_subparsers()
+
+s = subparsers.add_parser('test', help='test the auth login connection')
+s.set_defaults(func=test)
 
 s = subparsers.add_parser('inventory', help='fetch and print inventory')
 s.set_defaults(func=inventory)

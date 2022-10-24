@@ -17,8 +17,11 @@
                 <mat-label>Refresh Token</mat-label>
                 <input matInput [(ngModel)]="userRelatedData.eReaderRefreshToken"/>
             </mat-form-field>
-            <button mat-stroked-button>
-                Test
+            <button mat-stroked-button (click)="testAuth($event.target)">
+                <span class="text">Test</span>
+                <mat-spinner></mat-spinner>
+                <mat-icon class="success">check_circle_outline</mat-icon>
+                <mat-icon class="failure">highlight_off</mat-icon>
             </button>
         </mat-tab>
     </mat-tab-group>

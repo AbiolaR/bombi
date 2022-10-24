@@ -45,7 +45,7 @@ export class DownloadClusterComponent {
       console.warn('please set kindle email first');
     }*/
     button.classList.add('loading');
-    this.bookService.sendToKindle(this.book.md5, this.book.filename)
+    this.bookService.sendToEReader(this.book.md5, this.book.filename)
     .pipe(finalize(() => button.classList.remove('loading')))
     .subscribe({
       error: (error) =>  {

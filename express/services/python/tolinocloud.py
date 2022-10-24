@@ -426,7 +426,7 @@ class TolinoCloud:
                 #config.set('Defaults', 'password', self.refresh_token)
                 #with open(self.confpath, 'w') as f:
                 #    config.write(f)
-                print(self.refresh_token)
+                return self.refresh_token
             except:
                 raise TolinoException('oauth access token request failed.')
             return

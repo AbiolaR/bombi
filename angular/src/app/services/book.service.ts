@@ -24,10 +24,15 @@ export class BookService {
     {responseType: 'blob'});
   }
 
-  public sendToKindle(md5Hash: String, filename: String): Observable<any> {
+  public sendToEReader(md5Hash: String, filename: String): Observable<any> {
     const headers = { 'Authorization': `Bearer ${this.userService.getUserData()?.access_token}`};
     return this.http.post<any>(`${this.apiUrl}send`, 
       {md5: md5Hash, filename: filename},
       { headers });
+  }
+
+  public testTolinoAuth(json: Object): Observable<any> {
+    return this.http.post<String>(`${this.apiUrl}tolino/test`,
+    json);
   }
 }
