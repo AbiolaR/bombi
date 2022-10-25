@@ -12,6 +12,8 @@ const { findUserAsync, updateUserAsync } = require('../services/dbman');
 const { upload, testAuth } = require('../services/tolinoman');
 const jsdom = require('jsdom');
 
+const LIBGEN_MIRROR = process.env.LIBGEN_MIRROR || 'https://libgen.rocks';
+
 
 /* GET users listing. */
 router.get('/search', async(req, res, next) => {
@@ -124,9 +126,9 @@ router.post('/tolino/test', async(req, res) => {
 
 async function sendFileToKindle(recipient, file, filename) {
   //return {success: 'sent file to kindle'};
-  var filePath = await saveToDisk(file, filename);
-  //var filePath = await convert(file, filename);
-  //filename = filename.replace('.epub', '.mobi');
+  //var filePath = await saveToDisk(file, filename);
+  var filePath = await convert(file, filename);
+  filename = filename.replace('.epub', '.mobi');
 
   return await mailservice.sendFileToKindle(recipient, filePath, filename);
 }
@@ -179,7 +181,7 @@ async function saveToDisk(file, filename) {
 async function download(md5Hash) {
   var config = {
     method: 'get',
-    url: `https://libgen.li/get.php?md5=${md5Hash}`,
+    url: `${LIBGEN_MIRROR}/get.php?md5=${md5Hash}`,
   };
 
   var result = await axios(config);
@@ -196,7 +198,7 @@ async function download(md5Hash) {
 
   var ebook;
   try {
-    const request = await axios.get(`https://libgen.li/${downloadURL}`, {
+    const request = await axios.get(`${LIBGEN_MIRROR}/${downloadURL}`, {
       responseType: 'stream',
     });
     ebook = await request.data;
@@ -225,7 +227,7 @@ async function download(md5Hash) {
   }
 
   try {
-    const request = await axios.get(`https://libgen.li/${coverUrl}`, {
+    const request = await axios.get(`${LIBGEN_MIRROR}/${coverUrl}`, {
       responseType: 'stream',
     });
     cover = await request.data;
@@ -276,7 +278,7 @@ function parseAuthors(doc) {
 async function getRawBooks(searchString) {
   var config = {
     method: 'get',
-    url: `https://libgen.li/index.php?req=${searchString}+ext:epub&columns%5B%5D=t&columns%5B%5D=a&columns%5B%5D=s&columns%5B%5D=y&columns%5B%5D=p&columns%5B%5D=i&objects%5B%5D=f&topics%5B%5D=l&topics%5B%5D=f&res=100&covers=on&gmode=on&filesuns=all`,
+    url: `${LIBGEN_MIRROR}/index.php?req=${searchString}+ext:epub&columns%5B%5D=t&columns%5B%5D=a&columns%5B%5D=s&columns%5B%5D=y&columns%5B%5D=p&columns%5B%5D=i&objects%5B%5D=f&topics%5B%5D=l&topics%5B%5D=f&res=100&covers=on&gmode=on&filesuns=all`,
   };
 
   const result = await axios(config);
@@ -323,7 +325,7 @@ async function getBookData(ids, bookDetails) {
 async function getFileData(ids) {
   var config = {
     method: 'get',
-    url: `https://libgen.li/json.php?object=f&ids=${ids}`,
+    url: `${LIBGEN_MIRROR}/json.php?object=f&ids=${ids}`,
   };
 
   const result = await axios(config);
@@ -333,7 +335,7 @@ async function getFileData(ids) {
 async function getEditionData(ids) {
   var config = {
     method: 'get',
-    url: `https://libgen.li/json.php?object=e&ids=${ids}&addkeys=101`,
+    url: `${LIBGEN_MIRROR}/json.php?object=e&ids=${ids}&addkeys=101`,
   };
 
   const result = await axios(config);

@@ -25,7 +25,8 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatSelectModule } from '@angular/material/select';
 import { MatMenuModule } from '@angular/material/menu';
 import { EReaderConfigComponent } from './components/ereader-config/ereader-config.component';
-import { RegisterDialogComponent } from './components/dialogs/register-dialog/register-dialog.component'
+import { RegisterDialogComponent } from './components/dialogs/register-dialog/register-dialog.component';
+import { ImageDialogComponent } from './components/dialogs/image-dialog/image-dialog.component'
 
 @NgModule({
   declarations: [
@@ -38,7 +39,8 @@ import { RegisterDialogComponent } from './components/dialogs/register-dialog/re
     LoginComponent,
     ProfileDialogComponent,
     EReaderConfigComponent,
-    RegisterDialogComponent
+    RegisterDialogComponent,
+    ImageDialogComponent
   ],
   imports: [
     BrowserModule,

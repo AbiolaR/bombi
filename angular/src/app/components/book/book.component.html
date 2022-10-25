@@ -1,5 +1,6 @@
 <div *ngIf="book" class="book">
-    <img class="cover" src="{{book.cover_url == 'img/blank.png' ? '/assets/images/covers/blank.png' : 'https://libgen.li/' + book.cover_url}}"/>
+    <img class="cover" src="{{book.cover_url == 'img/blank.png' ? '/assets/images/covers/blank.png' : 'https://libgen.li/' + book.cover_url}}"
+    (click)="enlarge()"/>
     <div class="book-details">
         <div>
             <div class="head">

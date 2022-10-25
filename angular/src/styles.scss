@@ -20,6 +20,12 @@ app-root {
     width: 100%;
 }
 
+@media screen and (max-width: 1250px) {
+    app-root {
+        width: 80%;
+    }
+}
+
 @media screen and (max-width: 700px) {
     app-root {
         width: 94%;
