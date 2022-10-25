@@ -1,0 +1,10 @@
+::ng-deep .image-dialog {
+    mat-dialog-container {
+        padding: 0;
+    }
+}
+
+img {
+    display: block;
+    max-width: 80vw;
+}
