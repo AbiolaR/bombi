@@ -1,8 +1,7 @@
 const util = require('util');
 const { exec } = require('child_process');
-const { updateUserAsync } = require('./dbman');
-const { stdout } = require('process');
 const execAsync = util.promisify(exec);
+const { updateUserAsync } = require('./dbman');
 
 const STATIC_ARGS = 'python3 services/python/tolinoclient.py --partner 10 --use-device';
 

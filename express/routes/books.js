@@ -11,6 +11,7 @@ const convertAsync = util.promisify(ebookconvert);
 const { findUserAsync, updateUserAsync } = require('../services/dbman');
 const { upload, testAuth } = require('../services/tolinoman');
 const jsdom = require('jsdom');
+const { convertToMobi } = require('../services/tools');
 
 const LIBGEN_MIRROR = process.env.LIBGEN_MIRROR || 'https://libgen.rocks';
 
@@ -124,13 +125,13 @@ router.post('/tolino/test', async(req, res) => {
   
 });
 
-async function sendFileToKindle(recipient, file, filename) {
-  //return {success: 'sent file to kindle'};
+async function sendFileToKindle(recipient, data, filename) {
   //var filePath = await saveToDisk(file, filename);
-  var filePath = await convert(file, filename);
-  filename = filename.replace('.epub', '.mobi');
+  //var filePath = await convert(file, filename);
+  //filename = filename.replace('.epub', '.mobi');
+  const file = await convertToMobi(data, filename);
 
-  return await mailservice.sendFileToKindle(recipient, filePath, filename);
+  return await mailservice.sendFileToKindle(recipient, file.path, file.name);
 }
 
 async function sendFileToTolino(book, filename, user) {
