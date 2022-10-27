@@ -4,55 +4,70 @@ const stream = require('stream');
 const pipeline = util.promisify(stream.pipeline);
 const fs = require('fs');
 const jszip = require('jszip');
+const { parseStringPromise, Builder } = require('xml2js');
 
 const TEMP_DIR = '/tmp/app.bombi/';
 const ENGLISH = 'en';
+const MOBI = '.mobi'
 
 module.exports.convertToMobiAsync = async (file, filename) => {
     var filePath = await this.saveToDisk(file, filename);
 
-    console.log('before convert')
     if (!(await convertAsync(filePath))) return { name: '', path: ''};
-    console.log('after convert')
 
     var dotIndex = filename.lastIndexOf('.');
     var fileEnding = filename.slice(dotIndex);
 
-    filePath.replace(fileEnding, 'mobi');
-    filename.replace(fileEnding, 'mobi');
+    fs.unlinkSync(filePath);
+    filePath = filePath.replace(fileEnding, MOBI);
+    filename = filename.replace(fileEnding, MOBI);
     return { name: filename, path: filePath };
 }
 
 async function convertAsync(filePath) {
-    const process = spawn('kindlegen', [filePath]);
-
-    var error = "";
-    child.stderr.on('data', (data) => {
-        error += data;    
+    const process = spawn('/bin/kindlegen', [filePath]);
+    var output = '';
+    process.stderr.on('data', (data) => {
+        output += data;    
+    });
+    process.stdout.on('data', (data) => {
+        output += data;    
     });
 
-    const exitCode = await new Promise((resolve) => {
+    const exitCode = await new Promise((resolve, reject) => {
         process.on('close', resolve);
     });
 
-    console.log('during convert');
 
-    if (exitCode != 0) {
-        if (error.includes('E23006')) {
-            setEpubLanguage(filePath, ENGLISH);
+    if (![0, 1].includes(exitCode)) {
+        if (output.includes('E23006')) {
+            await setEpubLanguage(filePath, ENGLISH);
+            await convertAsync(filePath);
         } else {
-            console.error('error while trying to convert');
+            console.log(exitCode)
+            console.error('error while trying to convert: ', output);
             return false;
         }
     }
+    return true;
 }
 
 async function setEpubLanguage(filePath, lang) {
     const fileContent = fs.readFileSync(filePath);
     const jsZip = new jszip();
 
-    const epubFiles = await jsZip.loadAsync(fileContent);
+    const zip = await jsZip.loadAsync(fileContent);
+    const metadataFile = Object.keys(zip.files).find(key => key.endsWith('.opf'));
+    const metadataContent = await (zip.files[metadataFile].async('text'));
+
+    const json = await parseStringPromise(metadataContent)
+    json.package.metadata[0]['dc:language'] = [ lang ];
     
+    const xml = new Builder().buildObject(json);
+
+    zip.file(metadataFile, xml);
+    const content = await zip.generateNodeStream({type:'nodebuffer', streamFiles:true});
+    await pipeline(content, fs.createWriteStream(filePath));
 }
 
 module.exports.saveToDisk = async (file, filename) => {

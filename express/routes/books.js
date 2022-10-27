@@ -11,7 +11,7 @@ const convertAsync = util.promisify(ebookconvert);
 const { findUserAsync, updateUserAsync } = require('../services/dbman');
 const { upload, testAuth } = require('../services/tolinoman');
 const jsdom = require('jsdom');
-const { convertToMobi } = require('../services/tools');
+const { convertToMobiAsync } = require('../services/tools');
 
 const LIBGEN_MIRROR = process.env.LIBGEN_MIRROR || 'https://libgen.rocks';
 
@@ -129,8 +129,8 @@ async function sendFileToKindle(recipient, data, filename) {
   //var filePath = await saveToDisk(file, filename);
   //var filePath = await convert(file, filename);
   //filename = filename.replace('.epub', '.mobi');
-  const file = await convertToMobi(data, filename);
-
+  const file = await convertToMobiAsync(data, filename);
+  if (!file.path) return;
   return await mailservice.sendFileToKindle(recipient, file.path, file.name);
 }
 
