@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Book } from 'src/app/models/book';
 import { ImageDialogComponent } from '../dialogs/image-dialog/image-dialog.component';

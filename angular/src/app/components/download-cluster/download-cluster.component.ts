@@ -2,8 +2,8 @@ import { HttpStatusCode } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
 import { finalize } from 'rxjs';
 import { Book } from 'src/app/models/book';
-import { UserData } from 'src/app/models/user-data';
 import { BookService } from 'src/app/services/book.service';
+import { EventService } from 'src/app/services/event.service';
 import { UserService } from 'src/app/services/user.service';
 
 @Component({
@@ -13,10 +13,12 @@ import { UserService } from 'src/app/services/user.service';
 })
 export class DownloadClusterComponent {
 
-  constructor(private bookService: BookService, private userService: UserService) {}
+  constructor(private bookService: BookService, private userService: UserService, private eventService: EventService) {}
 
   @Input()
   book!: Book;
+
+  stateDuration = 2000;
 
   public download(button: any) {
     button.classList.add('loading');
@@ -35,27 +37,34 @@ export class DownloadClusterComponent {
   }
 
   public sendToEReader(button: any) {   
-
     const userData = this.userService.getUserData();
     if (!userData) {
-      console.warn('please login first');
+      this.eventService.openLoginMenu();
       return;
     }
-    /*if (!userData.eReaderEmail) {
-      console.warn('please set kindle email first');
-    }*/
     button.classList.add('loading');
-    this.bookService.sendToEReader(this.book.md5, this.book.filename)
-    .pipe(finalize(() => button.classList.remove('loading')))
-    .subscribe({
+    this.bookService.sendToEReader(this.book.md5, this.book.filename).subscribe({
+      next: () => {
+        this.showResult(button, 'success');
+      },
       error: (error) =>  {
+        this.showResult(button, 'failure');
         if (error.status == HttpStatusCode.Unauthorized) {
+          this.eventService.openLoginMenu();
           console.warn('user is not authorized, please login again');
         } else {
           console.warn('error while sending book');
         }
       }
     });
+  }
+
+  private showResult(button: any, result: String) {
+    button.classList.remove('loading');
+        button.classList.add(result);
+        setTimeout(() => {
+          button.classList.remove(result);
+        }, this.stateDuration);
   }
 
   currentEReader() {

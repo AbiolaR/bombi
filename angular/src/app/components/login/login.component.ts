@@ -4,6 +4,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatMenuTrigger } from '@angular/material/menu';
 import { UserData } from 'src/app/models/user-data';
+import { EventService } from 'src/app/services/event.service';
 import { UserService } from 'src/app/services/user.service';
 import { RegisterDialogComponent } from '../dialogs/register-dialog/register-dialog.component';
 
@@ -21,7 +22,7 @@ export class LoginComponent implements OnInit {
   usernameError: String = '';
   passwordError: String = '';
 
-  constructor(private userService: UserService, private dialog: MatDialog) { }
+  constructor(private userService: UserService, private dialog: MatDialog, private eventService: EventService) { }
 
   ngOnInit(): void {
   }
@@ -51,7 +52,8 @@ export class LoginComponent implements OnInit {
     })
   }
 
-  openRegisterDialog() {    
+  openRegisterDialog() {  
+    this.eventService.closeLoginMenu();  
     this.dialog.open(RegisterDialogComponent, {
       width: '500px'
     })

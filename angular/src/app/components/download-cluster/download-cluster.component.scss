@@ -2,13 +2,33 @@ button.loading {
     mat-spinner {
         display: inline;
     }
-    span {
+    .text {
+        display: none;
+    }
+}
+
+button.success {
+    mat-icon.success {
+        display: inline;
+        color: #4caf50;
+    }
+    .text {
+        display: none;
+    }
+}
+
+button.failure {
+    mat-icon.failure {
+        display: inline;
+        color: #f44336;
+    }
+    .text {
         display: none;
     }
 }
 
 button {
-    min-width: 123px;
+    min-width: 140px;
     width: 100%;
     height: 2.5em;
     
@@ -27,6 +47,7 @@ button {
 
     mat-icon {
         vertical-align: middle;
+        display: none;
     }
 
     ::ng-deep span {

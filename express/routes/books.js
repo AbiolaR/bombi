@@ -94,7 +94,7 @@ router.post('/send', async(req, res) => {
       break;  
   }
 
-  res.json(result);
+  res.status(result.status).send(result.message);
 });
 
 router.post('/tolino/test', async(req, res) => {
@@ -126,9 +126,6 @@ router.post('/tolino/test', async(req, res) => {
 });
 
 async function sendFileToKindle(recipient, data, filename) {
-  //var filePath = await saveToDisk(file, filename);
-  //var filePath = await convert(file, filename);
-  //filename = filename.replace('.epub', '.mobi');
   const file = await convertToMobiAsync(data, filename);
   if (!file.path) return;
   return await mailservice.sendFileToKindle(recipient, file.path, file.name);
@@ -142,10 +139,11 @@ async function sendFileToTolino(book, filename, user) {
     coverPath = await saveToDisk(book.cover.file, 'cover.jpg');
   }
 
-  const result = await upload(filePath, coverPath, user); 
-  console.log(result);
+  const result = await upload(filePath, coverPath, user);
 
-  return { success: 'file sent to tolino' };
+  if (result.command && result.refresh_token) {
+    return { status: 200, message: { success: 'file sent to tolino' } };
+  }
 }
 
 async function convert(file, filename) {

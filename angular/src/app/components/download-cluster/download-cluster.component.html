@@ -1,10 +1,14 @@
 <button mat-raised-button color="accent" (click)="download($event.target)">
-    <span>Download</span>
+    <span class="text">Download</span>
     <mat-spinner></mat-spinner>
+    <mat-icon class="success">check_circle_outline</mat-icon>
+    <mat-icon class="failure">highlight_off</mat-icon>
 </button>
 <button mat-raised-button color="accent" (click)="sendToEReader($event.target)">
-    <span>Send to {{currentEReader()}}</span>
+    <span class="text">Send to {{currentEReader()}}</span>
     <mat-spinner></mat-spinner>
+    <mat-icon class="success">check_circle_outline</mat-icon>
+    <mat-icon class="failure">highlight_off</mat-icon>
 </button>
 <!--
     <mat-icon>system_update</mat-icon>

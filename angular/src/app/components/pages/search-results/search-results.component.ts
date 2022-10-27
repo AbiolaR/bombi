@@ -1,9 +1,10 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuTrigger } from '@angular/material/menu';
 import { ActivatedRoute } from '@angular/router';
 import { Book } from 'src/app/models/book';
 import { BookService } from 'src/app/services/book.service';
+import { EventService as EventService } from 'src/app/services/event.service';
 import { UserService } from 'src/app/services/user.service';
 import { ProfileDialogComponent } from '../../dialogs/profile-dialog/profile-dialog.component';
 
@@ -13,12 +14,15 @@ import { ProfileDialogComponent } from '../../dialogs/profile-dialog/profile-dia
   templateUrl: './search-results.component.html',
   styleUrls: ['./search-results.component.scss']
 })
-export class SearchResultsComponent implements OnInit {
+export class SearchResultsComponent {
+  @ViewChild(MatMenuTrigger) loginMenu: MatMenuTrigger | undefined;
   books: Book[] | undefined;
-  
 
   constructor(private route: ActivatedRoute, private searchService: BookService, private dialog: MatDialog, 
-    public userService: UserService) {
+    public userService: UserService, private eventService: EventService) {
+
+    eventService.menuEvent.subscribe(this.toggleLoginMenu.bind(this))
+
     route.params.subscribe(async params => {
       this.books = undefined;
       if (params['q']) {
@@ -38,7 +42,12 @@ export class SearchResultsComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {
+  toggleLoginMenu(state: boolean) {
+    if (state) {
+      this.loginMenu?.openMenu();
+    } else {
+      this.loginMenu?.closeMenu();
+    }
   }
 
 }
