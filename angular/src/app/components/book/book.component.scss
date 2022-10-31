@@ -6,6 +6,7 @@
 .book-details {
     display: flex;
     flex-direction: column;
+    max-width: calc(100% - 220px);
 }
 
 .cover {    
@@ -26,7 +27,7 @@
 
 .title {
     display: inline-block;
-    width: 15em;
+    width: calc(100% - 1em);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -73,6 +74,7 @@ app-download-cluster {
 
     .book-details {
         width: 100%;
+        max-width: 100%;
     }
 
     app-download-cluster {
