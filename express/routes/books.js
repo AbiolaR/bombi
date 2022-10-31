@@ -203,28 +203,37 @@ async function download(md5Hash) {
 }
 
 async function search(searchString) {
-  const regexIds = new RegExp(/(?<=\/json\.php\?object=f&ids\=)(.*)(?="><font)/g);
-
   const rawBookData = await getRawBooks(searchString);
   var ids = '';
+  var idArray = [];
+  var parsedDocument;
   try {
-    ids = rawBookData.match(regexIds).toString();
+    parsedDocument = new jsdom.JSDOM(rawBookData).window.document;
+    idArray = parseIds(parsedDocument);
+    ids = idArray.join(',');
   } catch(error) {
     console.error(error)
     return [];
   }
   var bookDetails = {};
   try {
-    const parsedDocument = new jsdom.JSDOM(rawBookData).window.document;
-    coverUrls = parseCoverUrls(parsedDocument);
-    authors = parseAuthors(parsedDocument);
-    ids.split(',').forEach((id, index) => {
+    var coverUrls = parseCoverUrls(parsedDocument);
+    var authors = parseAuthors(parsedDocument);
+
+    idArray.forEach((id, index) => {
       bookDetails[id] = { coverUrl: coverUrls[index], author: authors[index] };
     })
   } catch(error) {
     console.error(`something went wrong when extracting book details: ${error}`);
   }
   return await getBookData(ids, bookDetails);
+}
+
+function parseIds(doc) {
+  const urlBeginning = '/file.php?id=';
+
+  const ids = doc.querySelectorAll('tbody:nth-child(2) tr td:nth-child(8) a');
+  return Array.from(ids).map(id => id.href.replace(urlBeginning, ''));
 }
 
 function parseCoverUrls(doc) {
@@ -273,11 +282,9 @@ async function getBookData(ids, bookDetails) {
       } catch(error) {
         console.warn(`no language found for edition: ${editionId}`);
       }
-      
       bookData.push({book_id: key, md5: file.md5, title: edition.title, author: edition.author || bookDetails[key].author, 
         language: lang.value, filesize: file.filesize, extension: file.extension, 
         filename: `${edition.title}.${file.extension}`, cover_url: bookDetails[key].coverUrl});
-
     }
   });
 
