@@ -5,15 +5,18 @@ const pipeline = util.promisify(stream.pipeline);
 const fs = require('fs');
 const jszip = require('jszip');
 const { parseStringPromise, Builder } = require('xml2js');
+const ebookconvert = require('ebook-convert');
+const ebookConvertAsync = util.promisify(ebookconvert);
 
 const TEMP_DIR = '/tmp/app.bombi/';
 const ENGLISH = 'en';
-const MOBI = '.mobi'
+const MOBI = '.mobi';
+const EPUB = '.epub';
 
 module.exports.convertToMobiAsync = async (file, filename) => {
     var filePath = await this.saveToDisk(file, filename);
 
-    if (!(await convertAsync(filePath))) return { name: '', path: ''};
+    if (!(await calibreConvertAsync(filePath))) return { name: '', path: ''};
 
     var dotIndex = filename.lastIndexOf('.');
     var fileEnding = filename.slice(dotIndex);
@@ -24,7 +27,18 @@ module.exports.convertToMobiAsync = async (file, filename) => {
     return { name: filename, path: filePath };
 }
 
-async function convertAsync(filePath) {
+async function calibreConvertAsync(inputPath) {
+    outputPath = inputPath.replace(EPUB, MOBI);
+    try {
+        await ebookConvertAsync({input: inputPath, output: outputPath});
+    } catch(err) {
+        console.error(err);
+        return false;
+    }
+    return true;      
+}
+
+async function kindlegenConvertAsync(filePath) {
     const process = spawn('/bin/kindlegen', [filePath]);
     var output = '';
     process.stderr.on('data', (data) => {
@@ -42,7 +56,7 @@ async function convertAsync(filePath) {
     if (![0, 1].includes(exitCode)) {
         if (output.includes('E23006')) {
             await setEpubLanguage(filePath, ENGLISH);
-            await convertAsync(filePath);
+            await kindlegenConvertAsync(filePath);
         } else {
             console.log(exitCode)
             console.error('error while trying to convert: ', output);

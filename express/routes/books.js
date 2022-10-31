@@ -146,26 +146,6 @@ async function sendFileToTolino(book, filename, user) {
   }
 }
 
-async function convert(file, filename) {
-  var dotIndex = filename.lastIndexOf('.');
-  var bookname = filename.slice(0, dotIndex).replace(/\s/g, '');;
-  var fileEnding = filename.slice(dotIndex);
-
-  const timestamp = Date.now();
-  const inputPath = `/tmp/app.bombi/${bookname}_${timestamp}${fileEnding}`;
-  const outputPath = `/tmp/app.bombi/${bookname}_${timestamp}.mobi`;
-
-  await pipeline(file, fs.createWriteStream(inputPath));
-
-  try {
-    await convertAsync({input: inputPath, output: outputPath});
-  } catch(err) {
-    console.error(err);
-  }
-  fs.unlinkSync(inputPath);
-  return outputPath;
-}
-
 async function saveToDisk(file, filename) {
   var dotIndex = filename.lastIndexOf('.');
   var name = filename.slice(0, dotIndex).replace(/\s/g, '');;
