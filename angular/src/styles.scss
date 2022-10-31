@@ -20,6 +20,10 @@ app-root {
     width: 100%;
 }
 
+.dedication {
+    display: none;
+}
+
 @media screen and (max-width: 1250px) {
     app-root {
         width: 80%;
