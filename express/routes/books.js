@@ -2,16 +2,10 @@ var express = require('express');
 var router = express.Router();
 var axios = require('axios');
 var mailservice = require('../services/email');
-var fs = require('fs');
-var ebookconvert = require('ebook-convert');
-const util = require('util');
-const stream = require('stream');
-const pipeline = util.promisify(stream.pipeline);
-const convertAsync = util.promisify(ebookconvert);
-const { findUserAsync, updateUserAsync } = require('../services/dbman');
+const { findUserAsync } = require('../services/dbman');
 const { upload, testAuth } = require('../services/tolinoman');
 const jsdom = require('jsdom');
-const { convertToMobiAsync } = require('../services/tools');
+const { saveToDiskAsync, convertToMobiAsync } = require('../services/tools');
 
 const LIBGEN_MIRROR = process.env.LIBGEN_MIRROR || 'https://libgen.rocks';
 
@@ -132,11 +126,11 @@ async function sendFileToKindle(recipient, data, filename) {
 }
 
 async function sendFileToTolino(book, filename, user) {
-  const filePath = await saveToDisk(book.file, filename);
+  const filePath = await saveToDiskAsync(book.file, filename);
 
   var coverPath;
   if (book.cover.file) {
-    coverPath = await saveToDisk(book.cover.file, 'cover.jpg');
+    coverPath = await saveToDiskAsync(book.cover.file, 'cover.jpg');
   }
 
   const result = await upload(filePath, coverPath, user);
@@ -144,17 +138,6 @@ async function sendFileToTolino(book, filename, user) {
   if (result.command && result.refresh_token) {
     return { status: 200, message: { success: 'file sent to tolino' } };
   }
-}
-
-async function saveToDisk(file, filename) {
-  var dotIndex = filename.lastIndexOf('.');
-  var name = filename.slice(0, dotIndex).replace(/\s/g, '');;
-  var fileEnding = filename.slice(dotIndex);
-
-  const timestamp = Date.now();
-  const path = `/tmp/app.bombi/${name}_${timestamp}${fileEnding}`;
-  await pipeline(file, fs.createWriteStream(path));
-  return path;
 }
 
 async function download(md5Hash) {

@@ -14,7 +14,7 @@ const MOBI = '.mobi';
 const EPUB = '.epub';
 
 module.exports.convertToMobiAsync = async (file, filename) => {
-    var filePath = await this.saveToDisk(file, filename);
+    var filePath = await this.saveToDiskAsync(file, filename);
 
     if (!(await calibreConvertAsync(filePath))) return { name: '', path: ''};
 
@@ -84,7 +84,7 @@ async function setEpubLanguage(filePath, lang) {
     await pipeline(content, fs.createWriteStream(filePath));
 }
 
-module.exports.saveToDisk = async (file, filename) => {
+module.exports.saveToDiskAsync = async (file, filename) => {
     var dotIndex = filename.lastIndexOf('.');
     var name = filename.slice(0, dotIndex).replace(/\s/g, '');;
     var fileEnding = filename.slice(dotIndex);
