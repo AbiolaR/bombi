@@ -39,7 +39,7 @@ module.exports.findUser = (username, callback) => {
             if (err) callback(err);
             callback(user);
         }
-    });
+    }).collation({ locale: 'de', strength: 2 });
 }
 
 module.exports.findUserAsync = async (username) => {
