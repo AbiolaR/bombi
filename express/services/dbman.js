@@ -43,7 +43,7 @@ module.exports.findUser = (username, callback) => {
 }
 
 module.exports.findUserAsync = async (username) => {
-    return await User.findOne({ username: username });
+    return await User.findOne({ username: username }).collation({ locale: 'de', strength: 2 });
 }
 
 module.exports.createUser = (user, callback) => {  
