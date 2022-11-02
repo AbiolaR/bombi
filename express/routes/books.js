@@ -50,7 +50,9 @@ router.get('/download', async(req, res, next) => {
     res.set('Content-disposition', 'attachment; filename=book.epub');
     res.set('Content-Type', 'application/octet-stream');
   } catch(error) {
-    book.res.json(file)
+    console.log(error);
+    console.log(book.error);
+    res.json(book.error);
   }
 });
 
@@ -84,7 +86,7 @@ router.post('/send', async(req, res) => {
       result = await sendFileToTolino(book, filename, user);
       break;
     default:
-      result = { error: `no eReader value set on user ${user.username}` };
+      result = { status: 501, error: `no eReader value set on user ${user.username}` };
       break;  
   }
 
@@ -130,13 +132,15 @@ async function sendFileToTolino(book, filename, user) {
 
   var coverPath;
   if (book.cover.file) {
-    coverPath = await saveToDiskAsync(book.cover.file, 'cover.jpg');
+    coverPath = await saveToDiskAsync(book.cover.file, book.cover.name);
   }
 
   const result = await upload(filePath, coverPath, user);
 
   if (result.command && result.refresh_token) {
     return { status: 200, message: { success: 'file sent to tolino' } };
+  } else {
+    return { status: 501, message: { error: 'file not sent to tolino' } };
   }
 }
 
@@ -188,16 +192,20 @@ async function download(md5Hash) {
     return book;
   }
 
+  var coverName;
+
   try {
     const request = await axios.get(`${LIBGEN_MIRROR}/${coverUrl}`, {
       responseType: 'stream',
     });
     cover = await request.data;
+    coverName = request.config.url.split('/').pop();
   }  catch (err) {
-    return {error: `cover download failed: ${err}`}
+    console.log('error while trying to download book cover: ', err)
   }
 
   book.cover.file = cover;
+  book.cover.name = coverName;
 
   return book;
 }

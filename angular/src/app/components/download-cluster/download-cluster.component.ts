@@ -18,7 +18,7 @@ export class DownloadClusterComponent {
   @Input()
   book!: Book;
 
-  stateDuration = 2000;
+  stateDuration = 10000;
 
   public download(button: any) {
     button.classList.add('loading');
