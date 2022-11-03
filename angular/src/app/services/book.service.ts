@@ -15,8 +15,8 @@ export class BookService {
 
   constructor(private http: HttpClient, private userService: UserService) { }
 
-  public search(searchString: String): Observable<Book[]> {
-    return this.http.get<Book[]>(`${this.apiUrl}search?q=${searchString}`);
+  public search(searchString: String, pageNumber: number): Observable<Book[]> {
+    return this.http.get<Book[]>(`${this.apiUrl}search?q=${searchString}&p=${pageNumber}`);
   }
 
   public download(md5Hash: String): Observable<Blob> {

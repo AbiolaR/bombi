@@ -7,9 +7,9 @@
         <mat-icon>perm_identity</mat-icon>
     </button>
 </div>
-<mat-spinner *ngIf="!books"></mat-spinner>
 <h1 *ngIf="books?.length == 0">No books found matching your search</h1>
 <app-book *ngFor="let book of books" [book]="book"></app-book>
+<mat-spinner *ngIf="!books || isLoading"></mat-spinner>
 <mat-menu #loginMenu="matMenu">
     <app-login></app-login>
 </mat-menu>

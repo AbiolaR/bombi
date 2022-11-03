@@ -14,6 +14,7 @@ const LIBGEN_MIRROR = process.env.LIBGEN_MIRROR || 'https://libgen.rocks';
 router.get('/search', async(req, res, next) => {
 
   var searchString = req.query.q;
+  var pageNumber = req.query.p;
 
   if(!searchString) {
     res.json({error: "No search query given"});
@@ -24,7 +25,7 @@ router.get('/search', async(req, res, next) => {
   
   try {
     if (process.env.STAGE == 'prod' || process.env.STAGE == 'staging') {
-      bookData = await search(searchString);
+      bookData = await search(searchString, pageNumber);
     } else {
       bookData = [{"book_id":"6030060","md5":"4f67f6509a61dc38168d146626f5702d","title":"The Straw Doll Cries at Midnight","author":"","language":"eng","filesize":"523087","extension":"epub","filename":"The Straw Doll Cries at Midnight.epub","cover_url":"fictioncovers/2463000/eb36babdfbcac07115e720e03b765016_small.jpg"},{"book_id":"6473323","md5":"eb36babdfbcac07115e720e03b765016","title":"The Tiger at Midnight","author":"","language":"eng","filesize":"1725912","extension":"epub","filename":"The Tiger at Midnight.epub","cover_url":"img/blank.png"},{"book_id":"6618889","md5":"8e3036af66cec7e882eff27d61c8ed0c","title":"The archer at dawn","author":"","language":"eng","filesize":"2927549","extension":"epub","filename":"The archer at dawn.epub","cover_url":"fictioncovers/2609000/8e3036af66cec7e882eff27d61c8ed0c_small.jpg"},{"book_id":"96705404","md5":"36eecaf2700a96aba3ba61ac12412033","title":"The Tiger at Midnight","author":"Swati Teerdhala","language":"eng","filesize":"637882","extension":"epub","filename":"The Tiger at Midnight.epub","cover_url":"img/blank.png"},{"book_id":"96705405","md5":"4dd1421ad88a222c03ff147be5026098","title":"The Chariot at Dusk","author":"Swati Teerdhala","language":"eng","filesize":"5838101","extension":"epub","filename":"The Chariot at Dusk.epub","cover_url":"img/blank.png"},{"book_id":"96705406","md5":"af55cd1cfbbaf2dc6d82e662700ab920","title":"The Archer at Dawn ","author":"Teerdhala, Swati","language":"eng","filesize":"678970","extension":"epub","filename":"The Archer at Dawn .epub","cover_url":"fictioncovers/2005000/4f67f6509a61dc38168d146626f5702d_small.jpg"},{"book_id":"96924857","md5":"67b5c78e8e6bad9d602f59c0dba9b150","title":"The Tiger at Midnight","author":"Teerdhala, Swati","language":"eng","filesize":"2035502","extension":"epub","filename":"The Tiger at Midnight.epub","cover_url":"fictioncovers/2922000/67b5c78e8e6bad9d602f59c0dba9b150_small.jpg"},{"book_id":"96924858","md5":"b218d9e47c09375f25d3fccd9bf66162","title":"The Tiger at Midnight","author":"Teerdhala, Swati","language":"eng","filesize":"1725939","extension":"epub","filename":"The Tiger at Midnight.epub","cover_url":"fictioncovers/2922000/b218d9e47c09375f25d3fccd9bf66162_small.jpg"}];
     }
@@ -210,8 +211,8 @@ async function download(md5Hash) {
   return book;
 }
 
-async function search(searchString) {
-  const rawBookData = await getRawBooks(searchString);
+async function search(searchString, pageNumber) {
+  const rawBookData = await getRawBooks(searchString, pageNumber);
   var ids = '';
   var idArray = [];
   var parsedDocument;
@@ -254,10 +255,10 @@ function parseAuthors(doc) {
   return Array.from(authors).map(author => author.innerHTML);
 }
 
-async function getRawBooks(searchString) {
+async function getRawBooks(searchString, pageNumber) {
   var config = {
     method: 'get',
-    url: `${LIBGEN_MIRROR}/index.php?req=${searchString}+ext:epub&columns%5B%5D=t&columns%5B%5D=a&columns%5B%5D=s&columns%5B%5D=y&columns%5B%5D=p&columns%5B%5D=i&objects%5B%5D=f&topics%5B%5D=l&topics%5B%5D=f&res=100&covers=on&gmode=on&filesuns=all`,
+    url: `${LIBGEN_MIRROR}/index.php?req=${searchString}+ext:epub&columns%5B%5D=t&columns%5B%5D=a&columns%5B%5D=s&columns%5B%5D=y&columns%5B%5D=p&columns%5B%5D=i&objects%5B%5D=f&topics%5B%5D=l&topics%5B%5D=f&res=100&covers=on&gmode=on&filesuns=all&page=${pageNumber}`,
   };
 
   const result = await axios(config);

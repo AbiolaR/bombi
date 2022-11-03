@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, HostListener, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuTrigger } from '@angular/material/menu';
 import { ActivatedRoute } from '@angular/router';
@@ -17,6 +17,10 @@ import { ProfileDialogComponent } from '../../dialogs/profile-dialog/profile-dia
 export class SearchResultsComponent {
   @ViewChild(MatMenuTrigger) loginMenu: MatMenuTrigger | undefined;
   books: Book[] | undefined;
+  pageNumber = 1;
+  isLastPage = false;
+  searchString = '';
+  isLoading = false;
 
   constructor(private route: ActivatedRoute, private searchService: BookService, private dialog: MatDialog, 
     public userService: UserService, private eventService: EventService) {
@@ -26,7 +30,8 @@ export class SearchResultsComponent {
     route.params.subscribe(async params => {
       this.books = undefined;
       if (params['q']) {
-        searchService.search(params['q']).subscribe({
+        this.searchString = params['q'];
+        searchService.search(this.searchString, this.pageNumber).subscribe({
           next: (books) => {        
             this.books = books;
           }
@@ -47,6 +52,25 @@ export class SearchResultsComponent {
       this.loginMenu?.openMenu();
     } else {
       this.loginMenu?.closeMenu();
+    }
+  }
+
+  @HostListener("window:scroll", [])
+  onScroll(): void {
+    if ((window.innerHeight + window.scrollY * 1.1) >= document.body.scrollHeight) {
+      if (!this.isLastPage && !this.isLoading) {
+        this.pageNumber++;
+        this.isLoading = true;
+        this.searchService.search(this.searchString, this.pageNumber).subscribe({
+          next: (books: any) => {
+            this.isLoading = false; 
+            if (books.length == 0) {
+              this.isLastPage = true;
+            }  
+            this.books = this.books?.concat(books);
+          }
+        });
+      }
     }
   }
 
