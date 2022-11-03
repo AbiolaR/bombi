@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -9,11 +9,14 @@ import { Router } from '@angular/router';
 })
 export class SearchComponent {
 
+  @Input()
+  searchString = '';
+
   constructor(private router: Router) { }
 
   minimumLength: number = 4;
   searchForm = new FormGroup({ 
-                    input: new FormControl('', 
+                    input: new FormControl(this.searchString, 
                       { validators: [Validators.minLength(this.minimumLength)], 
                         updateOn: 'submit'})});
 
@@ -22,6 +25,10 @@ export class SearchComponent {
     if (form.valid) {
       this.router.navigate(['search', {q: form.get('input')?.value}]);
     }
+  }
+
+  ngOnChanges() {
+    this.searchForm.get('input')?.setValue(this.searchString);
   }
 
 }

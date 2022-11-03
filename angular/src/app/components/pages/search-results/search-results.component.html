@@ -1,5 +1,5 @@
 <div class="search-bar">
-    <app-search></app-search>
+    <app-search [searchString]="searchString"></app-search>
     <button mat-stroked-button (click)="openProfileDialog()" *ngIf="userService.getUserData()?.username">
         <mat-icon>perm_identity</mat-icon>
     </button>
