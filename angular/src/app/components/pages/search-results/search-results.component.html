@@ -1,9 +1,9 @@
 <div id="search-bar" class="search-bar">
     <app-search [searchString]="searchString"></app-search>
-    <button mat-stroked-button (click)="openProfileDialog()" *ngIf="userService.getUserData()?.username">
+    <button mat-fab (click)="openProfileDialog()" *ngIf="userService.getUserData()?.username">
         <mat-icon>perm_identity</mat-icon>
     </button>
-    <button mat-stroked-button [matMenuTriggerFor]="loginMenu" *ngIf="!userService.getUserData()?.username">
+    <button mat-fab [matMenuTriggerFor]="loginMenu" *ngIf="!userService.getUserData()?.username">
         <mat-icon>perm_identity</mat-icon>
     </button>
 </div>
