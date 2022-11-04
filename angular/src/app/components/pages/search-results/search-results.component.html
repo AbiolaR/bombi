@@ -1,4 +1,4 @@
-<div class="search-bar">
+<div id="search-bar" class="search-bar">
     <app-search [searchString]="searchString"></app-search>
     <button mat-stroked-button (click)="openProfileDialog()" *ngIf="userService.getUserData()?.username">
         <mat-icon>perm_identity</mat-icon>
@@ -7,9 +7,14 @@
         <mat-icon>perm_identity</mat-icon>
     </button>
 </div>
-<h1 *ngIf="books?.length == 0">No books found matching your search</h1>
-<app-book *ngFor="let book of books" [book]="book"></app-book>
-<mat-spinner *ngIf="!books || isLoading"></mat-spinner>
+<div id="search-results">
+    <h1 *ngIf="books?.length == 0">No books found matching your search</h1>
+    <app-book *ngFor="let book of books" [book]="book"></app-book>
+    <mat-spinner *ngIf="!books || isLoading"></mat-spinner>
+</div>
+<button mat-mini-fab color="primary" *ngIf="showScrollToTop" (click)="scrollToTop()">
+    <mat-icon>keyboard_arrow_up</mat-icon>
+</button>
 <mat-menu #loginMenu="matMenu">
     <app-login></app-login>
 </mat-menu>

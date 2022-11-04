@@ -21,6 +21,8 @@ export class SearchResultsComponent {
   isLastPage = false;
   searchString = '';
   isLoading = false;
+  showScrollToTop = false;
+  oldScrollY = 0;
 
   constructor(private route: ActivatedRoute, private searchService: BookService, private dialog: MatDialog, 
     public userService: UserService, private eventService: EventService) {
@@ -31,7 +33,7 @@ export class SearchResultsComponent {
       this.books = undefined;
       if (params['q']) {
         this.searchString = params['q'];
-        searchService.search(this.searchString, this.pageNumber).subscribe({
+        searchService.search(this.searchString, 1).subscribe({
           next: (books) => {        
             this.books = books;
           }
@@ -55,8 +57,48 @@ export class SearchResultsComponent {
     }
   }
 
+  scrollToTop() {
+    window.scroll({top: 0, left: 0, behavior: 'smooth'});
+  }
+
   @HostListener("window:scroll", [])
   onScroll(): void {
+    this.handleScrollToTopButtonScrollBehavior();
+    this.handleSearchBarScrollBehavior();
+    this.loadAdditionalBooks();    
+  }  
+
+  handleScrollToTopButtonScrollBehavior() {
+    if (window.scrollY > 0) {
+      this.showScrollToTop = true;
+    } else {
+      this.showScrollToTop = false;  
+    }
+  }
+
+  handleSearchBarScrollBehavior() {
+    const searchBar = document.getElementById('search-bar');
+    const searchResults = document.getElementById('search-results');
+    if (window.scrollY < this.oldScrollY && (this.oldScrollY - window.scrollY) >= 3) {
+      searchBar?.classList.add('hover-search-bar');
+      searchBar?.classList.remove('slide-up');
+      searchBar?.classList.add('slide-down');
+      searchResults?.classList.add('search-results');
+    } else if (window.scrollY > this.oldScrollY){
+      searchResults?.classList.remove('search-results');
+      searchBar?.classList.remove('slide-down');
+      searchBar?.classList.add('slide-up');
+      searchBar?.classList.remove('hover-search-bar');
+    }
+    this.oldScrollY = window.scrollY;
+
+    if (window.scrollY == 0) {
+      searchBar?.classList.remove('hover-search-bar');
+      searchResults?.classList.remove('search-results');
+    }
+  }
+
+  loadAdditionalBooks() {
     if ((window.innerHeight + window.scrollY * 1.1) >= document.body.scrollHeight) {
       if (!this.isLastPage && !this.isLoading) {
         this.pageNumber++;
