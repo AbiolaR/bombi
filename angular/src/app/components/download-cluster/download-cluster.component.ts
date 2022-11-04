@@ -2,6 +2,8 @@ import { HttpStatusCode } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
 import { finalize } from 'rxjs';
 import { Book } from 'src/app/models/book';
+import { CustomBook } from 'src/app/models/custom-book';
+import { DownloadMode } from 'src/app/models/download-mode';
 import { BookService } from 'src/app/services/book.service';
 import { EventService } from 'src/app/services/event.service';
 import { UserService } from 'src/app/services/user.service';
@@ -16,24 +18,53 @@ export class DownloadClusterComponent {
   constructor(private bookService: BookService, private userService: UserService, private eventService: EventService) {}
 
   @Input()
-  book!: Book;
+  book: Book | undefined;
+
+  @Input()
+  customBook: CustomBook | undefined;
+
+  @Input()
+  mode: DownloadMode = DownloadMode.BOOK; 
+
+  @Input()
+  buttonClassList: String = '';
 
   stateDuration = 10000;
 
   public download(button: any) {
     button.classList.add('loading');
-    this.bookService.download(this.book.md5).subscribe({
+    var filename = '';
+    var downloadVar = '';
+    switch(this.mode) {
+      case DownloadMode.BOOK:
+        if (!this.book) return;
+        filename = this.book.filename;
+        downloadVar = this.book.md5;
+        break;
+      case DownloadMode.URL:
+        if (!this.customBook) return;
+        filename = `${this.customBook.filename}.epub`;
+        downloadVar = this.customBook.url;
+        break;  
+    }
+
+    this.bookService.download(downloadVar, this.mode).subscribe({
       next: (file) => {
-        const anchor = window.document.createElement('a');
-        anchor.href = window.URL.createObjectURL(file);
-        anchor.download = this.book.filename;
-        document.body.appendChild(anchor);
-        anchor.click();
-        document.body.removeChild(anchor);
-        window.URL.revokeObjectURL(anchor.href);    
-        button.classList.remove('loading');    
+        this.handleDownload(button, filename, file);
       }
-    })
+    });
+    
+  }
+
+  private handleDownload(button: any, filename: string, file: any) {
+    const anchor = window.document.createElement('a');
+    anchor.href = window.URL.createObjectURL(file);
+    anchor.download = filename;
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
+    window.URL.revokeObjectURL(anchor.href);    
+    button.classList.remove('loading');   
   }
 
   public sendToEReader(button: any) {   
@@ -43,7 +74,21 @@ export class DownloadClusterComponent {
       return;
     }
     button.classList.add('loading');
-    this.bookService.sendToEReader(this.book.md5, this.book.filename).subscribe({
+    var filename = '';
+    var downloadVar = '';
+    switch(this.mode) {
+      case DownloadMode.BOOK:
+        if (!this.book) return;
+        filename = this.book.filename;
+        downloadVar = this.book.md5;
+        break;
+      case DownloadMode.URL:
+        if (!this.customBook) return;
+        filename = `${this.customBook.filename}.epub`;
+        downloadVar = this.customBook.url;
+        break;  
+    }
+    this.bookService.sendToEReader(downloadVar, filename, this.mode).subscribe({
       next: () => {
         this.showResult(button, 'success');
       },

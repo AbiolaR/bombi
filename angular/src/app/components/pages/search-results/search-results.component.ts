@@ -1,11 +1,12 @@
 import { Component, HostListener, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuTrigger } from '@angular/material/menu';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Book } from 'src/app/models/book';
 import { BookService } from 'src/app/services/book.service';
 import { EventService as EventService } from 'src/app/services/event.service';
 import { UserService } from 'src/app/services/user.service';
+import { CustomUrlDialogComponent } from '../../dialogs/custom-url-dialog/custom-url-dialog.component';
 import { ProfileDialogComponent } from '../../dialogs/profile-dialog/profile-dialog.component';
 
 
@@ -25,11 +26,11 @@ export class SearchResultsComponent {
   oldScrollY = 0;
 
   constructor(private route: ActivatedRoute, private searchService: BookService, private dialog: MatDialog, 
-    public userService: UserService, private eventService: EventService) {
+    public userService: UserService, private eventService: EventService, private router: Router) {
 
     eventService.menuEvent.subscribe(this.toggleLoginMenu.bind(this))
 
-    route.params.subscribe(async params => {
+    route.queryParams.subscribe(async params => {
       this.books = undefined;
       if (params['q']) {
         this.searchString = params['q'];
@@ -38,9 +39,8 @@ export class SearchResultsComponent {
             this.books = books;
           }
         });
-
       }
-    })
+    });
   }
 
   openProfileDialog() {
@@ -59,6 +59,17 @@ export class SearchResultsComponent {
 
   scrollToTop() {
     window.scroll({top: 0, left: 0, behavior: 'smooth'});
+  }
+
+  openCustomUrlDialog() {
+    this.dialog.open(CustomUrlDialogComponent, {
+      width: '500px',
+      data: { filename: this.searchString }
+    })
+  }
+
+  searchGoogle() {
+    window.open(`https://google.com/search?q=${this.searchString} epub download free`)
   }
 
   @HostListener("window:scroll", [])

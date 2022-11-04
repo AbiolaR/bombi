@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { catchError, Observable, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Book } from '../models/book';
+import { DownloadMode } from '../models/download-mode';
 import { UserService } from './user.service';
 
 
@@ -19,15 +20,33 @@ export class BookService {
     return this.http.get<Book[]>(`${this.apiUrl}search?q=${searchString}&p=${pageNumber}`);
   }
 
-  public download(md5Hash: String): Observable<Blob> {
-    return this.http.get(`${this.apiUrl}download?md5=${md5Hash}`, 
+  public download(downloadVar: String, mode: DownloadMode): Observable<Blob> {
+    var param = '';
+    switch(mode) {
+      case DownloadMode.BOOK:
+        param = 'md5';
+        break;
+      case DownloadMode.URL:
+        param = 'url';
+        break;
+    }
+    return this.http.get(`${this.apiUrl}download?${param}=${downloadVar}`, 
     {responseType: 'blob'});
   }
 
-  public sendToEReader(md5Hash: String, filename: String): Observable<any> {
+  public sendToEReader(downloadVar: String, filename: String, mode: DownloadMode): Observable<any> {
     const headers = { 'Authorization': `Bearer ${this.userService.getUserData()?.access_token}`};
+    var param = '';
+    switch(mode) {
+      case DownloadMode.BOOK:
+        param = 'md5';
+        break;
+      case DownloadMode.URL:
+        param = 'url';
+        break;
+    }
     return this.http.post<any>(`${this.apiUrl}send`, 
-      {md5: md5Hash, filename: filename},
+      {[param]: downloadVar, filename: filename},
       { headers });
   }
 

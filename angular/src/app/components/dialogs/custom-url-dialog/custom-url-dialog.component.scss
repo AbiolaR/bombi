@@ -1,0 +1,20 @@
+mat-form-field {
+    width: 100%;
+}
+
+app-download-cluster {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    padding-bottom: 10px;    
+}
+
+#search-container {
+    padding: 6px 0;
+}
+
+iframe {
+    height: 100%;
+    width: 100%;
+    padding: 6px 6px;
+}

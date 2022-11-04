@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Book } from 'src/app/models/book';
+import { DownloadMode } from 'src/app/models/download-mode';
 import { ImageDialogComponent } from '../dialogs/image-dialog/image-dialog.component';
 
 @Component({
@@ -14,6 +15,8 @@ export class BookComponent {
 
   @Input()
   book: Book | undefined;
+
+  BOOK = DownloadMode.BOOK;
 
   enlarge() {
     if (this.book) {

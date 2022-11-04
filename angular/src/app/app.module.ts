@@ -26,7 +26,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatMenuModule } from '@angular/material/menu';
 import { EReaderConfigComponent } from './components/ereader-config/ereader-config.component';
 import { RegisterDialogComponent } from './components/dialogs/register-dialog/register-dialog.component';
-import { ImageDialogComponent } from './components/dialogs/image-dialog/image-dialog.component'
+import { ImageDialogComponent } from './components/dialogs/image-dialog/image-dialog.component';
+import { CustomUrlDialogComponent } from './components/dialogs/custom-url-dialog/custom-url-dialog.component';
 
 @NgModule({
   declarations: [
@@ -40,7 +41,8 @@ import { ImageDialogComponent } from './components/dialogs/image-dialog/image-di
     ProfileDialogComponent,
     EReaderConfigComponent,
     RegisterDialogComponent,
-    ImageDialogComponent
+    ImageDialogComponent,
+    CustomUrlDialogComponent,
   ],
   imports: [
     BrowserModule,

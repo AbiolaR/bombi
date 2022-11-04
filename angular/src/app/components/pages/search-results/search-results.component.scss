@@ -22,6 +22,18 @@ app-search {
     }
 }
 
+.nothing-found {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.no-results-buttons {
+    display: flex;
+    justify-content: space-around;
+}
+
 .slide-up {
     top: -80px;
     transition: top .7s;

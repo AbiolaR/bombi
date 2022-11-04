@@ -9,8 +9,11 @@
             </div>
             <h3>{{book.author || "author unknown"}}</h3>
         </div>
-        <app-download-cluster [book]="book" class="mobile"></app-download-cluster>
+        <app-download-cluster [book]="book" class="mobile" [mode]="BOOK">            
+        </app-download-cluster>
     </div>
-    <app-download-cluster [book]="book" class="desktop"></app-download-cluster>
+    <app-download-cluster [book]="book" class="desktop" [mode]="BOOK">
+        
+    </app-download-cluster>
 </div>
 <hr>
