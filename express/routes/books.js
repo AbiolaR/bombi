@@ -252,7 +252,7 @@ function parseCoverUrls(doc) {
 
 function parseAuthors(doc) {
   const authors = doc.querySelectorAll('tbody:nth-child(2) tr td:nth-child(3)');
-  return Array.from(authors).map(author => author.innerHTML);
+  return Array.from(authors).map(author => author.textContent);
 }
 
 async function getRawBooks(searchString, pageNumber) {

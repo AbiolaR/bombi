@@ -93,4 +93,4 @@ module.exports.saveToDiskAsync = async (file, filename) => {
     const path = `${TEMP_DIR}${name}_${timestamp}${fileEnding}`;
     await pipeline(file, fs.createWriteStream(path));
     return path;
-  }
+}
