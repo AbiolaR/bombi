@@ -1,6 +1,6 @@
 <div class="e-reader-config">
     <h4>Configure your eBook Reader</h4>
-    <mat-tab-group mat-stretch-tabs (selectedTabChange)="setEReader($event.index)"
+    <mat-tab-group mat-stretch-tabs dynamicHeight (selectedTabChange)="setEReader($event.index)"
         [(selectedIndex)]="activeEReader">    
         <mat-tab label="Kindle">
             <mat-form-field>
