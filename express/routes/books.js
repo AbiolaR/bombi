@@ -46,7 +46,8 @@ router.get('/download', async(req, res, next) => {
     return;
   }
 
-  var book;
+  var book = { error: 'book init' };
+  
   if (md5Hash) {
     book = await downloadWithMD5(md5Hash);
   } else {
