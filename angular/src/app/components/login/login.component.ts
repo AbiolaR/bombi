@@ -7,6 +7,7 @@ import { UserData } from 'src/app/models/user-data';
 import { EventService } from 'src/app/services/event.service';
 import { UserService } from 'src/app/services/user.service';
 import { RegisterDialogComponent } from '../dialogs/register-dialog/register-dialog.component';
+import { ResetPasswordDialogComponent } from '../dialogs/reset-password-dialog/reset-password-dialog.component';
 
 @Component({
   selector: 'app-login',
@@ -56,6 +57,16 @@ export class LoginComponent implements OnInit {
     this.eventService.closeLoginMenu();  
     this.dialog.open(RegisterDialogComponent, {
       width: '500px'
+    })
+  }
+
+  openForgotPasswordDialog() {
+    this.dialog.open(ResetPasswordDialogComponent, {
+      width: '300px',
+      autoFocus: false,
+      data: {
+        username: this.loginForm.get('username')?.value
+      }
     })
   }
 

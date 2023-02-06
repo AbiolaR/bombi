@@ -28,6 +28,7 @@ import { EReaderConfigComponent } from './components/ereader-config/ereader-conf
 import { RegisterDialogComponent } from './components/dialogs/register-dialog/register-dialog.component';
 import { ImageDialogComponent } from './components/dialogs/image-dialog/image-dialog.component';
 import { CustomUrlDialogComponent } from './components/dialogs/custom-url-dialog/custom-url-dialog.component';
+import { ResetPasswordDialogComponent } from './components/dialogs/reset-password-dialog/reset-password-dialog.component';
 
 @NgModule({
   declarations: [
@@ -43,6 +44,7 @@ import { CustomUrlDialogComponent } from './components/dialogs/custom-url-dialog
     RegisterDialogComponent,
     ImageDialogComponent,
     CustomUrlDialogComponent,
+    ResetPasswordDialogComponent,
   ],
   imports: [
     BrowserModule,

@@ -31,4 +31,8 @@ const sendFileToKindle = async (recipient, filePath, filename) => {
     }
 }
 
+const sendPasswordResetMail = async (recipient, code) => {
+    
+}
+
 module.exports.sendFileToKindle = sendFileToKindle;

@@ -41,6 +41,12 @@ export class UserService {
     );
   }
 
+  public requestPasswordReset(username: String): Observable<any> {
+    const headers = { 'Content-Type': 'application/json' };
+    return this.http.post(`${this.userApiUrl}/requestPasswordReset`, 
+      `{"username": "${username}"}`, { headers });
+  }
+
   public getUserData(): UserData | undefined {
     try {
       return Object.assign(new UserData(), JSON.parse(localStorage.getItem('userData')!));

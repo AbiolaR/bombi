@@ -67,6 +67,19 @@ router.post('/save', (req, res, next) => {
     }
 });
 
+router.post('/requestPasswordReset', async (req, res, next) => {
+    const username = req.body.username;
+
+    const posUser = await dbman.findUserAsync(username);
+
+    if (!posUser) {
+        res.status(200).send({status: 1, error: 'user doesnt exists'});
+        return;
+    }
+
+    res.status(200).send({email: sanitizeEmail(posUser.email) ,status: 0, message: 'password reset process started'});
+});
+
 function authenticateUser(username) {
     return jwt.sign({ username: username }, TOKEN_SECRET, { expiresIn: ONE_YEAR });
 }
@@ -80,6 +93,10 @@ function sanitize(user) {
         user.eReaderRefreshToken = '**********';
     }
     return user;
+}
+
+function sanitizeEmail(email) {
+    return `${email.charAt(0)}*****${email.substr(email.lastIndexOf('@'))}`
 }
 
 module.exports = router;
