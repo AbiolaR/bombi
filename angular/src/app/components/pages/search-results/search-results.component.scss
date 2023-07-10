@@ -79,6 +79,12 @@ h1 {
     width: 20%;
 }
 
+.clear {
+    ::ng-deep.mat-pseudo-checkbox {
+        display: none;
+    }
+}
+
 ::ng-deep.mat-menu-panel {
     max-width: none !important;
 }

@@ -8,6 +8,7 @@ import { EventService as EventService } from 'src/app/services/event.service';
 import { UserService } from 'src/app/services/user.service';
 import { CustomUrlDialogComponent } from '../../dialogs/custom-url-dialog/custom-url-dialog.component';
 import { ProfileDialogComponent } from '../../dialogs/profile-dialog/profile-dialog.component';
+import { MatSelect } from '@angular/material/select';
 
 
 @Component({
@@ -17,7 +18,11 @@ import { ProfileDialogComponent } from '../../dialogs/profile-dialog/profile-dia
 })
 export class SearchResultsComponent {
   @ViewChild(MatMenuTrigger) loginMenu: MatMenuTrigger | undefined;
+  @ViewChild(MatSelect) authorSelect: MatSelect | undefined;
   books: Book[] | undefined;
+  allBooks: Book[] | undefined;
+  distinctAuthors: Set<string> = new Set();
+  filteredAuthors: string[] = [];
   pageNumber = 1;
   isLastPage = false;
   searchString = '';
@@ -42,6 +47,8 @@ export class SearchResultsComponent {
         this.searchService.search(this.searchString, 1).subscribe({
           next: (books) => {        
             this.books = books;
+            this.allBooks = books;
+            this.distinctAuthors = new Set(books.map(book => book.author));
           }
         });
       }
@@ -52,6 +59,18 @@ export class SearchResultsComponent {
     this.searchString = this.searchString.replace(` lang:${this.selectedLang}`, '');
     this.selectedLang = '';
     this.router.navigate(['search'], { queryParams: { q: this.searchString } });
+  }
+
+  filterBooks() {
+    this.books = this.allBooks;
+    if (this.filteredAuthors.length > 0) {
+      if ((this.filteredAuthors as (string | undefined)[]).includes(undefined)) {
+        this.filteredAuthors = [];
+        this.authorSelect?.close();
+      } else {
+        this.books = this.books?.filter(book => this.filteredAuthors.includes(book.author));
+      }
+    }
   }
 
   openProfileDialog() {
