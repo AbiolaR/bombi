@@ -25,6 +25,17 @@
     width: auto;
 }
 
+.title-container {
+    overflow: hidden;
+}
+
+.title:hover {
+    overflow: unset;
+    text-overflow: unset;
+    animation: scrollText 5s infinite linear;
+    animation-play-state: running;
+}
+
 .title {
     display: inline-block;
     width: calc(100% - 1em);
@@ -32,6 +43,13 @@
     overflow: hidden;
     text-overflow: ellipsis;
     margin: 0;
+    animation-play-state: paused;
+}
+
+@keyframes scrollText {
+    to {
+      transform: translateX(-125%);
+    }
 }
 
 .head {

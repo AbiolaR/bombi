@@ -5,7 +5,9 @@
         <div>
             <div class="head">
                 <img class="lang" src="/assets/images/flags/{{book.language}}.svg"/>
-                <h1 class="title">{{book.title}}</h1>
+                <div class="title-container">
+                    <h1 class="title" #title >{{book.title}}</h1>
+                </div>
             </div>
             <h3>{{book.author || "author unknown"}}</h3>
         </div>
