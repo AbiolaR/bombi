@@ -2,6 +2,8 @@ import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { ResetData } from '../models/reset-data';
+import { ServerResponse } from '../models/server-response';
 import { User } from '../models/user';
 import { UserData } from '../models/user-data';
 
@@ -45,6 +47,20 @@ export class UserService {
     const headers = { 'Content-Type': 'application/json' };
     return this.http.post(`${this.userApiUrl}/requestPasswordReset`, 
       `{"username": "${username}"}`, { headers });
+  }
+
+  public checkPasswordResetHash(hash: string): Observable<any> {
+    const headers = { 'Content-Type': 'application/json' };
+    return this.http.post(`${this.userApiUrl}/validateResetHash`,
+      `{"passwordResetHash": "${hash}"}`, { headers });
+  }
+
+  public resetPassword(resetData: ResetData): Observable<ServerResponse> {
+    const headers = { 'Content-Type': 'application/json' };
+    return this.http.post<ServerResponse>(
+      `${this.userApiUrl}/resetPassword`, 
+      JSON.stringify(resetData), 
+      { headers });
   }
 
   public getUserData(): UserData | undefined {

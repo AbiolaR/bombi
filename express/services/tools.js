@@ -86,7 +86,7 @@ async function setEpubLanguage(filePath, lang) {
 
 module.exports.saveToDiskAsync = async (file, filename) => {
     var dotIndex = filename.lastIndexOf('.');
-    var name = filename.slice(0, dotIndex).replace(/\s/g, '');;
+    var name = filename.slice(0, dotIndex).replace(/[^a-z0-9]/gi, '');
     var fileEnding = filename.slice(dotIndex);
   
     const timestamp = Date.now();

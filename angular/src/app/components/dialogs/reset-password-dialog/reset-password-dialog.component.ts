@@ -23,7 +23,6 @@ export class ResetPasswordDialogComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log(this.button)
   }
 
   resetPassword() {
@@ -37,10 +36,12 @@ export class ResetPasswordDialogComponent implements OnInit {
       this.resetForm.get('username')?.setErrors({unauthenticated: true});
       return;
     }
+    this.button._elementRef.nativeElement.classList.add('loading');
     this.userService.requestPasswordReset(username).subscribe({
       next: (response) => {
         switch(response.status) {
           case 0:
+            this.button._elementRef.nativeElement.classList.remove('loading');
             this.button._elementRef.nativeElement.classList.add('success');
             this.email = response.email;
             this.processStarted = true;

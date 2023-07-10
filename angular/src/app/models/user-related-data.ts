@@ -1,6 +1,6 @@
 export class UserRelatedData {
     status: number = 1;
-    username: String = '';
+    username: string = '';
     email: String = '';
     eReaderEmail: String = '';
     eReaderType: String = 'U';

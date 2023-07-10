@@ -29,6 +29,7 @@ import { RegisterDialogComponent } from './components/dialogs/register-dialog/re
 import { ImageDialogComponent } from './components/dialogs/image-dialog/image-dialog.component';
 import { CustomUrlDialogComponent } from './components/dialogs/custom-url-dialog/custom-url-dialog.component';
 import { ResetPasswordDialogComponent } from './components/dialogs/reset-password-dialog/reset-password-dialog.component';
+import { PasswordResetComponent } from './components/pages/password-reset/password-reset.component';
 
 @NgModule({
   declarations: [
@@ -45,6 +46,7 @@ import { ResetPasswordDialogComponent } from './components/dialogs/reset-passwor
     ImageDialogComponent,
     CustomUrlDialogComponent,
     ResetPasswordDialogComponent,
+    PasswordResetComponent,
   ],
   imports: [
     BrowserModule,

@@ -24,6 +24,8 @@ const UserSchema = mongoose.Schema({
     username: { type: String, required: true },
     password: { type: String, required: true },
     email: { type: String, required: true },
+    passwordResetHash: {type: String, required: false },
+    passwordResetCode: {type: String, required: false },
     eReaderType: { type: String, required: true },
     eReaderEmail: String,
     eReaderDeviceId: String,
@@ -31,7 +33,6 @@ const UserSchema = mongoose.Schema({
 });
 
 const User = mongoose.model('User', UserSchema);
-
 
 module.exports.findUser = (username, callback) => {
     User.findOne({ username: username }, (err, user) => {
@@ -44,6 +45,32 @@ module.exports.findUser = (username, callback) => {
 
 module.exports.findUserAsync = async (username) => {
     return await User.findOne({ username: username }).collation({ locale: 'de', strength: 2 });
+}
+
+module.exports.findUserByHash = (hash, callback) => {
+    User.findOne({ passwordResetHash: hash }, (err, user) => {
+        if (callback) {
+            if (err) callback(err);
+            callback(user)
+        }
+    });
+}
+
+module.exports.findUserByHashAsync = async (hash) => {
+    return await User.findOne({ passwordResetHash: hash });
+}
+
+module.exports.findUserByUsernameAndCode = (username, code, callback) => {
+    User.findOne({ username: username, passwordResetCode: code`` }, (err, user) => {
+        if (callback) {
+            if (err) callback(err);
+            callback(user)
+        }
+    });
+} 
+
+module.exports.findUserByUsernameAndCode = async (username, code) => {
+    return await User.findOne({ username: username, passwordResetCode: code });
 }
 
 module.exports.createUser = (user, callback) => {  

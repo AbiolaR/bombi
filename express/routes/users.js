@@ -2,7 +2,9 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 const dbman = require('../services/dbman');
+const { sendPasswordResetMail } = require('../services/email');
 const { TOKEN_SECRET } = require('../services/secman');
 
 const ONE_YEAR = '8760h';
@@ -73,11 +75,62 @@ router.post('/requestPasswordReset', async (req, res, next) => {
     const posUser = await dbman.findUserAsync(username);
 
     if (!posUser) {
-        res.status(200).send({status: 1, error: 'user doesnt exists'});
+        res.status(200).send({status: 1, message: 'user doesnt exists'});
         return;
     }
 
+    let hash = '';
+    do {
+        hash = crypto.randomBytes(20).toString('hex');
+    } while (await dbman.findUserByHashAsync(hash));
+    await dbman.updateUserAsync({username: username, passwordResetHash: hash});
+    const result = await sendPasswordResetMail(posUser.email, hash);
+    setTimeout(async () => {
+        let user = await dbman.findUserAsync(username);
+        if (user.passwordResetHash == hash) {
+            try {
+                dbman.updateUserAsync({username: username, passwordResetHash: ''});
+            } catch (error) {
+                console.error('An error occurred trying to save a user: ', error);
+            }
+        }
+    }, 900000) // 15 Minutes = 900000 Milliseconds
+
     res.status(200).send({email: sanitizeEmail(posUser.email) ,status: 0, message: 'password reset process started'});
+});
+
+router.post('/resetPassword', async (req, res, next) => {
+    let resetData = req.body;
+
+    let user = await dbman.findUserAsync(resetData.username);
+
+    if (!user) {
+        res.status(200).send({status: 1, message: 'user doesnt exists'});
+        return;
+    }
+
+    try {
+        resetData.password = bcrypt.hashSync(resetData.password, bcrypt.genSaltSync(10));
+        dbman.updateUser(resetData, (result) => {
+            res.status(200).send({status: 0, message: 'password saved successfully'});
+        })
+    } catch (error) {
+        console.error('An error occurred trying to save a user: ', error);
+        res.status(200).send({status: 1, message: 'couldnt save new password'});
+    }
+});
+
+router.post('/validateResetHash', async (req, res, next) => {
+    const hash = req.body.passwordResetHash;
+
+    const user = await dbman.findUserByHashAsync(hash);
+
+    if (!user) {
+        res.status(200).send({status: 1, message: 'invalid hash'});
+        return;
+    }
+
+    res.status(200).send({username: user.username ,status: 0, message: 'hash valid'});
 });
 
 function authenticateUser(username) {
