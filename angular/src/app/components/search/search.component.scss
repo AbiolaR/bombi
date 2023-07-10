@@ -6,14 +6,35 @@
     }
 }
 
-/*.search-container {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}*/
-
 .search-container {
     width: 100%;
+}
+
+.lang {
+    img {
+        margin-right: 1em;
+        height: 1em;
+        width: auto;
+        display: inline;
+        transform: translate(0, -50%);
+    }
+}
+
+button {
+    img {
+        display: block;
+        height: auto;
+        width: 4.5em;
+    }
+}
+
+.mat-menu-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.text {
+    font-size: large;
+    font-weight: bold;
 }

@@ -1,5 +1,5 @@
 <div id="search-bar" class="search-bar">
-    <app-search [searchString]="searchString"></app-search>
+    <app-search [searchString]="searchString" [selectedLang]="selectedLang"></app-search>
     <button mat-fab (click)="openProfileDialog()" *ngIf="userService.getUserData()?.username">
         <mat-icon>perm_identity</mat-icon>
     </button>
@@ -11,8 +11,8 @@
     <div *ngIf="books?.length == 0" class="nothing-found">
         <h1>No books found matching your search</h1>
         <div class="no-results-buttons">
-            <button mat-raised-button color="primary" (click)="searchGoogle()">Search Google</button>
-            <button mat-raised-button color="primary" (click)="openCustomUrlDialog()">Custom URL</button>
+            <button *ngIf="selectedLang != ''" mat-raised-button color="primary" 
+            (click)="resetLangAndSearch()">Reset language filter</button>
         </div>
     </div>
     <app-book *ngFor="let book of books" [book]="book"></app-book>

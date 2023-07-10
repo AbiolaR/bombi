@@ -21,6 +21,7 @@ export class SearchResultsComponent {
   pageNumber = 1;
   isLastPage = false;
   searchString = '';
+  selectedLang = '';
   isLoading = false;
   showScrollToTop = false;
   oldScrollY = 0;
@@ -34,13 +35,23 @@ export class SearchResultsComponent {
       this.books = undefined;
       if (params['q']) {
         this.searchString = params['q'];
-        searchService.search(this.searchString, 1).subscribe({
+        if (params['l'] && params['l'] != '') {
+          this.selectedLang = params['l'];
+          this.searchString += ` lang:${this.selectedLang}`
+        }
+        this.searchService.search(this.searchString, 1).subscribe({
           next: (books) => {        
             this.books = books;
           }
         });
       }
     });
+  }
+
+  resetLangAndSearch() {
+    this.searchString = this.searchString.replace(` lang:${this.selectedLang}`, '');
+    this.selectedLang = '';
+    this.router.navigate(['search'], { queryParams: { q: this.searchString } });
   }
 
   openProfileDialog() {

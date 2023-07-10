@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { LanguageMap } from 'src/app/models/language-map';
 
 @Component({
   selector: 'app-search',
@@ -11,6 +12,11 @@ export class SearchComponent {
 
   @Input()
   searchString = '';
+
+  languages = LanguageMap;
+
+  @Input()
+  selectedLang = '';
 
   constructor(private router: Router) { }
 
@@ -23,11 +29,12 @@ export class SearchComponent {
 
   public onSubmit(form: FormGroup) {
     if (form.valid) {
-      this.router.navigate(['search'], { queryParams: { q: form.get('input')?.value } });
+      this.router.navigate(['search'], { queryParams: { q: form.get('input')?.value, l: this.selectedLang } });
     }
   }
 
   ngOnChanges() {
+    this.searchString = this.searchString.replace(` lang:${this.selectedLang}`, '');
     this.searchForm.get('input')?.setValue(this.searchString);
   }
 
