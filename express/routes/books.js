@@ -42,8 +42,6 @@ router.get('/search', async(req, res, next) => {
   }
   res.json(bookData);
 });
-const delay = ms => new Promise(res => setTimeout(res, ms));
-
 
 router.get('/download', async(req, res, next) => {
   var md5Hash = req.query.md5;
@@ -57,17 +55,15 @@ router.get('/download', async(req, res, next) => {
   var book = { error: 'book init' };
   
   if (md5Hash) {
-    await delay(2000)
-    res.json(book.error);
-    //book = await downloadWithMD5(md5Hash);
+    book = await downloadWithMD5(md5Hash);
   } else {
     book = await downloadWithUrl(url);
   }
   
   try {
-    //book.file.pipe(res);
-    //res.set('Content-disposition', 'attachment; filename=book.epub');
-    //res.set('Content-Type', 'application/octet-stream');
+    book.file.pipe(res);
+    res.set('Content-disposition', 'attachment; filename=book.epub');
+    res.set('Content-Type', 'application/octet-stream');
   } catch(error) {
     console.error(error);
     console.error(book.error);
@@ -88,10 +84,6 @@ router.post('/send', async(req, res) => {
     res.json({error: "No filename given"});
     return;
   }
-
-  await delay(2000)
-  res.json({error: "No filename given"});
-  return;
 
   var book;
   if (md5Hash) {
