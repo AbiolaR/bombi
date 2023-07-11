@@ -9,6 +9,7 @@ import { UserService } from 'src/app/services/user.service';
 import { CustomUrlDialogComponent } from '../../dialogs/custom-url-dialog/custom-url-dialog.component';
 import { ProfileDialogComponent } from '../../dialogs/profile-dialog/profile-dialog.component';
 import { MatSelect } from '@angular/material/select';
+import { SearchResult } from 'src/app/models/search-result';
 
 
 @Component({
@@ -31,6 +32,7 @@ export class SearchResultsComponent {
   isLoading = false;
   showScrollToTop = false;
   oldScrollY = 0;
+  usingCorrection = false;
 
   constructor(private route: ActivatedRoute, private searchService: BookService, private dialog: MatDialog, 
     public userService: UserService, private eventService: EventService, private router: Router) {
@@ -40,6 +42,7 @@ export class SearchResultsComponent {
     route.queryParams.subscribe(async params => {
       this.books = undefined;
       this.distinctAuthors = new Set();
+      this.usingCorrection = false;
       if (params['q']) {
         this.searchString = params['q'];
         if (params['l'] && params['l'] != '') {
@@ -47,15 +50,29 @@ export class SearchResultsComponent {
           this.searchString += ` lang:${this.selectedLang}`
         }
         this.searchService.search(this.searchString, 1).subscribe({
-          next: (result) => {        
-            this.books = result.books;
-            this.allBooks = result.books;
-            this.distinctAuthors = new Set(result.books.map(book => book.author));
-            this.suggestion = result.suggestion;
+          next: (result) => {
+            if (result.books.length == 0 && result.suggestion) {
+              this.suggestion = result.suggestion
+              searchService.search(result.suggestion, 1).subscribe({
+                next: (result) => {
+                  if (result.books.length != 0) {
+                    this.usingCorrection = true;
+                  }
+                  this.setData(result);
+                }
+              });
+            } else {
+              this.setData(result);
+            }
           }
         });
       }
     });
+  }
+
+  setData(result: SearchResult) {
+    this.books = this.allBooks = result.books;
+    this.distinctAuthors = new Set(result.books.map(book => book.author));
   }
 
   resetLangAndSearch() {
