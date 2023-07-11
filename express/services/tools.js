@@ -7,11 +7,17 @@ const jszip = require('jszip');
 const { parseStringPromise, Builder } = require('xml2js');
 const ebookconvert = require('ebook-convert');
 const ebookConvertAsync = util.promisify(ebookconvert);
+const { DEC } = require('./secman');
+var axios = require('axios');
 
 const TEMP_DIR = '/tmp/app.bombi/';
 const ENGLISH = 'en';
 const MOBI = '.mobi';
 const EPUB = '.epub';
+const SEARCH_SUFFIX = ' book';
+const GOOGLE_CUSTOM_SEARCH_URL = 'https://www.googleapis.com/customsearch/v1';
+const GOOGLE_SEARCH_API_KEY = DEC('U2FsdGVkX1+OzilJcaZ0HHvEiXBKwMqai8HVF4YBD2ZT2vNmyao3/nGxc0FaZiz/HVERMeGf2eXoao0gYAj0Aw==');
+const GOOGLE_SEARCH_ENGINE_ID = DEC('U2FsdGVkX18Ojn/1fd2EQDZtxcO5EMndOFxadSUZkt7b9ogUBQ1glL0JsREgLY+9');
 
 module.exports.convertToMobiAsync = async (file, filename) => {
     var filePath = await this.saveToDiskAsync(file, filename);
@@ -36,6 +42,13 @@ async function calibreConvertAsync(inputPath) {
         return false;
     }
     return true;      
+}
+
+module.exports.getSpellingCorrection = async (searchString) => {
+    const searchUrl = `${GOOGLE_CUSTOM_SEARCH_URL}?key=${GOOGLE_SEARCH_API_KEY}`
+        + `&cx=${GOOGLE_SEARCH_ENGINE_ID}&num=1`;
+    var response = await axios.get(`${searchUrl}&q=${searchString}${SEARCH_SUFFIX}`);
+    return response.data.spelling.correctedQuery.replace(SEARCH_SUFFIX, '');
 }
 
 async function kindlegenConvertAsync(filePath) {

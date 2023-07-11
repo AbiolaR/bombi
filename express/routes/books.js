@@ -5,10 +5,8 @@ var mailservice = require('../services/email');
 const { findUserAsync } = require('../services/dbman');
 const { upload, testAuth } = require('../services/tolinoman');
 const jsdom = require('jsdom');
-const { saveToDiskAsync, convertToMobiAsync } = require('../services/tools');
-const didYouMean = require('google-did-you-mean');
+const { saveToDiskAsync, convertToMobiAsync, getSpellingCorrection } = require('../services/tools');
 
-const SEARCH_SUFFIX = ' book';
 const LIBGEN_MIRROR = process.env.LIBGEN_MIRROR || 'https://libgen.rocks';
 
 
@@ -29,12 +27,10 @@ router.get('/search', async(req, res, next) => {
     if (process.env.STAGE == 'prod' || process.env.STAGE == 'staging') {
       bookData.books = await search(searchString, pageNumber);
       if (bookData.books.length == 0) {
-        let query;
         try {
-          query = await didYouMean(searchString + SEARCH_SUFFIX);
-          bookData.suggestion = query.suggestion.replace(SEARCH_SUFFIX, '');
+          bookData.suggestion = await getSpellingCorrection(searchString);
         } catch (error) {
-          console.warn('Error for suggestion: ' + query.error);
+          console.warn('Error while getting spelling correction: ' + error);
         }
       }
     } else {      
