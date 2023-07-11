@@ -1,8 +1,6 @@
-import { HttpResponse, HttpStatusCode } from '@angular/common/http';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { MatMenuTrigger } from '@angular/material/menu';
+import { MatDialog } from '@angular/material/dialog';
 import { UserData } from 'src/app/models/user-data';
 import { EventService } from 'src/app/services/event.service';
 import { UserService } from 'src/app/services/user.service';
