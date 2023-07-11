@@ -27,6 +27,7 @@ export class SearchResultsComponent {
   isLastPage = false;
   searchString = '';
   selectedLang = '';
+  suggestion = '';
   isLoading = false;
   showScrollToTop = false;
   oldScrollY = 0;
@@ -38,6 +39,7 @@ export class SearchResultsComponent {
 
     route.queryParams.subscribe(async params => {
       this.books = undefined;
+      this.distinctAuthors = new Set();
       if (params['q']) {
         this.searchString = params['q'];
         if (params['l'] && params['l'] != '') {
@@ -45,10 +47,11 @@ export class SearchResultsComponent {
           this.searchString += ` lang:${this.selectedLang}`
         }
         this.searchService.search(this.searchString, 1).subscribe({
-          next: (books) => {        
-            this.books = books;
-            this.allBooks = books;
-            this.distinctAuthors = new Set(books.map(book => book.author));
+          next: (result) => {        
+            this.books = result.books;
+            this.allBooks = result.books;
+            this.distinctAuthors = new Set(result.books.map(book => book.author));
+            this.suggestion = result.suggestion;
           }
         });
       }
@@ -58,7 +61,11 @@ export class SearchResultsComponent {
   resetLangAndSearch() {
     this.searchString = this.searchString.replace(` lang:${this.selectedLang}`, '');
     this.selectedLang = '';
-    this.router.navigate(['search'], { queryParams: { q: this.searchString } });
+    this.search(this.searchString, '');
+  }
+
+  search(searchQuery: string, language: string) {
+    this.router.navigate(['search'], { queryParams: { q: searchQuery, l: language } });
   }
 
   filterBooks() {
