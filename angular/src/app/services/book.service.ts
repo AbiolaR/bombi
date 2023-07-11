@@ -5,6 +5,7 @@ import { environment } from 'src/environments/environment';
 import { Book } from '../models/book';
 import { DownloadMode } from '../models/download-mode';
 import { UserService } from './user.service';
+import { SearchResult } from '../models/search-result';
 
 
 @Injectable({
@@ -16,8 +17,8 @@ export class BookService {
 
   constructor(private http: HttpClient, private userService: UserService) { }
 
-  public search(searchString: String, pageNumber: number): Observable<Book[]> {
-    return this.http.get<Book[]>(`${this.apiUrl}search?q=${searchString}&p=${pageNumber}`);
+  public search(searchString: String, pageNumber: number): Observable<SearchResult> {
+    return this.http.get<SearchResult>(`${this.apiUrl}search?q=${searchString}&p=${pageNumber}`);
   }
 
   public download(downloadVar: String, mode: DownloadMode): Observable<Blob> {

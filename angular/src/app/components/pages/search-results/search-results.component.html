@@ -19,6 +19,11 @@
 <div id="search-results">
     <div *ngIf="books?.length == 0" class="nothing-found">
         <h1>No books found matching your search</h1>
+        <div *ngIf="suggestion">
+            <p>Did you mean: 
+                <a (click)="search(suggestion, selectedLang)" class="suggested">{{suggestion}}</a>
+            <p>
+        </div>
         <div class="no-results-buttons">
             <button *ngIf="selectedLang != ''" mat-raised-button color="primary" 
             (click)="resetLangAndSearch()">Reset language filter</button>
