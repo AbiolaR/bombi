@@ -15,7 +15,7 @@
         <mat-label>All Authors</mat-label>
         <mat-select #authorSelect [(ngModel)]="filteredAuthors" (selectionChange)="filterBooks()" multiple>
             <mat-option class="clear">All</mat-option>
-            <mat-option *ngFor="let author of distinctAuthors" [value]="author">{{author}}</mat-option>
+            <mat-option *ngFor="let author of distinctAuthors" [value]="author">{{author || 'unkown author'}}</mat-option>
         </mat-select>
     </mat-form-field>
 </div>

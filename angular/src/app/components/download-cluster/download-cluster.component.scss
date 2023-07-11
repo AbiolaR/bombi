@@ -40,6 +40,7 @@ button {
         position: absolute;
         inset: 0;
         margin: auto;
+        transform: translateX(-50%);
         display: none;
     
         ::ng-deep circle {
@@ -50,6 +51,8 @@ button {
     mat-icon {
         vertical-align: middle;
         display: none;
+        margin: auto;
+        transform: scale(1.5);
     }
 
     ::ng-deep span {

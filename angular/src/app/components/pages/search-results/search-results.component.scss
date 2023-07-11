@@ -1,5 +1,6 @@
 app-search {
     width: calc(100% - 66px);
+    margin-top: 7px;
 }
 
 .search-bar {
@@ -49,12 +50,12 @@ app-search {
     margin-top: 80px;
 }
 
-.mat-fab {
+.mat-mdc-fab {
     margin: 3px 0 0 10px;
     background-color: #a88cdb;
 }
 
-.mat-mini-fab {
+.mat-mdc-mini-fab {
     position: fixed;
     bottom: 14px;
     right: 14px;
@@ -82,7 +83,7 @@ h1 {
     cursor: pointer;
 }
 
-.mat-dialog-container {
+.mat-mdc-dialog-container {
     width: 20%;
 }
 
@@ -90,9 +91,26 @@ h1 {
     ::ng-deep.mat-pseudo-checkbox {
         display: none;
     }
+
+    ::ng-deep.mdc-list-item__primary-text {
+        margin: auto;
+    }
 }
 
-::ng-deep.mat-menu-panel {
+.mat-mdc-select-panel {
+    background-color: #fffbeb;
+}
+#filters {
+    margin-top: -20px;
+
+    ::ng-deep.mat-mdc-text-field-wrapper {
+        background-color: #fffbeb !important;
+        height: 2.8em !important;
+    }
+}
+
+
+::ng-deep.mat-mdc-menu-panel {
     max-width: none !important;
 }
 

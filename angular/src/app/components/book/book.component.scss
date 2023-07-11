@@ -75,14 +75,36 @@ app-download-cluster {
 }
 
 @media screen and (max-width: 700px) {
+    .book {
+        flex-direction: column;
+        margin-bottom: 2em;
+        align-items: center;
+        box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+        padding: 0.8em;
+        border-radius: 4px;
+        width: calc(100% - 1.6em);
+    }
+
+    hr {
+        display: none;
+    }
+
     .cover {
-        height: 7em;
+        height: auto;
+        max-height: calc(55vh - 2.5em);
+    }
+
+    .title-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 3em;
     }
 
     .title {
-        width: 11em;
-        font-size: 20px;
-        line-height: 22px;
+        width: 14em;
+        font-size: 22px;
+        line-height: 24px;
     }
 
     h3 {

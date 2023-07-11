@@ -14,7 +14,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(cors({
-    origin: ['http://localhost:4200', 'http://tinympc:4200', 'https://bombi.tinym.de', 'https://vk.com', 'https://m.vk.com']
+    origin: ['http://localhost:4200', 'http://tinympc:4200', 'http://tinympc.local:4200', 'https://bombi.tinym.de', 'https://vk.com', 'https://m.vk.com']
 }));
 
 app.use('/api/v1/books/send', authorization);
