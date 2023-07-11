@@ -13,10 +13,9 @@
 .lang {
     img {
         margin-right: 1em;
-        height: 1em;
+        height: 0.8em;
         width: auto;
         display: inline;
-        transform: translate(0, -50%);
     }
 }
 
@@ -24,7 +23,13 @@ button {
     img {
         display: block;
         height: auto;
-        width: 4.5em;
+        width: 4em;
+    }
+}
+
+.search-button {
+    mat-icon {
+        transform: scale(1.5);
     }
 }
 

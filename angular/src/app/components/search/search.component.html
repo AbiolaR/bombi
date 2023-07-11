@@ -14,7 +14,7 @@
             <img src="/assets/images/flags/{{selectedLang}}.svg" *ngIf="selectedLang">     
         </button>
         
-        <button mat-icon-button matSuffix type="submit"><mat-icon>search</mat-icon></button>
+        <button class="search-button" mat-icon-button matSuffix type="submit"><mat-icon>search</mat-icon></button>
         <mat-error *ngIf="searchForm.get('input')?.invalid">
             Please enter at least {{minimumLength}} characters
         </mat-error>
