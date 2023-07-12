@@ -142,7 +142,7 @@ export class SearchResultsComponent {
   }
 
   handleSearchBarScrollBehavior() {
-    const searchBar = document.getElementById('search-bar');
+    const searchBar = document.getElementById('search-header');
     const searchResults = document.getElementById('search-results');
     if (window.scrollY < this.oldScrollY && (this.oldScrollY - window.scrollY) >= 3) {
       searchBar?.classList.add('hover-search-bar');

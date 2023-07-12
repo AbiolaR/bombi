@@ -1,23 +1,31 @@
-<div id="search-bar" class="search-bar">
-    <app-search [searchString]="searchString" [selectedLang]="selectedLang"></app-search>
-    <button mat-fab (click)="openProfileDialog()" *ngIf="userService.getUserData()?.username">
-        <mat-icon>perm_identity</mat-icon>
-    </button>
-    <button mat-fab [matMenuTriggerFor]="loginMenu" *ngIf="!userService.getUserData()?.username">
-        <mat-icon>perm_identity</mat-icon>
-    </button>
-</div>
-<div *ngIf="usingCorrection">
-    <p>Showing results for <span class="correction" (click)="searchString = suggestion">{{suggestion}}</span></p>
-</div>
-<div id="filters" *ngIf="distinctAuthors.size > 1">
-    <mat-form-field>
-        <mat-label>All Authors</mat-label>
-        <mat-select #authorSelect [(ngModel)]="filteredAuthors" (selectionChange)="filterBooks()" multiple>
-            <mat-option class="clear">All</mat-option>
-            <mat-option *ngFor="let author of distinctAuthors" [value]="author">{{author || 'unkown author'}}</mat-option>
-        </mat-select>
-    </mat-form-field>
+<div id="search-header">
+    <div id="search-bar" class="search-bar">
+        <app-search [searchString]="searchString" [selectedLang]="selectedLang"></app-search>
+        <button mat-fab (click)="openProfileDialog()" *ngIf="userService.getUserData()?.username">
+            <mat-icon>perm_identity</mat-icon>
+        </button>
+        <button mat-fab [matMenuTriggerFor]="loginMenu" *ngIf="!userService.getUserData()?.username">
+            <mat-icon>perm_identity</mat-icon>
+        </button>
+    </div>
+    <div *ngIf="usingCorrection">
+        <p>Showing results for <span class="correction" (click)="searchString = suggestion">{{suggestion}}</span></p>
+    </div>
+    <div id="filters" *ngIf="distinctAuthors.size > 1">
+        <mat-form-field>
+            <mat-label>Authors</mat-label>
+            <mat-select #authorSelect [(ngModel)]="filteredAuthors" (selectionChange)="filterBooks()" multiple>
+                <mat-select-trigger>
+                    {{filteredAuthors[0] || 'unkown author'}}
+                    <span *ngIf="(filteredAuthors?.length || 0) > 1">
+                      (+{{(filteredAuthors.length || 0) - 1}})
+                    </span>
+                  </mat-select-trigger>
+                <mat-option class="clear">All</mat-option>
+                <mat-option *ngFor="let author of distinctAuthors" [value]="author">{{author || 'unkown author'}}</mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
 </div>
 <div id="search-results">
     <div *ngIf="books?.length == 0" class="nothing-found">
