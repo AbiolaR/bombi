@@ -1,1 +1,21 @@
-{"name":"","short_name":"","icons":[{"src":"/assets/images/icons/android-chrome-192x192.png","sizes":"192x192","type":"image/png"},{"src":"/assets/images/icons/android-chrome-512x512.png","sizes":"512x512","type":"image/png"}],"theme_color":"#9123F3","background_color":"#ffffff","display":"standalone"}
+{
+    "name": "Bombi",
+    "short_name": "Bombi",
+    "icons": [
+        {
+            "src": "/assets/images/icons/android-chrome-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable any"
+        },
+        {
+            "src": "/assets/images/icons/android-chrome-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable any"
+        }
+    ],
+    "theme_color": "#9123F3",
+    "background_color": "#fffbeb",
+    "display": "standalone"
+}
