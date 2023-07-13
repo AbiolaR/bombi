@@ -11,7 +11,7 @@
 
 .cover {    
     height: 6em;
-    width: auto;
+    width: fit-content;
     margin-right: 1em;
 }
 
@@ -22,7 +22,7 @@
 .lang {
     margin-right: 1em;
     height: 1em;
-    width: auto;
+    width: fit-content;
 }
 
 .title-container {
@@ -93,8 +93,8 @@ app-download-cluster {
     }
 
     .cover {
-        height: auto;
-        max-height: calc(55vh - 2.5em);
+        height: calc(55vh - 2.5em);
+        width: fit-content;
     }
 
     .title-container {
@@ -110,7 +110,7 @@ app-download-cluster {
         line-height: 24px;
     }
 
-    h3 {
+    .author {
         font-size: 15px;
         line-height: 17px;
     }

@@ -1,10 +1,10 @@
 <div id="search-header">
     <div id="search-bar" class="search-bar">
         <app-search [searchString]="searchString" [selectedLang]="selectedLang"></app-search>
-        <button mat-fab (click)="openProfileDialog()" *ngIf="userService.getUserData()?.username">
+        <button mat-fab (click)="openProfileDialog()" *ngIf="userService.getUserData()?.username" aria-label="User">
             <mat-icon>perm_identity</mat-icon>
         </button>
-        <button mat-fab [matMenuTriggerFor]="loginMenu" *ngIf="!userService.getUserData()?.username">
+        <button mat-fab [matMenuTriggerFor]="loginMenu" *ngIf="!userService.getUserData()?.username" aria-label="User">
             <mat-icon>perm_identity</mat-icon>
         </button>
     </div>
@@ -32,13 +32,13 @@
         <h1>No books found matching your search</h1>
         <div class="no-results-buttons">
             <button *ngIf="selectedLang != ''" mat-raised-button color="primary" 
-            (click)="resetLangAndSearch()">Reset language filter</button>
+            (click)="resetLangAndSearch()" aria-label="Remove language filter">Remove language filter</button>
         </div>
     </div>
     <app-book *ngFor="let book of books" [book]="book"></app-book>
     <mat-spinner *ngIf="!books || isLoading"></mat-spinner>
 </div>
-<button mat-mini-fab color="primary" *ngIf="showScrollToTop" (click)="scrollToTop()">
+<button mat-mini-fab color="primary" *ngIf="showScrollToTop" (click)="scrollToTop()" aria-label="Scroll to the top">
     <mat-icon>keyboard_arrow_up</mat-icon>
 </button>
 <mat-menu #loginMenu="matMenu">

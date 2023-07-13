@@ -1,16 +1,16 @@
 <div *ngIf="book" class="book">
-    <img *ngIf="!isImgLoaded" class="cover" src="/assets/images/covers/loading-cover.gif"/>
-    <img [hidden]="!isImgLoaded" (load)="isImgLoaded = true" class="cover" src="{{book.cover_url == 'img/blank.png' ? '/assets/images/covers/blank.png' : 'https://libgen.li/' + book.cover_url}}"
+    <img *ngIf="!isImgLoaded" class="cover" aria-label="Book Cover Placeholder" src="/assets/images/covers/loading-cover.png"/>
+    <img [hidden]="!isImgLoaded" (load)="isImgLoaded = true" class="cover" aria-label="Book Cover" src="{{book.cover_url == 'img/blank.png' ? '/assets/images/covers/blank.png' : 'https://libgen.li/' + book.cover_url}}"
     (click)="enlarge()"/>
     <div class="book-details">
         <div>
             <div class="head">
-                <img class="lang" src="/assets/images/flags/{{book.language}}.svg"/>
+                <img class="lang" src="/assets/images/flags/{{book.language}}.svg" aria-label="Book Language"/>
                 <div class="title-container">
                     <h1 class="title" #title >{{book.title}}</h1>
                 </div>
             </div>
-            <h3>{{book.author || "author unknown"}}</h3>
+            <span class="author">{{book.author || "author unknown"}}</span>
         </div>
         <app-download-cluster [book]="book" class="mobile" [mode]="BOOK">            
         </app-download-cluster>
