@@ -1,5 +1,5 @@
 import { Component, Input, ViewChild } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { MatMenuTrigger } from '@angular/material/menu';
 import { Router } from '@angular/router';
 import { LanguageMap } from 'src/app/models/language-map';
@@ -26,7 +26,7 @@ export class SearchComponent {
   minimumLength: number = 4;
   searchForm = new FormGroup({ 
                     input: new FormControl(this.searchString, 
-                      { validators: [Validators.minLength(this.minimumLength)], 
+                      { validators: [Validators.minLength(this.minimumLength), this.noEmptyStringValidator], 
                         updateOn: 'submit'})});
 
 
@@ -45,6 +45,10 @@ export class SearchComponent {
     event.stopPropagation();
     event.preventDefault();
     this.langMenuTrigger?.openMenu();
+  }
+
+  public noEmptyStringValidator(control: AbstractControl) : ValidationErrors | null  {
+    return (control.value || '').trim().length? null : { emptyString: true };
   }
 
 }
