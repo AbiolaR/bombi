@@ -1,5 +1,6 @@
 ./express/node_modules
 ./express/npm-debug.log
+./express/services/python
 Dockerfile
 .gitignore
 .dockerignore

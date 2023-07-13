@@ -21,7 +21,7 @@
 
 .lang-menu {
     ::ng-deep .mat-mdc-menu-content {
-        background-color: #fffbeb !important;
+        background-color: var(--main-background-color) !important;
     }
 }
 
@@ -45,8 +45,8 @@ button {
     align-items: center;
 }
 
-::ng-deep.mat-mdc-menu-content {
-    background-color: #fffbeb !important;
+::ng-deep.mat-mdc-menu-content,::ng-deep.mat-mdc-menu-panel {
+    background-color: var(--main-background-color) !important;
 }
 
 .text {

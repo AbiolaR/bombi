@@ -14,10 +14,13 @@ RUN tar -xf /tmp/calibre-4.23.0-x86_64.txz -C /opt/calibre/
 RUN /opt/calibre/calibre_postinstall
 
 
-#RUN wget "https://archive.org/download/kindlegen_linux_2.6_i386_v2_9.tar/kindlegen_linux_2.6_i386_v2_9.tar.gz" -P /tmp/ 
-#RUN tar -xzf /tmp/kindlegen_linux_2.6_i386_v2_9.tar.gz -C /bin/ kindlegen
-
 WORKDIR /usr/src/app/
+
+RUN mkdir /usr/src/app/resources
+RUN wget "https://cloud.tinym.de/s/wrZym3n9E6ZBtQ8/download" -O /usr/src/app/resources/python.zip 
+RUN unzip /usr/src/app/resources/python.zip -d /usr/src/app/resources 
+RUN rm /usr/src/app/resources/python.zip
+
 
 RUN mkdir /tmp/app.bombi/ 
 

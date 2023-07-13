@@ -10,7 +10,7 @@ app-search {
 .hover-search-bar {
     position: fixed;
     z-index: 100;
-    background-color: #fffbeb;
+    background-color: var(--main-background-color);
     width: calc(50% + 2px);
     margin-left: -3px;
     padding: 0 2px;
@@ -51,7 +51,7 @@ app-search {
 }
 
 .mat-mdc-fab {
-    margin: 3px 0 0 10px;
+    margin: 6px 0 0 10px;
     background-color: #a88cdb;
 }
 
@@ -98,13 +98,13 @@ h1 {
 }
 
 ::ng-deep.mat-mdc-select-panel {
-    background-color: #fffbeb !important;
+    background-color: var(--main-background-color) !important;
 }
 #filters {
     margin-bottom: 1em;
 
     ::ng-deep.mat-mdc-text-field-wrapper {
-        background-color: #fffbeb !important;
+        background-color: var(--main-background-color) !important;
         height: 2.8em !important;
     }
 }

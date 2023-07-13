@@ -3,7 +3,7 @@ const { exec } = require('child_process');
 const execAsync = util.promisify(exec);
 const { updateUserAsync } = require('./dbman');
 
-const STATIC_ARGS = 'python3 services/python/tolinoclient.py --partner 10 --use-device';
+const STATIC_ARGS = 'python3 resources/python/tolinoclient.py --partner 10 --use-device';
 
 module.exports.upload = async (filePath, coverPath, user) => {
     var coverArg = '';
