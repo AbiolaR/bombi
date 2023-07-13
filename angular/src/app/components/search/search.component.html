@@ -3,13 +3,14 @@
         <mat-label>Search for your book</mat-label>
         <input matInput name="searchInput" [formControl]="$any(searchForm).get('input')"/>
 
-        <mat-menu #langMenu="matMenu">
+        <mat-menu #langMenu="matMenu" class="lang-menu" backdropClass="customize">
             <button mat-menu-item (click)="selectedLang = ''" class="text">Any</button>
             <button mat-menu-item *ngFor="let language of languages | keyvalue" 
             (click)="selectedLang = language.value">
                 <img src="/assets/images/flags/{{language.value}}.svg"></button>
-        </mat-menu>     
-        <button mat-icon-button matSuffix type="button" class="lang" aria-label="Select Language" [matMenuTriggerFor]="langMenu">
+        </mat-menu>
+
+        <button mat-icon-button matSuffix type="button" class="lang" aria-label="Select Language" (click)="openMenu($event)" #langMenuTrigger="matMenuTrigger" [matMenuTriggerFor]="langMenu">
             <mat-icon *ngIf="!selectedLang">language</mat-icon>
             <img src="/assets/images/flags/{{selectedLang}}.svg" *ngIf="selectedLang">     
         </button>

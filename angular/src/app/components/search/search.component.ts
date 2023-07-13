@@ -1,5 +1,6 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { MatMenuTrigger } from '@angular/material/menu';
 import { Router } from '@angular/router';
 import { LanguageMap } from 'src/app/models/language-map';
 
@@ -17,6 +18,8 @@ export class SearchComponent {
 
   @Input()
   selectedLang = '';
+
+  @ViewChild(MatMenuTrigger) langMenuTrigger: MatMenuTrigger | undefined;
 
   constructor(private router: Router) { }
 
@@ -36,6 +39,13 @@ export class SearchComponent {
   ngOnChanges() {
     this.searchString = this.searchString.replace(` lang:${this.selectedLang}`, '');
     this.searchForm.get('input')?.setValue(this.searchString);
+  }
+
+  openMenu(event: MouseEvent) {
+    console.warn(typeof event);
+    event.stopPropagation();
+    event.preventDefault();
+    this.langMenuTrigger?.openMenu();
   }
 
 }

@@ -97,8 +97,8 @@ h1 {
     }
 }
 
-.mat-mdc-select-panel {
-    background-color: #fffbeb;
+::ng-deep.mat-mdc-select-panel {
+    background-color: #fffbeb !important;
 }
 #filters {
     margin-bottom: 1em;

@@ -1,6 +1,8 @@
 {
     "name": "Bombi",
     "short_name": "Bombi",
+    "start_url": "./",
+    "scope": "./",
     "icons": [
         {
             "src": "/assets/images/icons/android-chrome-192x192.png",

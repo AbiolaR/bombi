@@ -23,5 +23,8 @@
     "mongoose": "^6.6.5",
     "nodemailer": "^6.8.0",
     "xml2js": "^0.4.23"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
   }
 }
