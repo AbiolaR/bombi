@@ -169,12 +169,12 @@ export class SearchResultsComponent {
         this.pageNumber++;
         this.isLoading = true;
         this.searchService.search(this.searchString, this.pageNumber).subscribe({
-          next: (books: any) => {
+          next: (result) => {
             this.isLoading = false; 
-            if (books.length == 0) {
+            if (result.books.length == 0) {
               this.isLastPage = true;
             }  
-            this.books = this.books?.concat(books);
+            this.books = this.books?.concat(result.books);
           }
         });
       }
