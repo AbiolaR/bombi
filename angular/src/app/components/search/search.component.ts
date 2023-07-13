@@ -42,7 +42,6 @@ export class SearchComponent {
   }
 
   openMenu(event: MouseEvent) {
-    console.warn(typeof event);
     event.stopPropagation();
     event.preventDefault();
     this.langMenuTrigger?.openMenu();
