@@ -1,4 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
+@use '@angular/material' as mat;
+
 
 :root {
     --light-color: #fffbeb
@@ -59,22 +61,40 @@ app-root {
 $light-color: #fffbeb;
 $dark-color: #2c2c2c;
 
-$primary: mat-palette($mat-deep-purple);
-$accent: mat-palette($mat-amber);
+$primary: mat.define-palette(mat.$deep-purple-palette, 500);
+$accent: mat.define-palette(mat.$amber-palette, A200, A100, A400);
+$warn: mat.define-palette(mat.$red-palette);
 
-$light-theme: mat-light-theme($primary, $accent);
-$dark-theme: mat-dark-theme($primary, $accent);
+$theme: mat.define-light-theme((
+    color: (
+        primary: $primary,
+        accent: $accent,
+        warn: $warn,
+    ), 
+    typography: mat.define-typography-config(), 
+    density: 0
+));
 
-$light-background: map-get($map: $light-theme, $key: background);
+$dark-theme: mat.define-dark-theme((
+    color: (
+        primary: $primary, 
+        accent: $accent, 
+        warn: $warn
+    ), 
+    typography: mat.define-typography-config(), 
+    density: 0
+));
+
+$light-background: map-get($map: $theme, $key: background);
 $light-background: map_merge($light-background, (background: $light-color));
-$light-theme: map_merge($light-theme, (background: $light-background));
+$light-theme: map_merge($theme, (background: $light-background));
 
 $dark-background: map-get($map: $dark-theme, $key: background);
 $dark-background: map_merge($dark-background, (background: $dark-color));
 $dark-theme: map_merge($dark-theme, (background: $dark-background));
 
 @media (prefers-color-scheme: light) {
-    @include angular-material-theme($light-theme);
+    @include mat.all-component-themes($light-theme);
     :root {
         --main-background-color: #fffbeb !important;
         --main-text-color: #2c2c2c !important;
@@ -82,7 +102,7 @@ $dark-theme: map_merge($dark-theme, (background: $dark-background));
 }
   
 @media (prefers-color-scheme: dark) {
-    @include angular-material-theme($dark-theme);
+    @include mat.all-component-colors($dark-theme);
     :root {
         --main-background-color: #2c2c2c !important;
         --main-text-color: #FAEDE3 !important;
