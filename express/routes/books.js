@@ -21,6 +21,8 @@ router.get('/search', async(req, res, next) => {
     return;
   }
 
+  console.warn('search string is: ' + searchString)
+
   var bookData = {books: [], suggestion: ''};
   
   try {

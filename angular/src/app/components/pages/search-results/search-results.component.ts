@@ -10,6 +10,9 @@ import { CustomUrlDialogComponent } from '../../dialogs/custom-url-dialog/custom
 import { ProfileDialogComponent } from '../../dialogs/profile-dialog/profile-dialog.component';
 import { MatSelect } from '@angular/material/select';
 import { SearchResult } from 'src/app/models/search-result';
+import { LanguageMap } from 'src/app/models/language-map';
+
+const ALT_GER_LANG = 'deu';
 
 
 @Component({
@@ -43,31 +46,52 @@ export class SearchResultsComponent {
       this.books = undefined;
       this.distinctAuthors = new Set();
       this.usingCorrection = false;
+      this.selectedLang = '';
       if (params['q']) {
-        this.searchString = params['q'];
+        let advancedSearchString = this.searchString = params['q'];
         if (params['l'] && params['l'] != '') {
           this.selectedLang = params['l'];
-          this.searchString += ` lang:${this.selectedLang}`
+          advancedSearchString += ` lang:${this.selectedLang}`
         }
-        this.searchService.search(this.searchString, 1).subscribe({
+        this.searchService.search(advancedSearchString, 1).subscribe({
           next: (result) => {
             if (result.books.length == 0 && result.suggestion) {
-              this.suggestion = result.suggestion
-              searchService.search(result.suggestion, 1).subscribe({
+              advancedSearchString = this.suggestion = result.suggestion
+              if (this.selectedLang) {
+                advancedSearchString += ` lang:${this.selectedLang}`;
+              }
+              searchService.search(advancedSearchString , 1).subscribe({
                 next: (result) => {
                   if (result.books.length != 0) {
                     this.usingCorrection = true;
+                    this.setData(result);
                   }
-                  this.setData(result);
+                  this.searchForAdditionalGermanBooks();
                 }
               });
             } else {
               this.setData(result);
+              this.searchForAdditionalGermanBooks();
             }
-          }
+            }
         });
       }
     });
+  }
+
+  searchForAdditionalGermanBooks() {
+    if (this.selectedLang != LanguageMap.A) {
+      return;
+    }
+    this.searchService.search(`${this.searchString} lang:${ALT_GER_LANG}`, 1).subscribe({
+      next: (result) => {
+        if (this.books) {
+          this.books = this.books.concat(result.books);
+        } else {
+          this.setData(result);
+        }
+      }
+    })
   }
 
   setData(result: SearchResult) {
@@ -168,13 +192,14 @@ export class SearchResultsComponent {
       if (!this.isLastPage && !this.isLoading) {
         this.pageNumber++;
         this.isLoading = true;
-        this.searchService.search(this.searchString, this.pageNumber).subscribe({
+        this.searchService.search(`${this.searchString} lang:${this.selectedLang}`, this.pageNumber).subscribe({
           next: (result) => {
             this.isLoading = false; 
             if (result.books.length == 0) {
               this.isLastPage = true;
             }  
             this.books = this.books?.concat(result.books);
+            this.searchForAdditionalGermanBooks();
           }
         });
       }
