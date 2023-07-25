@@ -57,11 +57,8 @@ export class SearchComponent {
     if (this.userData.getNewestSearchHistoryEntry() == form.get('input')?.value) {
       return;
     }
+    
     this.userData.searchHistory.set(Date.now().toString(), form.get('input')?.value);
-    /*if (this.userData.searchHistory.size > 5) {
-      this.userData.searchHistory.delete(this.getOldestEntry(this.userData.searchHistory));
-    }*/
-
     this.userData.deleteOldSearchHistoryEntries();
 
     if (this.userService.isLoggedIn()) {
