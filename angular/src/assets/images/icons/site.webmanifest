@@ -3,6 +3,10 @@
     "short_name": "Bombi",
     "start_url": "./",
     "scope": "./",
+    "capture_links": "existing-client-navigate",
+    "theme_color": "#9123F3",
+    "background_color": "#2c2c2c",
+    "display": "standalone",
     "icons": [
         {
             "src": "/assets/images/icons/android-chrome-192x192.png",
@@ -16,8 +20,5 @@
             "type": "image/png",
             "purpose": "maskable any"
         }
-    ],
-    "theme_color": "#9123F3",
-    "background_color": "#2c2c2c",
-    "display": "standalone"
+    ]
 }

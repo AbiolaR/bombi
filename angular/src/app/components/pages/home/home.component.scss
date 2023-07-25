@@ -7,8 +7,8 @@ app-search {
 }
   
 .mat-mdc-fab {
-    position: relative;
-    top: 12px;
-    right: calc(-100% + 56px);
+    position: absolute;
+    top: 6px;
+    right: 0;
     background-color: #a88cdb;
 }
