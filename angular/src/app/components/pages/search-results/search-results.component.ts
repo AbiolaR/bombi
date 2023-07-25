@@ -149,7 +149,8 @@ export class SearchResultsComponent {
 
   openProfileDialog() {
     this.dialog.open(ProfileDialogComponent, {
-      width: '500px'
+      width: '500px',
+      autoFocus: false
     });
   }
 
