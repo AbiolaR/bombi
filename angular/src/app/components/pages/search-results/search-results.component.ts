@@ -14,7 +14,6 @@ import { LanguageMap } from 'src/app/models/language-map';
 
 const ALT_GER_LANG = 'deu';
 
-
 @Component({
   selector: 'app-search-results',
   templateUrl: './search-results.component.html',
@@ -27,6 +26,7 @@ export class SearchResultsComponent {
   allBooks: Book[] | undefined;
   distinctAuthors: Set<string> = new Set();
   filteredAuthors: string[] = [];
+  authorMap: Map<string, Set<string>> = new Map();
   pageNumber = 1;
   isLastPage = false;
   searchString = '';
@@ -97,6 +97,23 @@ export class SearchResultsComponent {
   setData(result: SearchResult) {
     this.books = this.allBooks = result.books;
     this.distinctAuthors = new Set(result.books.map(book => book.author));
+    this.distinctAuthors.forEach(author => {
+      if (author == '') {
+        return;
+      }
+      var cleanAuthor = author.replace(/[^a-z0-9]/gi, '').toLowerCase();
+      this.distinctAuthors.forEach(comparedAuthor => {
+        var cleanComparedAuthor = comparedAuthor.replace(/[^a-z0-9]/gi, '').toLowerCase();
+        if (Array.from(cleanAuthor).sort().toString() == Array.from(cleanComparedAuthor).sort().toString() 
+        || this.similarity(Array.from(cleanAuthor).sort().toString(), Array.from(cleanComparedAuthor).sort().toString()) > 0.75) {
+          this.authorMap.set(author, this.authorMap.get(cleanAuthor)?.add(author) || new Set<string>().add(comparedAuthor));
+          this.authorMap.set(author, this.authorMap.get(cleanAuthor)?.add(comparedAuthor) || new Set<string>().add(comparedAuthor));
+          if (author != comparedAuthor) {
+            this.distinctAuthors.delete(comparedAuthor);        
+          }
+        }
+      });
+    });
   }
 
   resetLangAndSearch() {
@@ -109,14 +126,23 @@ export class SearchResultsComponent {
     this.router.navigate(['search'], { queryParams: { q: searchQuery, l: language } });
   }
 
-  filterBooks() {
+  filterBooks() {    
     this.books = this.allBooks;
-    if (this.filteredAuthors.length > 0) {
-      if ((this.filteredAuthors as (string | undefined)[]).includes(undefined)) {
+    var advFilteredAuthors = Array.from(this.filteredAuthors);    
+
+    advFilteredAuthors.forEach(author => {
+      if (this.authorMap.has(author)) {
+        this.authorMap.get(author)?.forEach (auth => {
+          advFilteredAuthors.push(auth);
+        });
+      }
+    });
+    if (advFilteredAuthors.length > 0) {
+      if ((advFilteredAuthors as (string | undefined)[]).includes(undefined)) {
         this.filteredAuthors = [];
         this.authorSelect?.close();
       } else {
-        this.books = this.books?.filter(book => this.filteredAuthors.includes(book.author));
+        this.books = this.books?.filter(book => advFilteredAuthors.includes(book.author));
       }
     }
   }
@@ -204,6 +230,47 @@ export class SearchResultsComponent {
         });
       }
     }
+  }
+
+  similarity(s1: string, s2: string) {
+    var longer = s1;
+    var shorter = s2;
+    if (s1.length < s2.length) {
+      longer = s2;
+      shorter = s1;
+    }
+    var longerLength = longer.length;
+    if (longerLength == 0) {
+      return 1.0;
+    }
+    return (longerLength - this.editDistance(longer, shorter)) / parseFloat(longerLength.toString());
+  }
+
+  editDistance(s1: string, s2: string) {
+    s1 = s1.toLowerCase();
+    s2 = s2.toLowerCase();
+  
+    var costs = new Array();
+    for (var i = 0; i <= s1.length; i++) {
+      var lastValue = i;
+      for (var j = 0; j <= s2.length; j++) {
+        if (i == 0)
+          costs[j] = j;
+        else {
+          if (j > 0) {
+            var newValue = costs[j - 1];
+            if (s1.charAt(i - 1) != s2.charAt(j - 1))
+              newValue = Math.min(Math.min(newValue, lastValue),
+                costs[j]) + 1;
+            costs[j - 1] = lastValue;
+            lastValue = newValue;
+          }
+        }
+      }
+      if (i > 0)
+        costs[s2.length] = lastValue;
+    }
+    return costs[s2.length];
   }
 
 }
