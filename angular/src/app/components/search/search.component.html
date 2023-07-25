@@ -1,7 +1,7 @@
 <form class="search-container" [formGroup]="searchForm" (ngSubmit)="onSubmit(searchForm)">
     <mat-form-field class="searchbox" appearance="outline" (click)="fetchData()">
         <mat-label>Search for your book</mat-label>
-        <input matInput name="searchInput" [formControl]="$any(searchForm).get('input')"
+        <input matInput #searchInput="matInput" [formControl]="$any(searchForm).get('input')"
         [matAutocomplete]="searchHistoryDD"/>        
 
         <mat-menu #langMenu="matMenu" class="lang-menu" backdropClass="customize">

@@ -2,6 +2,7 @@ import { KeyValue } from '@angular/common';
 import { Component, Input, ViewChild } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { MatAutocompleteTrigger } from '@angular/material/autocomplete';
+import { MatInput } from '@angular/material/input';
 import { MatMenuTrigger } from '@angular/material/menu';
 import { Router } from '@angular/router';
 import { LanguageMap } from 'src/app/models/language-map';
@@ -27,6 +28,7 @@ export class SearchComponent {
 
   @ViewChild(MatMenuTrigger) langMenuTrigger: MatMenuTrigger | undefined;
   @ViewChild(MatAutocompleteTrigger) searchHistoryDD: MatAutocompleteTrigger | undefined;
+  @ViewChild(MatInput) searchInput: any;
 
   constructor(private router: Router, private userService: UserService) { }
 
@@ -49,6 +51,7 @@ export class SearchComponent {
   public onSubmit(form: FormGroup) {
     if (form.valid) {
       this.saveToSearchHistory(form);
+      this.searchInput?._elementRef.nativeElement.blur();
       this.router.navigate(['search'], { queryParams: { q: form.get('input')?.value, l: this.selectedLang } });
     }
   }
