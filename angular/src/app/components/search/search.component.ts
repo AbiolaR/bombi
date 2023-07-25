@@ -77,7 +77,7 @@ export class SearchComponent {
       this.userService.getUserData().subscribe({
         next: (response) => {
           this.userData = response;
-          this.userData.searchHistory = new Map(Object.entries(this.userData.searchHistory));
+          this.userData.searchHistory = new Map(Object.entries(this.userData.searchHistory || new Map()));
           this.userData = Object.assign(new UserData, this.userData);
         }
       });
