@@ -21,6 +21,10 @@ app-search {
         padding: 0 !important;
         margin-bottom: 5px !important;
     }
+
+    #filters {
+        margin-bottom: 1em;
+    }
 }
 
 .nothing-found {
@@ -46,8 +50,9 @@ app-search {
     transition: top .7s;
 }
 
-.search-results {
-    margin-top: 80px;
+#search-results {
+    margin-top: 1.5em;
+    padding-bottom: 3.5em;
 }
 
 .mat-mdc-fab {
@@ -101,7 +106,7 @@ h1 {
     background-color: var(--main-background-color) !important;
 }
 #filters {
-    margin-bottom: 1em;
+    margin-bottom: -1em;
 
     ::ng-deep.mat-mdc-text-field-wrapper {
         background-color: var(--main-background-color) !important;

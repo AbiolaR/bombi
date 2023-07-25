@@ -25,6 +25,12 @@ app-home {
     position: relative;
 }
 
+app-book:last-of-type {
+    hr {
+        display: none;
+    }
+}
+
 app-root {
     width: 50%;
     height: 100%;    
