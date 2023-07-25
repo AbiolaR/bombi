@@ -36,7 +36,7 @@ export class BookService {
   }
 
   public sendToEReader(downloadVar: String, filename: String, mode: DownloadMode): Observable<any> {
-    const headers = { 'Authorization': `Bearer ${this.userService.getUserData()?.access_token}`};
+    const headers = { 'Authorization': `Bearer ${this.userService.getLocalUserData()?.access_token}`};
     var param = '';
     switch(mode) {
       case DownloadMode.BOOK:

@@ -30,6 +30,8 @@ import { CustomUrlDialogComponent } from './components/dialogs/custom-url-dialog
 import { ResetPasswordDialogComponent } from './components/dialogs/reset-password-dialog/reset-password-dialog.component';
 import { PasswordResetComponent } from './components/pages/password-reset/password-reset.component';
 import { ServiceWorkerModule } from '@angular/service-worker';
+import {MatAutocompleteModule} from '@angular/material/autocomplete';
+
 
 @NgModule({
   declarations: [
@@ -64,6 +66,7 @@ import { ServiceWorkerModule } from '@angular/service-worker';
     MatCardModule,
     MatTabsModule,
     MatSelectModule,
+    MatAutocompleteModule,
     MatMenuModule,
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: !isDevMode(),

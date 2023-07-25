@@ -1,10 +1,10 @@
 <div id="search-header">
     <div id="search-bar" class="search-bar">
         <app-search [searchString]="searchString" [selectedLang]="selectedLang"></app-search>
-        <button mat-fab (click)="openProfileDialog()" *ngIf="userService.getUserData()?.username" aria-label="User">
+        <button mat-fab (click)="openProfileDialog()" *ngIf="userService.getLocalUserData()?.username" aria-label="User">
             <mat-icon>perm_identity</mat-icon>
         </button>
-        <button mat-fab [matMenuTriggerFor]="loginMenu" *ngIf="!userService.getUserData()?.username" aria-label="User">
+        <button mat-fab [matMenuTriggerFor]="loginMenu" *ngIf="!userService.getLocalUserData()?.username" aria-label="User">
             <mat-icon>perm_identity</mat-icon>
         </button>
     </div>

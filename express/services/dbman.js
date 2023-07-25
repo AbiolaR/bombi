@@ -24,6 +24,7 @@ const UserSchema = mongoose.Schema({
     username: { type: String, required: true },
     password: { type: String, required: true },
     email: { type: String, required: true },
+    searchHistory : { type: Map, of: String, required: true },
     passwordResetHash: {type: String, required: false },
     passwordResetCode: {type: String, required: false },
     eReaderType: { type: String, required: true },
@@ -31,6 +32,10 @@ const UserSchema = mongoose.Schema({
     eReaderDeviceId: String,
     eReaderRefreshToken: String
 });
+
+/*const SearchHistoryEntrySchema = mongoose.Schema({
+    timestamp: { type: }
+});*/
 
 const User = mongoose.model('User', UserSchema);
 

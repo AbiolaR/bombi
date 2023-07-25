@@ -68,7 +68,7 @@ export class DownloadClusterComponent {
   }
 
   public sendToEReader(button: any) {   
-    const userData = this.userService.getUserData();
+    const userData = this.userService.getLocalUserData();
     if (!userData) {
       this.eventService.openLoginMenu();
       return;
@@ -113,7 +113,7 @@ export class DownloadClusterComponent {
   }
 
   currentEReader() {
-    switch(this.userService.getUserData()?.eReaderType) {
+    switch(this.userService.getLocalUserData()?.eReaderType) {
       case 'K': // Kindle
         return 'Kindle'
       case 'T': // Tolino

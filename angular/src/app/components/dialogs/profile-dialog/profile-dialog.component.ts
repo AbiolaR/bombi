@@ -15,7 +15,7 @@ export class ProfileDialogComponent implements OnInit {
   constructor(private userService: UserService, private dialogRef: MatDialogRef<ProfileDialogComponent>) { }
 
   ngOnInit(): void {
-    this.userData = this.userService.getUserData();
+    this.userData = this.userService.getLocalUserData();
   }
 
   logout(): void {
@@ -47,6 +47,6 @@ export class ProfileDialogComponent implements OnInit {
 
   dataHasChanged(): boolean {
     return JSON.stringify(this.userData?.removeEmpty()) 
-            !== JSON.stringify(this.userService.getUserData()?.removeEmpty());
+            !== JSON.stringify(this.userService.getLocalUserData()?.removeEmpty());
   }
 }

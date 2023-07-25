@@ -9,6 +9,23 @@ const { TOKEN_SECRET } = require('../services/secman');
 
 const ONE_YEAR = '8760h';
 
+router.get('/data', (req, res) => {
+    const username = req.body.username;
+
+    try {
+        dbman.findUser(username, (user) => {
+            if (!user) {
+                res.status(200).send({status: 3, error: 'user doesnt exist'});
+                return;
+            } else {
+                res.status(200).send(sanitize(user._doc));
+            }
+        })
+    } catch (error) {
+        res.send({status: 0, error: error});
+    }
+});
+
 router.post('/login', (req, res, next) => {
     const { username, password } = req.body;
 

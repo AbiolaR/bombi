@@ -18,6 +18,8 @@ app.use(cors({
 }));
 
 app.use('/api/v1/books/send', authorization);
+app.use('/api/v1/users/save', authorization);
+app.use('/api/v1/users/data', authorization);
 app.use('/api/v1/books', books);
 app.use('/api/v1/users', users);
 app.use('/', express.static('./static'));

@@ -27,14 +27,15 @@ export class LoginComponent implements OnInit {
   }
 
   onSubmit() {
-    this.clearErrors();
-    this.userService.deleteUserData();
-
+    this.clearErrors();    
+  
     this.userService.login(this.loginForm.get('username')?.value || '', 
       this.loginForm.get('password')?.value || '').subscribe({
       next: (userData: UserData) => {                
-        if (userData.username) {
+        if (userData.username) {        
+          userData = this.mergeSearchHistory(userData);  
           this.userService.setUserData(userData);
+          this.userService.saveSearchHistory(userData.searchHistory).subscribe({});
         } else {
           switch(userData.status) {
             case 2:
@@ -66,6 +67,16 @@ export class LoginComponent implements OnInit {
         username: this.loginForm.get('username')?.value
       }
     })
+  }
+
+  private mergeSearchHistory(userData: UserData): UserData {
+    userData = Object.assign(new UserData, userData);
+    userData.searchHistory = new Map([...new Map(Object.entries(userData.searchHistory)), 
+      ...this.userService.getLocalUserData().searchHistory]);
+
+    userData.deleteOldSearchHistoryEntries();
+    this.userService.deleteUserData();
+    return userData;
   }
 
   private clearErrors() {
