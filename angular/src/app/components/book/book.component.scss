@@ -6,12 +6,12 @@
 .book-details {
     display: flex;
     flex-direction: column;
-    max-width: calc(100% - 220px);
+    max-width: calc(100% - 230px);
 }
 
 .cover {    
     height: 6em;
-    width: fit-content;
+    width: 4em;
     margin-right: 1em;
 }
 
@@ -22,7 +22,6 @@
 .lang {
     margin-right: 1em;
     height: 1em;
-    width: fit-content;
 }
 
 .title-container {
@@ -95,6 +94,7 @@ app-download-cluster {
     .cover {
         height: calc(55vh - 2.5em);
         width: fit-content;
+        max-width: 75%;
     }
 
     .title-container {
