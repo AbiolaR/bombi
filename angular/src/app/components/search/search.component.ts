@@ -56,6 +56,11 @@ export class SearchComponent {
     }
   }
 
+  public submitForm(selection: string) {
+    this.searchForm.get('input')?.setValue(selection);
+    this.onSubmit(this.searchForm);
+  }
+
   private saveToSearchHistory(form: FormGroup) {
     if (this.userData.getNewestSearchHistoryEntry() == form.get('input')?.value) {
       return;

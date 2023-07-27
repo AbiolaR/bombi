@@ -20,9 +20,9 @@
         <mat-error *ngIf="searchForm.get('input')?.invalid">
             Please enter at least {{minimumLength}} characters
         </mat-error>
-    </mat-form-field>    
 
-    <mat-autocomplete #searchHistoryDD="matAutocomplete" class="search-history" hideSingleSelectionIndicator>
-        <mat-option *ngFor="let search of userData.searchHistory | keyvalue: keyDescOrder" [value]="search.value"><mat-icon>history</mat-icon> {{search.value}}</mat-option>
-    </mat-autocomplete>
+        <mat-autocomplete #searchHistoryDD="matAutocomplete" class="search-history" (optionSelected)="submitForm($event.option.value)" hideSingleSelectionIndicator>
+            <mat-option *ngFor="let search of userData.searchHistory | keyvalue: keyDescOrder" [value]="search.value"><mat-icon>history</mat-icon> {{search.value}}</mat-option>
+        </mat-autocomplete>
+    </mat-form-field>
 </form>
