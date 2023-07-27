@@ -3,17 +3,17 @@
     <mat-tab-group mat-stretch-tabs dynamicHeight (selectedTabChange)="setEReader($event.index)"
         [(selectedIndex)]="activeEReader">    
         <mat-tab label="Kindle">
-            <mat-form-field>
+            <mat-form-field appearance="outline">
                 <mat-label>Enter your Kindles E-Mail here</mat-label>
                 <input matInput [(ngModel)]="userRelatedData.eReaderEmail"/>
             </mat-form-field>
         </mat-tab>
         <mat-tab label="Tolino">
-            <mat-form-field>
+            <mat-form-field appearance="outline">
                 <mat-label>Device ID</mat-label>
                 <input matInput [(ngModel)]="userRelatedData.eReaderDeviceId"/>
             </mat-form-field>
-            <mat-form-field>
+            <mat-form-field appearance="outline">
                 <mat-label>Refresh Token</mat-label>
                 <input matInput [(ngModel)]="userRelatedData.eReaderRefreshToken"/>
             </mat-form-field>

@@ -57,7 +57,7 @@ app-search {
 
 .mat-mdc-fab {
     margin: 6px 0 0 10px;
-    background-color: #a88cdb;
+    background-color: var(--primary-tinted-color);
 }
 
 .mat-mdc-mini-fab {
@@ -82,7 +82,7 @@ h1 {
 }
 
 .correction {
-    color: #a88cdb;
+    color: var(--primary-tinted-color);
     font-style: italic;
     font-weight: 500;
     cursor: pointer;

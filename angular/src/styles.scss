@@ -4,9 +4,15 @@
 
 :root {
     --light-color: #fffbeb
+    --light-color-shade: #fffcf3
     --dark-color: #2c2c2c
     --main-background-color: var(--light-color);
     --main-text-color: var(--dark-color);
+    --mdc-elevated-card-container-color: var(--main-background-color);
+    --primary-tinted-color: #a88cdb;
+    --success-icon-color: #4caf50;
+    --failure-icon-color: #f44336;
+    --muted-spinner-color: #303030;
 }
 
 html, body { height: 100%; width: 100%;}
@@ -58,7 +64,7 @@ app-root {
 }
 
 .mat-mdc-tab-body-wrapper {
-    margin-top: 20px;
+    margin-top: calc(20px - 0.5em);
 }
 
 // Imports for Angular Material Theming
@@ -68,13 +74,14 @@ app-root {
 $light-color: #fffbeb;
 $dark-color: #2c2c2c;
 
-$primary: mat.define-palette(mat.$deep-purple-palette, 500);
-$accent: mat.define-palette(mat.$amber-palette, A200, A100, A400);
+$primary-light-theme: mat.define-palette(mat.$deep-purple-palette, 400);
+$primary-dark-theme: mat.define-palette(mat.$purple-palette, 100);
+$accent: mat.define-palette(mat.$amber-palette, 200, A200, A400);
 $warn: mat.define-palette(mat.$red-palette);
 
 $theme: mat.define-light-theme((
     color: (
-        primary: $primary,
+        primary: $primary-light-theme,
         accent: $accent,
         warn: $warn,
     ), 
@@ -84,7 +91,7 @@ $theme: mat.define-light-theme((
 
 $dark-theme: mat.define-dark-theme((
     color: (
-        primary: $primary, 
+        primary: $primary-dark-theme, 
         accent: $accent, 
         warn: $warn
     ), 
@@ -105,6 +112,15 @@ $dark-theme: map_merge($dark-theme, (background: $dark-background));
     :root {
         --main-background-color: #fffbeb !important;
         --main-text-color: #2c2c2c !important;
+        --autofill-color: #f5e9f7 !important;
+    }
+
+    mat-dialog-content,mat-dialog-actions {
+        background-color: #fffcf3;
+    }
+    
+    mat-card,.mat-mdc-autocomplete-panel {
+        background-color: #fffcf3 !important;
     }
 }
   
@@ -112,6 +128,7 @@ $dark-theme: map_merge($dark-theme, (background: $dark-background));
     @include mat.all-component-colors($dark-theme);
     :root {
         --main-background-color: #2c2c2c !important;
-        --main-text-color: #FAEDE3 !important;
+        --main-text-color: #faede3 !important;
+        --autofill-color: #471d4e !important;
     }
 }

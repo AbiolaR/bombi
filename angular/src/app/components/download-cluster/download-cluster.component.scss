@@ -10,7 +10,7 @@ button.loading {
 button.success {
     mat-icon.success {
         display: inline;
-        color: #4caf50;
+        color: var(--success-icon-color);
     }
     .text {
         display: none;
@@ -20,7 +20,7 @@ button.success {
 button.failure {
     mat-icon.failure {
         display: inline;
-        color: #f44336;
+        color: var(--failure-icon-color);
     }
     .text {
         display: none;
@@ -44,7 +44,7 @@ button {
         display: none;
     
         ::ng-deep circle {
-            stroke: #303030 !important;
+            stroke: var(--muted-spinner-color) !important;
         }
     }
 

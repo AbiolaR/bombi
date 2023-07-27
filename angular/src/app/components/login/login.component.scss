@@ -13,22 +13,47 @@ form {
     align-items: center;
 }
 
-.login-btn {
-    margin-top: 30px;
+mat-form-field {
+    width: 100%;
+    margin-top: 0.5em;
 }
 
 .forgot-pass-btn {
-    margin-top: -30px;
+    margin-top: -10px;
     margin-left: auto;
     font-size: 12px;
     line-height: 18px;
     height: 18px;
-    background-color: transparent;
+    background-color: transparent !important;
 }
 
+.register-btn {
+    color: var(--main-text-color);
+    background-color: var(--autofill-color) !important;
+}
+
+mat-card-actions {
+    display: flex;
+    width: calc(100% - 30px);
+    justify-content: space-evenly;
+    margin-top: 1em;
+}
+
+/* Change Autocomplete styles in Chrome */
 input:-webkit-autofill,
-input:-webkit-autofill:hover,
+input:-webkit-autofill:hover, 
 input:-webkit-autofill:focus,
-input:-webkit-autofill:active {
-    transition: background-color 5000s ease-in-out 0s;
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--main-text-color);
+  -webkit-box-shadow: 0 0 0px 1000px var(--autofill-color) inset;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.mat-form-field-autofilled {
+    background-color: var(--autofill-color);
 }
