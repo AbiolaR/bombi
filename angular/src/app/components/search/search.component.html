@@ -1,4 +1,4 @@
-<form class="search-container" [formGroup]="searchForm" (ngSubmit)="onSubmit(searchForm)">
+<form class="search-container" [formGroup]="searchForm" (ngSubmit)="onSubmit()">
     <mat-form-field class="searchbox" appearance="outline" (click)="fetchData()">
         <mat-label>Search for your book</mat-label>
         <input matInput #searchInput="matInput" [formControl]="$any(searchForm).get('input')"

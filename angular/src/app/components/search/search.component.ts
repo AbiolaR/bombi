@@ -48,25 +48,25 @@ export class SearchComponent {
     this.searchForm.get('input')?.setValue(this.searchString);
   }
 
-  public onSubmit(form: FormGroup) {
-    if (form.valid) {
-      this.saveToSearchHistory(form);
+  public onSubmit() {
+    if (this.searchForm.valid) {
+      this.saveToSearchHistory();
       this.searchInput?._elementRef.nativeElement.blur();
-      this.router.navigate(['search'], { queryParams: { q: form.get('input')?.value, l: this.selectedLang } });
+      this.router.navigate(['search'], { queryParams: { q: this.searchForm.get('input')?.value, l: this.selectedLang } });
     }
   }
 
   public submitForm(selection: string) {
     this.searchForm.get('input')?.setValue(selection);
-    this.onSubmit(this.searchForm);
+    this.onSubmit();
   }
 
-  private saveToSearchHistory(form: FormGroup) {
-    if (this.userData.getNewestSearchHistoryEntry() == form.get('input')?.value) {
+  private saveToSearchHistory() {
+    if (this.userData.getNewestSearchHistoryEntry() == this.searchForm.get('input')?.value) {
       return;
     }
     
-    this.userData.searchHistory.set(Date.now().toString(), form.get('input')?.value);
+    this.userData.searchHistory.set(Date.now().toString(), this.searchForm.get('input')?.value || '');
     this.userData.deleteOldSearchHistoryEntries();
 
     if (this.userService.isLoggedIn()) {
