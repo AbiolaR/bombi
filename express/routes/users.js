@@ -53,6 +53,11 @@ router.post('/login', (req, res, next) => {
 router.post('/register', async (req, res, next) => {
     var user = req.body;
 
+    if (!validUser(user)) {
+        res.status(200).send({status: 1, error: 'invalid user data'});
+        return;
+    }
+
     const posUser = await dbman.findUserAsync(user.username);
 
     if (posUser) {
@@ -167,6 +172,10 @@ function sanitize(user) {
 
 function sanitizeEmail(email) {
     return `${email.charAt(0)}*****${email.substr(email.lastIndexOf('@'))}`
+}
+
+function validUser(user) {
+    return Boolean(user.username && user.email && user.password);
 }
 
 module.exports = router;
