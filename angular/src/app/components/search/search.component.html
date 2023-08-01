@@ -11,6 +11,10 @@
                 <img src="/assets/images/flags/{{language.value}}.svg"></button>
         </mat-menu>
 
+        <button mat-icon-button matSuffix type="button" class="clear" aria-label="Delete Search Text" *ngIf="searchHasText()" (click)="clearSearch()">
+            <mat-icon>clear</mat-icon>
+        </button>
+
         <button mat-icon-button matSuffix type="button" class="lang" aria-label="Select Language" (click)="openMenu($event)" #langMenuTrigger="matMenuTrigger" [matMenuTriggerFor]="langMenu">
             <mat-icon *ngIf="!selectedLang">language</mat-icon>
             <img src="/assets/images/flags/{{selectedLang}}.svg" *ngIf="selectedLang">     
@@ -21,7 +25,7 @@
             Please enter at least {{minimumLength}} characters
         </mat-error>
 
-        <mat-autocomplete #searchHistoryDD="matAutocomplete" class="search-history" (optionSelected)="submitForm($event.option.value)" hideSingleSelectionIndicator>
+        <mat-autocomplete #searchHistoryDD="matAutocomplete" class="search-history" (optionSelected)="submitForm()" hideSingleSelectionIndicator>
             <mat-option *ngFor="let search of userData.searchHistory | keyvalue: keyDescOrder" [value]="search.value"><mat-icon>history</mat-icon> {{search.value}}</mat-option>
         </mat-autocomplete>
     </mat-form-field>

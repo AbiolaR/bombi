@@ -33,10 +33,6 @@ const UserSchema = mongoose.Schema({
     eReaderRefreshToken: String
 });
 
-/*const SearchHistoryEntrySchema = mongoose.Schema({
-    timestamp: { type: }
-});*/
-
 const User = mongoose.model('User', UserSchema);
 
 module.exports.findUser = (username, callback) => {

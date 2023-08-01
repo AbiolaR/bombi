@@ -9,4 +9,5 @@ export interface Book {
     filename: string,
     cover_url: string,
     message: string,
+    year: number
 }

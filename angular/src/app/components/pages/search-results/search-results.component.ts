@@ -13,6 +13,9 @@ import { SearchResult } from 'src/app/models/search-result';
 import { LanguageMap } from 'src/app/models/language-map';
 
 const ALT_GER_LANG = 'deu';
+const AUTHOR = 'author';
+const YEAR = 'year';
+const LANG = 'language';
 
 @Component({
   selector: 'app-search-results',
@@ -22,11 +25,19 @@ const ALT_GER_LANG = 'deu';
 export class SearchResultsComponent {
   @ViewChild(MatMenuTrigger) loginMenu: MatMenuTrigger | undefined;
   @ViewChild(MatSelect) authorSelect: MatSelect | undefined;
+  @ViewChild(MatSelect) yearSelect: MatSelect | undefined;
+  @ViewChild(MatSelect) langSelect: MatSelect | undefined;
   books: Book[] | undefined;
   allBooks: Book[] | undefined;
   distinctAuthors: Set<string> = new Set();
   filteredAuthors: string[] = [];
   authorMap: Map<string, Set<string>> = new Map();
+  distinctYears: Set<number> = new Set();
+  filteredYears: number[] = [];
+  yearMap: Map<number, Set<number>> = new Map();
+  distinctLanguages: Set<string> = new Set();
+  filteredLanguages: string[] = [];
+  languageMap: Map<string, Set<string>> = new Map();
   pageNumber = 1;
   isLastPage = false;
   searchString = '';
@@ -44,6 +55,7 @@ export class SearchResultsComponent {
 
     route.queryParams.subscribe(async params => {
       this.books = undefined;
+      this.isLastPage = false;
       this.distinctAuthors = new Set();
       this.usingCorrection = false;
       this.selectedLang = '';
@@ -64,13 +76,13 @@ export class SearchResultsComponent {
                 next: (result) => {
                   if (result.books.length != 0) {
                     this.usingCorrection = true;
-                    this.setData(result);
+                    this.setData(result.books);
                   }
                   this.searchForAdditionalGermanBooks();
                 }
               });
             } else {
-              this.setData(result);
+              this.setData(result.books);
               this.searchForAdditionalGermanBooks();
             }
             }
@@ -85,35 +97,25 @@ export class SearchResultsComponent {
     }
     this.searchService.search(`${this.searchString} lang:${ALT_GER_LANG}`, 1).subscribe({
       next: (result) => {
-        if (this.books) {
-          this.books = this.books.concat(result.books);
+        if (this.allBooks) {
+          this.setData(this.allBooks.concat(result.books));
         } else {
-          this.setData(result);
+          this.setData(result.books);
         }
       }
     })
   }
 
-  setData(result: SearchResult) {
-    this.books = this.allBooks = result.books;
-    this.distinctAuthors = new Set(result.books.map(book => book.author));
-    this.distinctAuthors.forEach(author => {
-      if (author == '') {
-        return;
-      }
-      var cleanAuthor = author.replace(/[^a-z0-9]/gi, '').toLowerCase();
-      this.distinctAuthors.forEach(comparedAuthor => {
-        var cleanComparedAuthor = comparedAuthor.replace(/[^a-z0-9]/gi, '').toLowerCase();
-        if (Array.from(cleanAuthor).sort().toString() == Array.from(cleanComparedAuthor).sort().toString() 
-        || this.similarity(Array.from(cleanAuthor).sort().toString(), Array.from(cleanComparedAuthor).sort().toString()) > 0.75) {
-          this.authorMap.set(author, this.authorMap.get(cleanAuthor)?.add(author) || new Set<string>().add(comparedAuthor));
-          this.authorMap.set(author, this.authorMap.get(cleanAuthor)?.add(comparedAuthor) || new Set<string>().add(comparedAuthor));
-          if (author != comparedAuthor) {
-            this.distinctAuthors.delete(comparedAuthor);        
-          }
-        }
-      });
-    });
+  setData(books: Book[]) {
+    this.books = this.allBooks = books;
+    this.fillFilterData();
+    this.filterBooks();
+  }
+
+  private fillFilterData() {
+    this.fillDistinctSet(AUTHOR, 0.75);
+    this.fillDistinctSet(YEAR, 1);
+    this.fillDistinctSet(LANG, 1);
   }
 
   resetLangAndSearch() {
@@ -126,25 +128,19 @@ export class SearchResultsComponent {
     this.router.navigate(['search'], { queryParams: { q: searchQuery, l: language } });
   }
 
-  filterBooks() {    
-    this.books = this.allBooks;
-    var advFilteredAuthors = Array.from(this.filteredAuthors);    
+  minFilterSet(minAmount: number) : boolean {
+    return this.reducedLength(this.filteredAuthors) + this.reducedLength(this.filteredYears) + this.reducedLength(this.filteredLanguages) >= minAmount;
+  }
 
-    advFilteredAuthors.forEach(author => {
-      if (this.authorMap.has(author)) {
-        this.authorMap.get(author)?.forEach (auth => {
-          advFilteredAuthors.push(auth);
-        });
-      }
-    });
-    if (advFilteredAuthors.length > 0) {
-      if ((advFilteredAuthors as (string | undefined)[]).includes(undefined)) {
-        this.filteredAuthors = [];
-        this.authorSelect?.close();
-      } else {
-        this.books = this.books?.filter(book => advFilteredAuthors.includes(book.author));
-      }
-    }
+  private reducedLength(array: string[] | number[]) : number {
+    return (array.length / array.length) || 0;
+  }
+
+  clearFilters() {
+    this.filteredAuthors = [];
+    this.filteredYears = [];
+    this.filteredLanguages = [];
+    this.filterBooks();
   }
 
   openProfileDialog() {
@@ -219,13 +215,17 @@ export class SearchResultsComponent {
       if (!this.isLastPage && !this.isLoading) {
         this.pageNumber++;
         this.isLoading = true;
-        this.searchService.search(`${this.searchString} lang:${this.selectedLang}`, this.pageNumber).subscribe({
+        let advancedSearchString = this.searchString;
+        if (this.selectedLang) {
+          advancedSearchString = `${advancedSearchString} lang:${this.selectedLang}`
+        }
+        this.searchService.search(advancedSearchString, this.pageNumber).subscribe({
           next: (result) => {
             this.isLoading = false; 
             if (result.books.length == 0) {
               this.isLastPage = true;
             }  
-            this.books = this.books?.concat(result.books);
+            this.setData(this.allBooks?.concat(result.books) || []);
             this.searchForAdditionalGermanBooks();
           }
         });
@@ -272,6 +272,88 @@ export class SearchResultsComponent {
         costs[s2.length] = lastValue;
     }
     return costs[s2.length];
+  }
+
+  private fillDistinctSet(property: string, similarity: number) {
+    let distinctSet = new Set<string | number>;
+    let map = new Map<string | number, Set<string | number>>;
+
+    distinctSet = new Set(this.allBooks?.map(book => book[property as keyof typeof book]));
+    distinctSet.forEach(prop => {
+      if (prop == '' || prop == 0) {
+        return;
+      }
+      var cleanProperty = prop.toString().replace(/[^a-z0-9]/gi, '').toLowerCase();
+      distinctSet.forEach(comparedProperty => {
+        var cleanComparedProperty = comparedProperty.toString().replace(/[^a-z0-9]/gi, '').toLowerCase();
+        if (Array.from(cleanProperty).sort().toString() == Array.from(cleanComparedProperty).sort().toString() 
+        || this.similarity(Array.from(cleanProperty).sort().toString(), Array.from(cleanComparedProperty).sort().toString()) > similarity) {
+          map.set(prop, map.get(cleanProperty)?.add(prop) || new Set<string | number>().add(comparedProperty));
+          map.set(prop, map.get(cleanProperty)?.add(comparedProperty) || new Set<string | number>().add(comparedProperty));
+          if (prop != comparedProperty) {
+            distinctSet.delete(comparedProperty);        
+          }
+        }
+      });
+    });
+    switch(property) {
+      case AUTHOR:
+        this.distinctAuthors = distinctSet as Set<string>;
+        this.authorMap = map as Map<string, Set<string>>;
+        break;
+      case YEAR:
+        this.distinctYears = distinctSet as Set<number>;
+        this.yearMap = map as Map<number, Set<number>>;
+        break;
+      case LANG:
+        this.distinctLanguages = distinctSet as Set<string>;
+        this.languageMap = map as Map<string, Set<string>>;
+    }
+  }
+
+  filterBooks() {
+    this.books = this.allBooks;
+    let filteredAuthors = this.getFilter(AUTHOR, this.filteredAuthors, this.authorMap, this.authorSelect);
+    let filteredYears = this.getFilter(YEAR, this.filteredYears, this.yearMap, this.yearSelect);
+    let filteredLanguages = this.getFilter(LANG, this.filteredLanguages, this.languageMap, this.langSelect);
+
+    this.books = this.books?.filter(book => filteredAuthors.includes(book.author) && filteredYears.includes(book.year) && filteredLanguages.includes(book.language));
+    if (this.books?.length || 0 < 100 && !this.isLastPage) {
+      this.loadAdditionalBooks();
+    }
+  }
+
+  private getFilter(property: string, array: any[], map: Map<string | number, Set<string | number>>, select: MatSelect | undefined) : any[] {
+    let filter = Array.from(array);
+
+    filter.forEach(item => {
+      if (map.has(item)) {
+        map.get(item)?.forEach(item => {
+          filter.push(item);
+        })
+      }
+    });
+
+    if (filter.length > 0) {
+      if ((array as (string | undefined)[]).includes(undefined)) {
+        select?.close();
+        switch (property) {
+          case AUTHOR:
+            this.filteredAuthors = [];
+            break;
+          case YEAR:
+            this.filteredYears = [];
+            break;
+          case LANG:
+            this.filteredLanguages= [];
+            break
+        }
+      }
+    }
+
+    return filter.length > 0 && !(array as (string | undefined)[]).includes(undefined)
+      ? filter 
+      : this.allBooks?.map(book => book[property as keyof typeof book]) || [];
   }
 
 }

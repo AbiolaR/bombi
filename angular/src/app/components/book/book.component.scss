@@ -22,6 +22,7 @@
 .lang {
     margin-right: 1em;
     height: 1em;
+    vertical-align: middle;
 }
 
 .title-container {
@@ -31,7 +32,7 @@
     align-items: center;
 }
 
-.title:hover {
+.auto-scroll:hover {
     overflow: unset;
     text-overflow: unset;
     animation: scrollText 5s infinite linear;
@@ -50,7 +51,7 @@
 
 @keyframes scrollText {
     to {
-      transform: translateX(-125%);
+      transform: translateX(-100%);
     }
 }
 
@@ -67,6 +68,14 @@ app-download-cluster {
 }
 
 .mobile {
+    display: none;
+}
+
+.year {
+    display: block;
+}
+
+.delimiter {
     display: none;
 }
 
@@ -110,9 +119,13 @@ app-download-cluster {
         line-height: 24px;
     }
 
-    .author {
+    .author,.year {
         font-size: 15px;
         line-height: 17px;
+    }
+
+    .year {
+        float: right;
     }
 
     .book-details {
@@ -121,9 +134,9 @@ app-download-cluster {
     }
 
     app-download-cluster {
-        margin-left: -1em;
+        width: 100%;
         flex-direction: row;
-        justify-content: space-evenly;
+        justify-content: space-between;
     }
 
     .desktop {

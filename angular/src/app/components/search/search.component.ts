@@ -25,10 +25,11 @@ export class SearchComponent {
   selectedLang = '';
 
   userData: UserData = new UserData();
+  hasText: boolean = this.searchString.length > 0;
 
   @ViewChild(MatMenuTrigger) langMenuTrigger: MatMenuTrigger | undefined;
   @ViewChild(MatAutocompleteTrigger) searchHistoryDD: MatAutocompleteTrigger | undefined;
-  @ViewChild(MatInput) searchInput: any;
+  @ViewChild(MatInput) searchInput: MatInput | undefined;
 
   constructor(private router: Router, private userService: UserService) { }
 
@@ -51,14 +52,23 @@ export class SearchComponent {
   public onSubmit() {
     if (this.searchForm.valid) {
       this.saveToSearchHistory();
-      this.searchInput?._elementRef.nativeElement.blur();
+      (this.searchInput as any)._elementRef.nativeElement.blur();
       this.router.navigate(['search'], { queryParams: { q: this.searchForm.get('input')?.value, l: this.selectedLang } });
     }
   }
 
-  public submitForm(selection: string) {
-    this.searchForm.get('input')?.setValue(selection);
+  public submitForm() {
+    this.searchForm.get('input')?.setValue(this.searchInput?.value || '');
     this.onSubmit();
+  }
+
+  public clearSearch() {
+    this.searchString = '';
+    this.searchInput!.value = '';
+  }
+
+  public searchHasText() : boolean {
+    return (this.searchInput?.value.length || 0) > 0; 
   }
 
   private saveToSearchHistory() {

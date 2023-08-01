@@ -51,7 +51,11 @@ module.exports.getSpellingCorrection = async (searchString) => {
         + `&cx=${GOOGLE_SEARCH_ENGINE_ID}&num=1`;
     searchString = searchString.split(SEARCH_LANG_OPERATOR)[0];
     var response = await axios.get(`${searchUrl}&q=${searchString}${SEARCH_SUFFIX}`);
-    return response.data.spelling.correctedQuery.replace(SEARCH_SUFFIX, '');
+    if (response.data.spelling) {
+        return response.data.spelling.correctedQuery.replace(SEARCH_SUFFIX, '');
+    } else {
+        return '';
+    }
 }
 
 async function kindlegenConvertAsync(filePath) {
