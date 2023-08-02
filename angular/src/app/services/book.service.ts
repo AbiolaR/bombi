@@ -6,6 +6,7 @@ import { Book } from '../models/book';
 import { DownloadMode } from '../models/download-mode';
 import { UserService } from './user.service';
 import { SearchResult } from '../models/search-result';
+import { DeviceDetectorService } from 'ngx-device-detector';
 
 
 @Injectable({
@@ -15,10 +16,10 @@ export class BookService {
 
   apiUrl: string = `${environment.apiServerUrl}/v1/books/`;
 
-  constructor(private http: HttpClient, private userService: UserService) { }
+  constructor(private http: HttpClient, private userService: UserService, private deviceDetectorService: DeviceDetectorService) { }
 
   public search(searchString: String, pageNumber: number): Observable<SearchResult> {
-    return this.http.get<SearchResult>(`${this.apiUrl}search?q=${searchString}&p=${pageNumber}`);
+    return this.http.get<SearchResult>(`${this.apiUrl}search?q=${searchString}&p=${pageNumber}&m=${!this.deviceDetectorService.isDesktop()}`);
   }
 
   public download(downloadVar: String, mode: DownloadMode): Observable<Blob> {

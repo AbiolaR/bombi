@@ -19,23 +19,6 @@ export class BookComponent {
   isImgLoaded = false;
   BOOK = DownloadMode.BOOK;
 
-  @ViewChild('title')
-  title!: ElementRef;
-
-  ngOnChanges() {
-    if (!this.deviceDetectorService.isDesktop()) {
-      if (this.book) {
-        this.book.cover_url = this.book.cover_url == 'img/blank.png' ? '/assets/images/covers/blank.png' : this.book.cover_url.replace('_small', '');
-      }
-    }
-  }
-
-  ngAfterViewInit() {
-    if (this.title.nativeElement.offsetWidth < this.title.nativeElement.scrollWidth) {
-      this.title.nativeElement.classList.add('auto-scroll');
-    }
-  }
-
   enlarge() {
     if (!this.deviceDetectorService.isDesktop()) {
       return;
@@ -52,7 +35,7 @@ export class BookComponent {
     if (element.offsetWidth < element.scrollWidth) {
       element.classList.add('auto-scroll');
     }  else {
-      this.title.nativeElement.classList.remove('auto-scroll');
+      element.classList.remove('auto-scroll');
     }
   }
 

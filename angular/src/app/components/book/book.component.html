@@ -1,13 +1,13 @@
 <div *ngIf="book" class="book">
-    <!--<img *ngIf="!isImgLoaded" class="cover" aria-label="Book Cover Placeholder" src="/assets/images/covers/loading-cover.png"/>-->
-    <img  (load)="isImgLoaded = true" loading="lazy" class="cover" aria-label="Book Cover" src="{{book.cover_url == 'img/blank.png' ? '/assets/images/covers/blank.png' : 'https://libgen.li/' + book.cover_url}}"
+    <img *ngIf="!isImgLoaded" class="cover" aria-label="Book Cover Placeholder" src="/assets/images/covers/loading-cover.png"/>
+    <img (load)="isImgLoaded = true" loading="lazy" class="cover" aria-label="Book Cover" src="{{book.cover_url == 'img/blank.png' ? '/assets/images/covers/blank.png' : 'https://libgen.li/' + book.cover_url}}"
     (click)="enlarge()"/>
     <div class="book-details">
         <div>
             <div class="head">
                 <img class="lang" src="/assets/images/flags/{{book.language}}.svg" aria-label="Book Language"/>
                 <div class="title-container">
-                    <h1 #title class="title" (window:resize)="setAutoScroll(title)">{{book.title}}</h1>
+                    <h1 #title class="title" (mouseover)="setAutoScroll(title)">{{book.title}}</h1>
                 </div>
             </div>
             <span class="author">{{book.author || "author unknown"}}</span>

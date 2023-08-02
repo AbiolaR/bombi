@@ -15,6 +15,7 @@ router.get('/search', async(req, res, next) => {
 
   var searchString = req.query.q;
   var pageNumber = req.query.p;
+  var mobile = req.query.m;
 
   if(!searchString) {
     res.json({error: "No search query given"});
@@ -25,7 +26,7 @@ router.get('/search', async(req, res, next) => {
   
   try {
     if (process.env.STAGE == 'prod' || process.env.STAGE == 'staging') {
-      bookData.books = await search(searchString, pageNumber);
+      bookData.books = await search(searchString, pageNumber, mobile);
       if (bookData.books.length == 0) {
         try {
           bookData.suggestion = await getSpellingCorrection(searchString);
@@ -246,7 +247,7 @@ async function downloadWithMD5(md5Hash) {
   return book;
 }
 
-async function search(searchString, pageNumber) {
+async function search(searchString, pageNumber, mobile) {
   const rawBookData = await getRawBooks(searchString, pageNumber);
   var ids = '';
   var idArray = [];
@@ -263,9 +264,14 @@ async function search(searchString, pageNumber) {
   try {
     var coverUrls = parseCoverUrls(parsedDocument);
     var authors = parseAuthors(parsedDocument);
+    var replaceString = '';
+
+    if (mobile == 'true') {
+      replaceString = '_small';
+    }
 
     idArray.forEach((id, index) => {
-      bookDetails[id] = { coverUrl: coverUrls[index], author: authors[index] };
+      bookDetails[id] = { coverUrl: coverUrls[index].replace(replaceString, ''), author: authors[index] };
     })
   } catch(error) {
     console.error(`something went wrong when extracting book details: ${error}`);
