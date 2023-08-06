@@ -78,14 +78,22 @@ export class SearchComponent {
     
     this.userData.searchHistory.set(Date.now().toString(), this.searchForm.get('input')?.value || '');
     this.userData.deleteOldSearchHistoryEntries();
+    this.saveSearchHistory();
+    this.searchHistoryDD?.closePanel();
+  }
 
+  deleteSearchHistoryEntry(key: string, event: any) {
+    this.userData.searchHistory.delete(key);
+    this.saveSearchHistory();
+    event.stopPropagation();
+  }
+
+  private saveSearchHistory() {
     if (this.userService.isLoggedIn()) {
       this.userService.saveSearchHistory(this.userData.searchHistory).subscribe({});
     } else {
       this.userService.saveLocalSearchHistory(this.userData.searchHistory);
     }
-
-    this.searchHistoryDD?.closePanel();
   }
   
   fetchData() {
@@ -115,7 +123,4 @@ export class SearchComponent {
   keyDescOrder = (a: KeyValue<string,string>, b: KeyValue<string,string>): number => {
     return +a.key > +b.key ? -1 : (+b.key > +a.key ? 1 : 0);
   }
-
-
-
 }

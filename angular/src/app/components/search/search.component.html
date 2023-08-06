@@ -26,7 +26,7 @@
         </mat-error>
 
         <mat-autocomplete #searchHistoryDD="matAutocomplete" class="search-history" (optionSelected)="submitForm()" hideSingleSelectionIndicator>
-            <mat-option *ngFor="let search of userData.searchHistory | keyvalue: keyDescOrder" [value]="search.value"><mat-icon>history</mat-icon> {{search.value}}</mat-option>
+            <mat-option *ngFor="let search of userData.shortSearchHistory() | keyvalue: keyDescOrder" [value]="search.value"><mat-icon>history</mat-icon> {{search.value}} <mat-icon (click)="deleteSearchHistoryEntry(search.key, $event)" class="clear-history">clear</mat-icon></mat-option>
         </mat-autocomplete>
     </mat-form-field>
 </form>

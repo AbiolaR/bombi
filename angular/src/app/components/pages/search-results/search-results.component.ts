@@ -318,8 +318,8 @@ export class SearchResultsComponent {
     let filteredLanguages = this.getFilter(LANG, this.filteredLanguages, this.languageMap, this.langSelect);
 
     this.books = this.books?.filter(book => filteredAuthors.includes(book.author) && filteredYears.includes(book.year) && filteredLanguages.includes(book.language));
-    console.warn(this.books?.length)
-    console.warn(this.isLastPage)
+    /*console.warn(this.books?.length)
+    console.warn(this.isLastPage)*/
     if ((this.books?.length || 0) < 100 && !this.isLastPage) {
       this.loadAdditionalBooks();
     }

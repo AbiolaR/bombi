@@ -1,5 +1,8 @@
+import { KeyValue } from "@angular/common";
 import { User } from "./user";
 import { UserData } from "./user-data";
+
+const SEARCH_HISTORY_MAX_SIZE = 100;
 
 export class UserRelatedData {
     status: number = 1;
@@ -29,7 +32,7 @@ export class UserRelatedData {
     }
 
     deleteOldSearchHistoryEntries() {
-        for (;this.searchHistory.size > 5;) {
+        for (;this.searchHistory.size > SEARCH_HISTORY_MAX_SIZE;) {
             this.searchHistory.delete(this.getOldestSearchHistoryEntry());
         }
     }
@@ -38,9 +41,17 @@ export class UserRelatedData {
         return this.searchHistory.get(this.getLastOrFirstSearchHistoryEntry(this.compareLower))!;
     }
 
+    shortSearchHistory() : Map<string, string> {
+        return new Map([...this.searchHistory.entries()].sort(this.keyDescOrder).slice(0,5));
+    }
+
     private getOldestSearchHistoryEntry() : string {
         return this.getLastOrFirstSearchHistoryEntry(this.compareHigher);
     }
+
+    keyDescOrder = (a: [string,string], b: [string,string]): number => {
+        return +a[0] > +b[0] ? -1 : (+b[0] > +a[0] ? 1 : 0);
+      }
 
     private getLastOrFirstSearchHistoryEntry(comparator: (a: string, b: string) => boolean) : string {
         var found = this.searchHistory.keys().next().value;
