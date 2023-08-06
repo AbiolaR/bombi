@@ -137,12 +137,18 @@ h1 {
 
 @media screen and (max-width: 1250px) {
     .hover-search-bar {
-        width: calc(80% + 2px);;
+        width: calc(80% + 2px);
     }
 }
 
 @media screen and (max-width: 700px) {
     .hover-search-bar {
-        width: calc(94% + 2px);;
+        width: calc(94% + 2px);
+    }
+}
+
+@media screen and (max-width: 380px) {
+    .year-filter {
+        max-width: 6em !important;
     }
 }

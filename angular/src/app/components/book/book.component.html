@@ -1,6 +1,6 @@
 <div *ngIf="book" class="book">
     <img *ngIf="!isImgLoaded" class="cover" aria-label="Book Cover Placeholder" src="/assets/images/covers/loading-cover.png"/>
-    <img (load)="isImgLoaded = true" loading="lazy" class="cover" aria-label="Book Cover" src="{{book.cover_url == 'img/blank.png' ? '/assets/images/covers/blank.png' : 'https://libgen.li/' + book.cover_url}}"
+    <img (load)="isImgLoaded = true" loading="lazy" [class.hidden]="!isImgLoaded" class="cover" aria-label="Book Cover" src="{{book.cover_url == 'img/blank.png' ? '/assets/images/covers/blank.png' : 'https://libgen.li/' + book.cover_url}}"
     (click)="enlarge()"/>
     <div class="book-details">
         <div>
