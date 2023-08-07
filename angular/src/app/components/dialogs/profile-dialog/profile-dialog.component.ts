@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
+import { Language } from 'src/app/models/language';
 import { UserData } from 'src/app/models/user-data';
+import { AppService } from 'src/app/services/app.service';
 import { UserService } from 'src/app/services/user.service';
 
 @Component({
@@ -11,11 +13,15 @@ import { UserService } from 'src/app/services/user.service';
 export class ProfileDialogComponent implements OnInit {
 
   userData: UserData | undefined;
+  Language = Language;
+  selectedLanguage = '';
 
-  constructor(private userService: UserService, private dialogRef: MatDialogRef<ProfileDialogComponent>) { }
+  constructor(private userService: UserService, private appService: AppService,
+    private dialogRef: MatDialogRef<ProfileDialogComponent>) { }
 
   ngOnInit(): void {
     this.userData = this.userService.getLocalUserData();
+    this.selectedLanguage = this.userData.language;
   }
 
   logout(): void {
@@ -48,5 +54,12 @@ export class ProfileDialogComponent implements OnInit {
   dataHasChanged(): boolean {
     return JSON.stringify(this.userData?.removeEmpty()) 
             !== JSON.stringify(this.userService.getLocalUserData()?.removeEmpty());
+  }
+
+  setLanguage(language: Language) {
+    if (this.userData) {
+      this.userData.language = language;
+    }
+    this.appService.setLanguage(language) 
   }
 }

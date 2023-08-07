@@ -6,6 +6,7 @@ import { EventService } from 'src/app/services/event.service';
 import { UserService } from 'src/app/services/user.service';
 import { RegisterDialogComponent } from '../dialogs/register-dialog/register-dialog.component';
 import { ResetPasswordDialogComponent } from '../dialogs/reset-password-dialog/reset-password-dialog.component';
+import { AppService } from 'src/app/services/app.service';
 
 @Component({
   selector: 'app-login',
@@ -21,7 +22,8 @@ export class LoginComponent implements OnInit {
   usernameError: String = '';
   passwordError: String = '';
 
-  constructor(private userService: UserService, private dialog: MatDialog, private eventService: EventService) { }
+  constructor(private userService: UserService, private dialog: MatDialog, 
+    private eventService: EventService, private appService: AppService) { }
 
   ngOnInit(): void {
   }
@@ -33,9 +35,10 @@ export class LoginComponent implements OnInit {
       this.loginForm.get('password')?.value || '').subscribe({
       next: (userData: UserData) => {                
         if (userData.username) {        
-          userData = this.mergeSearchHistory(userData);  
+          userData = this.mergeUserData(userData);  
           this.userService.setUserData(userData);
           this.userService.saveSearchHistory(userData.searchHistory).subscribe({});
+          this.userService.saveUserDataProperty('language', userData.language).subscribe({});
         } else {
           switch(userData.status) {
             case 2:
@@ -69,13 +72,18 @@ export class LoginComponent implements OnInit {
     })
   }
 
-  private mergeSearchHistory(userData: UserData): UserData {
+  private mergeUserData(userData: UserData): UserData {
     userData = Object.assign(new UserData, userData);
+    let localUserData = this.userService.getLocalUserData();
     userData.searchHistory = new Map([...new Map(Object.entries(userData.searchHistory)), 
-      ...this.userService.getLocalUserData().searchHistory]);
+      ...localUserData.searchHistory]);
 
     userData.deleteOldSearchHistoryEntries();
+    if (!userData.language) {
+      userData.language = localUserData.language;
+    }
     this.userService.deleteUserData();
+    this.appService.setLanguage(userData.language);
     return userData;
   }
 

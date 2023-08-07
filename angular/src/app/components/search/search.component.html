@@ -1,11 +1,11 @@
 <form class="search-container" [formGroup]="searchForm" (ngSubmit)="onSubmit()">
     <mat-form-field class="searchbox" appearance="outline" (click)="fetchData()">
-        <mat-label>Search for your book</mat-label>
+        <mat-label>{{ 'search-for-your-book' | translate }}</mat-label>
         <input matInput #searchInput="matInput" [formControl]="$any(searchForm).get('input')"
         [matAutocomplete]="searchHistoryDD"/>        
 
         <mat-menu #langMenu="matMenu" class="lang-menu" backdropClass="customize">
-            <button mat-menu-item (click)="selectedLang = ''" class="text">Any</button>
+            <button mat-menu-item (click)="selectedLang = ''" class="text">{{ 'any' | translate }}</button>
             <button mat-menu-item *ngFor="let language of languages | keyvalue" 
             (click)="selectedLang = language.value">
                 <img src="/assets/images/flags/{{language.value}}.svg"></button>
@@ -22,7 +22,7 @@
         
         <button class="search-button" mat-icon-button matSuffix type="submit" aria-label="Search"><mat-icon>search</mat-icon></button>
         <mat-error *ngIf="searchForm.get('input')?.invalid">
-            Please enter at least {{minimumLength}} characters
+            {{ 'please-enter-min-chars' | translate: { arg: minimumLength } }}
         </mat-error>
 
         <mat-autocomplete #searchHistoryDD="matAutocomplete" class="search-history" (optionSelected)="submitForm()" hideSingleSelectionIndicator>

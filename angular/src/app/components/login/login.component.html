@@ -2,24 +2,24 @@
   <form name="loginForm" [formGroup]="loginForm" (ngSubmit)="onSubmit()" #lForm="ngForm" novalidate class="login-form">
     <mat-card-content>
       <mat-form-field appearance="outline">
-        <mat-label>username</mat-label>
+        <mat-label>{{ 'username' | translate }}</mat-label>
         <input matInput type="text" formControlName="username" name="username">
         <mat-error *ngIf="loginForm.get('username')?.errors?.['unauthenticated']">
           {{usernameError}}
         </mat-error>
       </mat-form-field>
       <mat-form-field appearance="outline">
-        <mat-label>password</mat-label>
+        <mat-label>{{ 'password' | translate }}</mat-label>
         <input matInput type="password" formControlName="password" name="password">
         <mat-error *ngIf="loginForm.get('password')?.errors?.['unauthenticated']">
           {{passwordError}}
         </mat-error>
       </mat-form-field>
     </mat-card-content>
-    <button mat-flat-button type="button" class="forgot-pass-btn" (click)="openForgotPasswordDialog()">forgot password?</button>
+    <button mat-flat-button type="button" class="forgot-pass-btn" (click)="openForgotPasswordDialog()">{{ 'forgot-password' | translate }}</button>
     <mat-card-actions>
-      <button mat-flat-button color="primary" class="login-btn">login</button>
-      <button mat-flat-button type="button" class="register-btn" (click)="openRegisterDialog()">register</button>
+      <button mat-flat-button color="primary" class="login-btn">{{ 'login' | translate }}</button>
+      <button mat-flat-button type="button" class="register-btn" (click)="openRegisterDialog()">{{ 'register' | translate }}</button>
     </mat-card-actions>
   </form>
 </div>

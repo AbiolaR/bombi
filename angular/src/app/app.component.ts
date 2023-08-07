@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { AppService } from './services/app.service';
 
 @Component({
   selector: 'app-root',
@@ -7,4 +8,10 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'bombi';
+
+  constructor(private appService: AppService) {}
+  
+  ngOnInit(): void {
+    this.appService.setLanguage();
+  }
 }

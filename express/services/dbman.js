@@ -30,7 +30,8 @@ const UserSchema = mongoose.Schema({
     eReaderType: { type: String, required: true },
     eReaderEmail: String,
     eReaderDeviceId: String,
-    eReaderRefreshToken: String
+    eReaderRefreshToken: String,
+    language: String
 });
 
 const User = mongoose.model('User', UserSchema);

@@ -9,11 +9,11 @@
         </button>
     </div>
     <div *ngIf="usingCorrection">
-        <p>Showing results for <span class="correction" (click)="searchString = suggestion">{{suggestion}}</span></p>
+        <p>{{ 'showing-results-for' | translate }} <span class="correction" (click)="searchString = suggestion">{{suggestion}}</span></p>
     </div>
     <div id="filters" *ngIf="distinctAuthors.size > 1">
         <mat-form-field appearance="fill">
-            <mat-label>Authors</mat-label>
+            <mat-label>{{ 'authors' | translate }}</mat-label>
             <mat-select #authorSelect [(ngModel)]="filteredAuthors" (selectionChange)="filterBooks()" multiple>
                 <mat-select-trigger>
                     {{filteredAuthors[0] || 'unkown author'}}
@@ -21,12 +21,12 @@
                       (+{{(filteredAuthors.length || 0) - 1}})
                     </span>
                   </mat-select-trigger>
-                <mat-option class="clear">All</mat-option>
+                <mat-option class="clear">{{ 'all' | translate }}</mat-option>
                 <mat-option *ngFor="let author of distinctAuthors" [value]="author">{{author || 'unkown author'}}</mat-option>
             </mat-select>
         </mat-form-field>
         <mat-form-field appearance="fill" class="year-filter" *ngIf="distinctYears.size > 1">
-            <mat-label>Year</mat-label>
+            <mat-label>{{ 'year' | translate }}</mat-label>
             <mat-select #yearSelect [(ngModel)]="filteredYears" (selectionChange)="filterBooks()" multiple>
                 <mat-select-trigger>
                     {{filteredYears[0]}}
@@ -34,12 +34,12 @@
                         (+{{(filteredYears.length || 0) - 1}})
                     </span>
                 </mat-select-trigger>
-                <mat-option class="clear">All</mat-option>
+                <mat-option class="clear">{{ 'all' | translate }}</mat-option>
                 <mat-option *ngFor="let year of distinctYears" [value]="year">{{year}}</mat-option>
             </mat-select>
         </mat-form-field>
         <mat-form-field appearance="fill" class="year-filter" *ngIf="distinctLanguages.size > 1">
-            <mat-label>Language</mat-label>
+            <mat-label>{{ 'language' | translate }}</mat-label>
             <mat-select #langSelect [(ngModel)]="filteredLanguages" (selectionChange)="filterBooks()" multiple>
                 <mat-select-trigger>
                     <img class="lang" src="/assets/images/flags/{{filteredLanguages[0]}}.svg" aria-label="Book Language"/>
@@ -47,22 +47,23 @@
                         (+{{(filteredLanguages.length || 0) - 1}})
                     </span>
                 </mat-select-trigger>
-                <mat-option class="clear">All</mat-option>
+                <mat-option class="clear">{{ 'all' | translate }}</mat-option>
                 <mat-option *ngFor="let lang of distinctLanguages" [value]="lang"><img class="lang" src="/assets/images/flags/{{lang}}.svg" aria-label="Book Language"/></mat-option>
             </mat-select>
         </mat-form-field>
-        <button mat-flat-button (click)="clearFilters()" *ngIf="minFilterSet(1)" aria-label="Clear Filters">
-            Clear Filter<span *ngIf="minFilterSet(2)">s</span>
+        <button mat-flat-button (click)="clearFilters()" *ngIf="minFilterSet(1)" 
+        aria-label="Clear Filters">
+            {{ 'clear-filter' | translate }}<span *ngIf="minFilterSet(2)">{{ 'clear-filter-plural-ending' | translate }}</span>
             <mat-icon matSuffix iconPositionEnd>clear</mat-icon>
         </button>
     </div>
 </div>
 <div id="search-results">
     <div *ngIf="books?.length == 0" class="nothing-found">
-        <h1>No books found matching your search</h1>
+        <h1>{{ 'no-books-found' | translate }}</h1>
         <div class="no-results-buttons">
             <button *ngIf="selectedLang != ''" mat-raised-button color="primary" 
-            (click)="resetLangAndSearch()" aria-label="Remove language filter">Remove language filter</button>
+            (click)="resetLangAndSearch()" aria-label="Remove language filter">{{ 'remove-language-filter' | translate }}</button>
         </div>
     </div>
     <app-book *ngFor="let book of books" [book]="book"></app-book>

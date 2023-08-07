@@ -11,6 +11,7 @@ import { ProfileDialogComponent } from '../../dialogs/profile-dialog/profile-dia
 import { MatSelect } from '@angular/material/select';
 import { SearchResult } from 'src/app/models/search-result';
 import { LanguageMap } from 'src/app/models/language-map';
+import { AppService } from 'src/app/services/app.service';
 
 const ALT_GER_LANG = 'deu';
 const AUTHOR = 'author';
@@ -48,8 +49,9 @@ export class SearchResultsComponent {
   oldScrollY = 0;
   usingCorrection = false;
 
-  constructor(private route: ActivatedRoute, private searchService: BookService, private dialog: MatDialog, 
-    public userService: UserService, private eventService: EventService, private router: Router) {
+  constructor(private route: ActivatedRoute, private searchService: BookService, 
+    private dialog: MatDialog, public userService: UserService, 
+    private eventService: EventService, private router: Router, private appService: AppService) {
 
     eventService.menuEvent.subscribe(this.toggleLoginMenu.bind(this))
 
@@ -144,9 +146,12 @@ export class SearchResultsComponent {
   }
 
   openProfileDialog() {
-    this.dialog.open(ProfileDialogComponent, {
+    let dialogRef = this.dialog.open(ProfileDialogComponent, {
       width: '500px',
       autoFocus: false
+    });
+    dialogRef.afterClosed().subscribe(() => {
+      this.appService.setLanguage(this.userService.getLocalUserData().language);
     });
   }
 
@@ -320,7 +325,8 @@ export class SearchResultsComponent {
     this.books = this.books?.filter(book => filteredAuthors.includes(book.author) && filteredYears.includes(book.year) && filteredLanguages.includes(book.language));
     /*console.warn(this.books?.length)
     console.warn(this.isLastPage)*/
-    if ((this.books?.length || 0) < 100 && !this.isLastPage) {
+    if ((this.books?.length || 0) != 0 && (this.books?.length || 0) < 100 
+    && !this.isLastPage) {
       this.loadAdditionalBooks();
     }
   }

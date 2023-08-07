@@ -1,10 +1,10 @@
 <mat-dialog-content>
     <mat-form-field>
-        <mat-label>Book Name</mat-label>
+        <mat-label>{{ 'book-name' | translate }}</mat-label>
         <input matInput [(ngModel)]="customBook.filename"/>
     </mat-form-field>
     <mat-form-field>
-        <mat-label>Url</mat-label>
+        <mat-label>{{ 'url' | translate }}</mat-label>
         <input matInput [(ngModel)]="customBook.url"/>
     </mat-form-field>
     <app-download-cluster buttonClassList="row" [customBook]="customBook" [mode]="URL">        

@@ -1,24 +1,24 @@
 <mat-dialog-content>
-    <h2>Register new user</h2>
+    <h2>{{ 'register-new-user' | translate }}</h2>
     <mat-form-field appearance="outline">
-        <mat-label>Username</mat-label>
+        <mat-label>{{ 'username' | translate }}</mat-label>
         <input matInput [(ngModel)]="user.username"/>
     </mat-form-field>
     <mat-form-field appearance="outline">
-        <mat-label>E-Mail</mat-label>
+        <mat-label>{{ 'e-mail' | translate }}</mat-label>
         <input matInput [(ngModel)]="user.email"/>
     </mat-form-field>
     <mat-form-field appearance="outline">
-        <mat-label>Password</mat-label>
+        <mat-label>{{ 'password' | translate }}</mat-label>
         <input type="password" matInput [(ngModel)]="user.password"/>
     </mat-form-field>
     <app-ereader-config [userRelatedData]="user"></app-ereader-config>
 </mat-dialog-content>
 <mat-dialog-actions>    
     <button mat-stroked-button color="primary"  (click)="register()">
-        Register
+        {{ 'register' | translate }}
     </button>
     <button mat-stroked-button (click)="close()">
-        Cancel
+        {{ 'cancel' | translate }}
     </button>
 </mat-dialog-actions>

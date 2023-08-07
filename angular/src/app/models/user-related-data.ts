@@ -1,6 +1,7 @@
 import { KeyValue } from "@angular/common";
 import { User } from "./user";
 import { UserData } from "./user-data";
+import { Language } from "./language";
 
 const SEARCH_HISTORY_MAX_SIZE = 100;
 
@@ -13,6 +14,7 @@ export class UserRelatedData {
     eReaderRefreshToken: String = '';
     eReaderDeviceId: String = '';
     searchHistory: Map<string, string> = new Map();
+    language: Language = Language.UNKNOWN;
 
     sanitize(): void {
         if (this.eReaderDeviceId && this.eReaderDeviceId.length > 4) {
@@ -24,11 +26,15 @@ export class UserRelatedData {
     }
 
     removeEmpty(): any {
-         return Object.fromEntries(Object.entries(this).filter(([_, v]) => v != ''));
-      }
+        return Object.fromEntries(Object.entries(this).filter(([_, v]) => v != ''));
+    }
 
     removeStarred(): any {
         return Object.fromEntries(Object.entries(this).filter(([_, v]) => this.notStarred(v)));
+    }
+
+    removeLanguage(): any {
+        return Object.fromEntries(Object.entries(this).filter(([k, _]) => k != 'language'));
     }
 
     deleteOldSearchHistoryEntries() {

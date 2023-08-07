@@ -6,6 +6,8 @@ import { ResetData } from '../models/reset-data';
 import { ServerResponse } from '../models/server-response';
 import { User } from '../models/user';
 import { UserData } from '../models/user-data';
+import { UserRelatedData } from '../models/user-related-data';
+import { Language } from '../models/language';
 
 @Injectable({
   providedIn: 'root'
@@ -31,6 +33,27 @@ export class UserService {
       JSON.stringify(user), 
       { headers }
     );
+  }
+
+  public saveUserDataProperty(key: keyof UserData, value: UserData[keyof UserData]) {
+    const headers = { 'Content-Type': 'application/json',
+    'Authorization': `Bearer ${this.getLocalUserData()?.access_token}` };
+    this.saveLocalUserDataProperty(key, value);
+
+    return this.http.post<boolean>(
+        `${this.userApiUrl}/save`,
+        Object.fromEntries(new Map([[key, value]])),
+        { headers }
+      );
+  }
+
+  public saveLocalUserDataProperty<UserDataKey extends keyof UserData>
+  (key: UserDataKey, value: UserData[UserDataKey]) {
+    let userData = this.getLocalUserData();
+    if (userData) {
+      userData[key] = value;
+      this.setUserData(userData);
+    }
   }
 
   public saveUserData(userData: UserData): Observable<boolean> {
