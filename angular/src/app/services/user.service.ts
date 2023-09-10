@@ -1,13 +1,14 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, firstValueFrom, take } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { ResetData } from '../models/reset-data';
 import { ServerResponse } from '../models/server-response';
 import { User } from '../models/user';
 import { UserData } from '../models/user-data';
-import { UserRelatedData } from '../models/user-related-data';
-import { Language } from '../models/language';
+import { Book } from '../models/book';
+import { Contact } from '../models/contact';
+import { NotificationInfo } from '../models/notification-info';
 
 @Injectable({
   providedIn: 'root'
@@ -85,6 +86,81 @@ export class UserService {
     }
   }
 
+  public shareBook(contact: string, book: Book, notificationInfo: NotificationInfo) : Observable<ServerResponse<boolean>> {
+    const headers = { 'Content-Type': 'application/json',
+    'Authorization': `Bearer ${this.getLocalUserData()?.access_token}` };
+    return this.http.post<ServerResponse<boolean>>(
+      `${this.userApiUrl}/share`,
+      Object.fromEntries([['contact', contact], ['book', book], ['notificationData', notificationInfo]]),
+      { headers }
+    )
+  }
+
+  public getSharedBooks(contact: string = '') : Observable<ServerResponse<Book[]>> {
+    const headers = { 'Content-Type': 'application/json',
+    'Authorization': `Bearer ${this.getLocalUserData()?.access_token}` };
+    return this.http.get<ServerResponse<Book[]>>(
+      `${this.userApiUrl}/shared?contact=${contact}`,
+      { headers }
+    );
+  }
+
+  public getChats() : Observable<ServerResponse<Contact[]>> {
+    const headers = { 'Content-Type': 'application/json',
+    'Authorization': `Bearer ${this.getLocalUserData()?.access_token}` };
+    return this.http.get<ServerResponse<Contact[]>>(
+      `${this.userApiUrl}/shared`,
+      { headers }
+    )
+  }
+
+  public sendFriendRequest(username: string, notificationData: NotificationInfo) : Observable<ServerResponse<boolean>> {
+    const headers = { 'Content-Type': 'application/json',
+    'Authorization': `Bearer ${this.getLocalUserData()?.access_token}` };
+
+    return this.http.post<ServerResponse<any>>(
+      `${this.userApiUrl}/friend-request/send`,
+      { contactUsername: username, notificationData: notificationData },
+      { headers }
+    )
+  }
+
+  public acceptFriendRequest(username: string, notificationData: NotificationInfo) : Observable<ServerResponse<boolean>> {
+    const headers = { 'Content-Type': 'application/json',
+    'Authorization': `Bearer ${this.getLocalUserData()?.access_token}` };
+
+    return this.http.post<ServerResponse<any>>(
+      `${this.userApiUrl}/friend-request/accept`,
+      { contactUsername: username, notificationData: notificationData },
+      { headers }
+    )
+  }
+
+  public openNotifications() : number {
+    return this.unreadMessages() + this.getLocalUserData().friendRequests.length;
+  }
+
+  public unreadMessages() : number {
+    let amount = 0
+    this.getLocalUserData().contacts.forEach(contact => {
+      amount += contact.unreadMessages || 0;
+    })
+    return amount;
+  }
+
+  public updateUserData() : Observable<UserData> {
+    return new Observable(subscriber => {
+      this.getUserData().pipe(
+        take(1)
+      ).subscribe(userData => {
+        userData.access_token = this.getLocalUserData().access_token;
+        userData = Object.assign(new UserData, userData);
+        this.setUserData(userData);
+        subscriber.next(userData);
+      });
+    });   
+  }
+
   replacer(key: any, value: any) {
     if(value instanceof Map) {
       return {
@@ -118,9 +194,9 @@ export class UserService {
       `{"passwordResetHash": "${hash}"}`, { headers });
   }
 
-  public resetPassword(resetData: ResetData): Observable<ServerResponse> {
+  public resetPassword(resetData: ResetData): Observable<ServerResponse<boolean>> {
     const headers = { 'Content-Type': 'application/json' };
-    return this.http.post<ServerResponse>(
+    return this.http.post<ServerResponse<boolean>>(
       `${this.userApiUrl}/resetPassword`, 
       JSON.stringify(resetData), 
       { headers });

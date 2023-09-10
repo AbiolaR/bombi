@@ -12,3 +12,10 @@ app-search {
     right: 0;
     background-color: var(--primary-tinted-color);
 }
+
+.user-btn {
+    ::ng-deep.mat-badge-content {
+        right: -3px !important;
+        bottom: -3px !important;
+    }
+}

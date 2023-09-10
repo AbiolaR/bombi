@@ -1,6 +1,8 @@
 export interface Book {
-    book_id: string,
+    book_id: number,
     md5: string,
+    edition_id: number,
+    isbn: number,
     title: string,
     author: string,
     language: string,

@@ -1,0 +1,89 @@
+.cover {    
+    height: 4em;
+    width: 2.67em;
+    margin-right: 1em;
+}
+
+.cover.hidden {
+    width: 0;
+    height: 0;
+    margin: 0;
+}
+
+.lang {
+    margin-right: 1em;
+    height: 1em;
+    vertical-align: middle;
+}
+
+.title {
+    font-size: 18px;
+    margin-right: 5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+}
+
+.mat-expanded {
+    .shrink {
+        font-size: 12px;
+    }
+}
+
+::ng-deep.mat-content {
+    align-items: center;
+}
+
+mat-expansion-panel {
+    margin-bottom: 1em;
+}
+
+mat-expansion-panel,mat-expansion-panel-header {
+    min-height: 5em;
+}
+
+.more-info {
+    display: inline-flex;
+    align-items: center;
+    width: calc(100% - 48px);
+    height: 48px;
+}
+
+app-download-cluster {
+    display: flex;
+    justify-content: space-evenly;
+    width: 80%;
+    min-width: 300px;
+}
+
+.search-more.mobile {
+    display: none;
+}
+
+.search-more.desktop {
+    display: unset;
+}
+
+.action-buttons {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+@media screen and (max-width: 400px) {
+    app-download-cluster {
+        justify-content: space-between;
+    }
+}
+
+@media screen and (max-width: 700px) {
+    .search-more.mobile {
+        display: unset;
+    }
+
+    .search-more.desktop {
+        display: none;
+    }
+}

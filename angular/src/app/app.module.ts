@@ -30,9 +30,20 @@ import { CustomUrlDialogComponent } from './components/dialogs/custom-url-dialog
 import { ResetPasswordDialogComponent } from './components/dialogs/reset-password-dialog/reset-password-dialog.component';
 import { PasswordResetComponent } from './components/pages/password-reset/password-reset.component';
 import { ServiceWorkerModule } from '@angular/service-worker';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import {  MatAutocompleteModule  } from '@angular/material/autocomplete';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { SharedBooksComponent } from './components/pages/shared-books/shared-books.component';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MessageComponent } from './components/message/message.component';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { ChatComponent } from './components/chat/chat.component';
+import { MatRippleModule } from '@angular/material/core';
+import { MatDividerModule } from '@angular/material/divider';
+import { ChatOverviewComponent } from './components/chat-overview/chat-overview.component';
+import { AddContactDialogComponent } from './components/dialogs/add-contact-dialog/add-contact-dialog.component';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http);
@@ -54,6 +65,11 @@ export function HttpLoaderFactory(http: HttpClient) {
     CustomUrlDialogComponent,
     ResetPasswordDialogComponent,
     PasswordResetComponent,
+    SharedBooksComponent,
+    MessageComponent,
+    ChatComponent,
+    ChatOverviewComponent,
+    AddContactDialogComponent,
   ],
   imports: [
     BrowserModule,
@@ -73,6 +89,9 @@ export function HttpLoaderFactory(http: HttpClient) {
     MatSelectModule,
     MatAutocompleteModule,
     MatMenuModule,
+    MatRippleModule,
+    MatDividerModule,
+    MatSnackBarModule,
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,
@@ -80,8 +99,11 @@ export function HttpLoaderFactory(http: HttpClient) {
         deps: [HttpClient]
       }
     }),
-    ServiceWorkerModule.register('ngsw-worker.js', {
-      enabled: !isDevMode(),
+    MatBadgeModule,
+    MatSidenavModule,
+    MatExpansionModule,
+    ServiceWorkerModule.register('custom-service-worker.js', {
+      enabled: true,
       // Register the ServiceWorker as soon as the application is stable
       // or after 30 seconds (whichever comes first).
       registrationStrategy: 'registerWhenStable:30000'

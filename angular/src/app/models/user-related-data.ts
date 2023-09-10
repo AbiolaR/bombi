@@ -1,7 +1,5 @@
-import { KeyValue } from "@angular/common";
-import { User } from "./user";
-import { UserData } from "./user-data";
 import { Language } from "./language";
+import { Contact } from "./contact";
 
 const SEARCH_HISTORY_MAX_SIZE = 100;
 
@@ -15,6 +13,10 @@ export class UserRelatedData {
     eReaderDeviceId: String = '';
     searchHistory: Map<string, string> = new Map();
     language: Language = Language.UNKNOWN;
+    unreadMessageAmount: number = 0;
+    friendRequests: string[] = [];
+    contacts: Contact[] = [];
+    pushSubscriptions: PushSubscription[] = [];
 
     sanitize(): void {
         if (this.eReaderDeviceId && this.eReaderDeviceId.length > 4) {

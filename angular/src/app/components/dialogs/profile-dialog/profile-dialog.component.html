@@ -1,19 +1,62 @@
-<mat-dialog-content *ngIf="userData">
+<mat-dialog-content *ngIf="userData" class="profile-dialog">
+    <button id="messagesBtn" mat-mini-fab (click)="navigateToSharedBooks()">
+        <mat-icon [matBadge]="userService.openNotifications()" aria-hidden="false"
+        [matBadgeHidden]="userService.openNotifications() < 1" [matBadgeOverlap]="false">
+            message
+        </mat-icon>
+    </button>
     <button id="lgtBtn" mat-stroked-button color="warn" (click)="logout()">
         {{ 'logout' | translate }}
     </button>
     <h1>{{userData.username}}</h1>
     <h5>{{userData.email}}</h5>
-    <h4>{{ 'select-your-language' | translate }}</h4>
-    <div class="language">
-        <img [ngClass]="{'selected' : userData.language == Language.EN}"
-            (click)="setLanguage(Language.EN)"
-            src="/assets/images/language-flags/en.svg">
-        <img [ngClass]="{'selected' : userData.language == Language.DE}"
-            (click)="setLanguage(Language.DE)"
-            src="/assets/images/language-flags/de.svg">
-    </div>
-    <app-ereader-config [userRelatedData]="userData"></app-ereader-config>
+    <mat-accordion>
+        <mat-expansion-panel>
+            <mat-expansion-panel-header>
+                {{ 'friends' | translate }}
+                <span class="friend-request-amount" [matBadge]="userData.friendRequests.length"
+                [matBadgeHidden]="userData.friendRequests.length < 1"></span>
+            </mat-expansion-panel-header>
+                <mat-accordion class="friend-requests">
+                    <mat-expansion-panel *ngFor="let user of userData.friendRequests" class="friend-request">
+                        <mat-expansion-panel-header>
+                            {{ 'user-sent-you-a-friend-request' | translate: { arg: user } }}
+                        </mat-expansion-panel-header>
+                        <div class="friend-request-action">
+                            <button mat-raised-button color="primary" (click)="acceptFriendRequest(user)">
+                                {{ 'accept' | translate }}
+                            </button>
+                            <button mat-raised-button color="primary" (click)="declineFriendRequest(user)">
+                                {{ 'decline' | translate }}
+                            </button>
+                        </div>
+                    </mat-expansion-panel>
+                </mat-accordion>
+                <h3 *ngIf="!contactAmount()">{{ 'no-friends-yet' | translate }}</h3>
+                <mat-card class="contacts">
+                    <button color="primary" class="add-contact" mat-raised-button (click)="openAddContactDialog()">
+                        <mat-icon>person_add</mat-icon>
+                    </button>
+                    <span *ngFor="let contact of userData.contacts">{{contact.name}}</span>
+                </mat-card>
+        </mat-expansion-panel>
+        <mat-expansion-panel>
+            <mat-expansion-panel-header>
+                {{ 'settings' | translate }}
+            </mat-expansion-panel-header>
+            <h4>{{ 'select-your-language' | translate }}</h4>
+            <div class="language">
+                <img [ngClass]="{'selected' : userData.language == Language.EN}"
+                    (click)="setLanguage(Language.EN)"
+                    src="/assets/images/language-flags/en.svg">
+                <img [ngClass]="{'selected' : userData.language == Language.DE}"
+                    (click)="setLanguage(Language.DE)"
+                    src="/assets/images/language-flags/de.svg">
+            </div>
+            <app-ereader-config [userRelatedData]="userData"></app-ereader-config>
+        </mat-expansion-panel>
+    </mat-accordion>
+
 </mat-dialog-content>
 <mat-dialog-actions *ngIf="dataHasChanged()">    
     <button mat-stroked-button color="primary"  (click)="save()">

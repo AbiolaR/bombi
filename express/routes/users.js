@@ -6,6 +6,7 @@ const crypto = require('crypto');
 const dbman = require('../services/dbman');
 const { sendPasswordResetMail } = require('../services/email');
 const { TOKEN_SECRET } = require('../services/secman');
+const { sendPushNotifications } = require('../services/notification.service'); 
 
 const ONE_YEAR = '8760h';
 
@@ -153,6 +154,117 @@ router.post('/validateResetHash', async (req, res, next) => {
     }
 
     res.status(200).send({username: user.username ,status: 0, message: 'hash valid'});
+});
+
+router.post('/share', async (req, res) => {
+    const username = req.body.username;
+    const contactName = req.body.contact;
+    const book = req.body.book;
+    const notificationData = req.body.notificationData;
+    const user = await dbman.findUserAsync(username);
+    const sharedBook = { editionId: book.edition_id, title: book.title, md5: book.md5, author: book.author,
+    language: book.language, coverUrl: book.cover_url, isbn: book.isbn, filename: book.filename };
+    console.log(sharedBook)
+    
+    if (user) {
+        user.contacts.forEach(async contact => {
+            if (contact.name == contactName) {
+                const dbContact = await dbman.findUserAsync(contactName);
+                if (dbContact) {
+                    dbContact.contacts.forEach(async _contact => {
+                        if (_contact.name == username) {
+                            _contact.sharedBooks.push(sharedBook);
+                            _contact.unreadMessages = ++_contact.unreadMessages || 1;
+                            await dbman.updateUserAsync(dbContact);
+                            await sendPushNotifications(dbContact.pushSubscriptions, 
+                                notificationData.title, notificationData.message, notificationData.actions, book);
+                            return;
+                        }
+                    });
+                }
+                return;
+            }
+        });
+    }
+
+    res.status(200).send({ status: 0, message: ''});
+});
+
+router.get('/shared', async (req, res) => {
+    const username = req.body.username;
+    const contactName = req.query.contact;
+
+    let data = [];
+
+    const user = await dbman.findUserAsync(username);
+    if (user) {
+        user.contacts.forEach(contact => {
+            if (contactName) {
+                if (contactName == contact.name) {
+                    data = contact.sharedBooks;
+                    return;              
+                } 
+            }
+            else if (contact.sharedBooks.length > 0) {
+                data.push(contact);
+            }
+        });
+    }
+
+    res.status(200).send({ status: 0, message: '', data: data });
+});
+
+router.post('/friend-request/send', async (req, res) => {
+    const username = req.body.username;
+    const contactUsername = req.body.contactUsername;
+    const notificationData = req.body.notificationData;
+
+    const user = await dbman.findUserAsync(username);
+    if (!user) {
+        res.status(200).send({status: 1, message: 'user does not exist'});
+        return;
+    }
+
+    const contact = await dbman.findUserAsync(contactUsername);
+    if (!contact) {
+        res.status(200).send({status: 2, message: 'contact does not exist'});
+        return;
+    }
+
+    contact.friendRequests.push(username);
+    await dbman.updateUserAsync(contact);
+    await sendPushNotifications(contact.pushSubscriptions, 
+        notificationData.title, notificationData.message, notificationData.actions);
+
+    res.status(200).send({status: 0, message: ''});
+});
+
+router.post('/friend-request/accept', async (req, res) => {
+    const username = req.body.username;
+    const contactUsername = req.body.contactUsername;
+    const notificationData = req.body.notificationData;
+
+    const user = await dbman.findUserAsync(username);
+    if (!user) {
+        res.status(200).send({status: 1, message: 'user does not exist'});
+        return;
+    }
+
+    const contact = await dbman.findUserAsync(contactUsername);
+    if (!contact) {
+        res.status(200).send({status: 2, message: 'contact does not exist'});
+        return;
+    }
+
+    contact.contacts.push({ name: username });
+    user.contacts.push({ name: contactUsername });
+    
+    await dbman.updateUserAsync(contact);
+    await dbman.updateUserAsync(user);
+    await sendPushNotifications(contact.pushSubscriptions, 
+        notificationData.title, notificationData.message, notificationData.actions);
+
+    res.status(200).send({status: 0, message: ''});
 });
 
 function authenticateUser(username) {

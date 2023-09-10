@@ -1,4 +1,5 @@
-export interface ServerResponse {
+export interface ServerResponse<Type> {
     status: number,
-    message: string
+    message: string,
+    data: Type
 }

@@ -5,6 +5,12 @@ app-search {
 
 .search-bar {
     display: flex;
+    margin-bottom: 5px;
+
+    ::ng-deep.mat-badge-content {
+        right: -3px !important;
+        bottom: -3px !important;
+    }
 }
 
 .hover-search-bar {

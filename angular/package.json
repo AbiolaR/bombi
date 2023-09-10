@@ -4,6 +4,8 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve --host 0.0.0.0 --disable-host-check --proxy-config proxy.conf.json",
+    "sw-start": "ng serve --host 0.0.0.0 --disable-host-check --proxy-config proxy.conf.json --live-reload=false",
+    "sw-old-start": "ng build --configuration development && http-server -p 8080 -c-1 dist/bombi",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
@@ -33,6 +35,7 @@
     "compression-webpack-plugin": "^10.0.0",
     "cookie-parser": "^1.4.6",
     "express": "^4.18.1",
+    "ng2-fittext": "^1.3.0",
     "ngx-device-detector": "^6.0.2",
     "rxjs": "~7.5.0",
     "tslib": "^2.3.0",

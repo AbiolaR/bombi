@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { DEC, ENC } = require('./secman');
+const { DEC } = require('./secman');
 
 const ENV = process.env.STAGE == 'prod' ? 'Prod' : 'Test';
 
@@ -20,6 +20,34 @@ const db = mongoose.connection;
 
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
+const PushSubscriptionKeysSchema = mongoose.Schema({
+    p256dh: { type: String, required: true },
+    auth: { type: String, required: true },
+});
+
+const PushSubscriptionSchema = mongoose.Schema({
+    endpoint: { type: String, required: true },
+    keys: { type: PushSubscriptionKeysSchema, required: true },
+    expirationTime: Number,
+});
+
+const BookSchema = mongoose.Schema({
+    editionId: { type: Number, required: true },
+    title: { type: String, required: true },
+    md5: { type: String, required: true },
+    filename: { type: String, required: true },
+    author: String,
+    language: String,
+    coverUrl: String,
+    isbn: Number
+});
+
+const ContactSchema = mongoose.Schema({
+    name: { type: String, required: true },
+    unreadMessages: Number,
+    sharedBooks: [BookSchema]
+});
+
 const UserSchema = mongoose.Schema({
     username: { type: String, required: true },
     password: { type: String, required: true },
@@ -31,7 +59,10 @@ const UserSchema = mongoose.Schema({
     eReaderEmail: String,
     eReaderDeviceId: String,
     eReaderRefreshToken: String,
-    language: String
+    language: String,
+    friendRequests: [String],
+    contacts: [ContactSchema],
+    pushSubscriptions: [PushSubscriptionSchema]
 });
 
 const User = mongoose.model('User', UserSchema);

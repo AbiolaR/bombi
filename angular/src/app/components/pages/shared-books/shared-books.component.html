@@ -1,0 +1,42 @@
+<div id="search-bar" class="search-bar">
+    <app-search></app-search>
+    <button mat-fab (click)="openProfileDialog()" *ngIf="userService.getLocalUserData()?.username" aria-label="User"
+    [matBadge]="userService.openNotifications()" [matBadgeHidden]="userService.openNotifications() < 1"
+    matBadgePosition="below">
+        <mat-icon>perm_identity</mat-icon>
+    </button>
+    <button mat-fab [matMenuTriggerFor]="loginMenu" *ngIf="!userService.getLocalUserData()?.username" aria-label="User"
+    [matBadge]="userService.openNotifications()" [matBadgeHidden]="userService.openNotifications() < 1"
+    matBadgePosition="below">
+        <mat-icon>perm_identity</mat-icon>
+    </button>
+</div>
+
+<div (window:resize)="isMobile()">
+    <button mat-icon-button class="back-btn" (click)="openChatOverview()" *ngIf="tabIndex == 1 && isMobileDevice">
+        <mat-icon>arrow_back_ios</mat-icon>
+    </button>
+    <div class="title">
+        <h2 *ngIf="chats.length > 0">{{ 'shared-with-you' | translate }}<span *ngIf="selectedContact.name"> {{ 'from' | translate }} {{selectedContact.name}}</span></h2>
+        <h2 *ngIf="chats.length < 1">{{ 'no-books-shared-with-you-yet' | translate }}</h2>
+    </div>
+    <div class="chat-overview" *ngIf="isMobileDevice">
+        <mat-tab-group [(selectedIndex)]="tabIndex" class="hidden-tabs">
+            <mat-tab label="Chats">
+                <app-chat-overview [contacts]="chats" [(selectedContact)]="selectedContact" 
+                [(tabIndex)]="tabIndex"></app-chat-overview>
+            </mat-tab>
+            <mat-tab label="Chat"> <app-chat [contact]="selectedContact"></app-chat> </mat-tab>
+        </mat-tab-group>
+    </div>
+    <div class="chat-overview" *ngIf="!isMobileDevice">
+        <app-chat-overview [contacts]="chats" [(selectedContact)]="selectedContact" 
+                [(tabIndex)]="tabIndex"></app-chat-overview>
+        <mat-divider [vertical]="true" class="mat-divider-vertical"></mat-divider>
+        <app-chat [contact]="selectedContact"></app-chat>
+    </div>
+</div>
+
+<mat-menu #loginMenu="matMenu">
+    <app-login></app-login>
+</mat-menu>

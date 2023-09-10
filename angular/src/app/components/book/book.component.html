@@ -9,6 +9,9 @@
                 <div class="title-container">
                     <h1 #title class="title" (mouseover)="setAutoScroll(title)">{{book.title}}</h1>
                 </div>
+                <button mat-icon-button color="accent" class="share" [matMenuTriggerFor]="contactMenu">
+                    <mat-icon>send</mat-icon>
+                </button>
             </div>
             <span class="author">{{book.author || "author unknown"}}</span>
             <span class="delimiter" *ngIf="book.year"> | </span>
@@ -22,3 +25,13 @@
     </app-download-cluster>
 </div>
 <hr>
+
+<mat-menu #contactMenu yPosition="above">
+    <div class="contact-menu">
+        <h3 *ngIf="userData.contacts.length < 1">{{ 'no-friends-yet' | translate }}</h3>
+        <h3 *ngIf="userData.contacts.length > 0">Recipient</h3>
+        <button mat-raised-button color="primary" *ngFor="let contact of userData.contacts" (click)="shareBook(contact.name)">
+            {{contact.name}}
+        </button>
+    </div>
+</mat-menu>

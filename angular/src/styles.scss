@@ -3,9 +3,9 @@
 
 
 :root {
-    --light-color: #fffbeb
-    --light-color-shade: #fffcf3
-    --dark-color: #2c2c2c
+    --light-color: #fffbeb;
+    --light-color-shade: #fffcf3;
+    --dark-color: #2c2c2c;
     --main-background-color: var(--light-color);
     --main-text-color: var(--dark-color);
     --mdc-elevated-card-container-color: var(--main-background-color);
@@ -51,9 +51,27 @@ app-root {
     display: none;
 }
 
+@media screen and (max-width: 1600px) {
+    app-root {
+        width: 60%;
+    }
+}
+
+@media screen and (max-width: 1400px) {
+    app-root {
+        width: 70%;
+    }
+}
+
 @media screen and (max-width: 1250px) {
     app-root {
         width: 80%;
+    }
+}
+
+@media screen and (max-width: 900px) {
+    app-root {
+        width: 90%;
     }
 }
 
@@ -66,6 +84,13 @@ app-root {
 .mat-mdc-tab-body-wrapper {
     margin-top: calc(20px - 0.5em);
 }
+
+/*.search-bar {
+    ::ng-deep.mat-badge-content {
+        right: -3px !important;
+        bottom: -3px !important;
+    }
+}*/
 
 // Imports for Angular Material Theming
 @import '@angular/material/theming';
@@ -113,6 +138,7 @@ $dark-theme: map_merge($dark-theme, (background: $dark-background));
         --main-background-color: #fffbeb !important;
         --main-text-color: #2c2c2c !important;
         --autofill-color: #f5e9f7 !important;
+        --accent-color: mat.get-color-from-palette($accent, 200);
     }
 
     mat-dialog-content,mat-dialog-actions {
@@ -130,5 +156,6 @@ $dark-theme: map_merge($dark-theme, (background: $dark-background));
         --main-background-color: #2c2c2c !important;
         --main-text-color: #faede3 !important;
         --autofill-color: #471d4e !important;
+        --accent-color: mat.get-color-from-palette($accent, default);
     }
 }

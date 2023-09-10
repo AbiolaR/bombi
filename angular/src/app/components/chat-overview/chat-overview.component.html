@@ -1,0 +1,14 @@
+<div class="chats">
+    <mat-card  class="chat" *ngFor="let contact of contacts" (click)="openChat(contact)" matRipple>
+        <div class="chat">
+            <span class="faux-icon mat-accent">{{contact.name.substring(0,1).toUpperCase()}}</span>
+            <div class="preview">
+                <span class="contact">{{contact.name}}</span>
+                <span>{{ 'has-shared-a-book' | translate }}</span>
+            </div>
+            <span [matBadge]="contact.unreadMessages" [matBadgeHidden]="contact.unreadMessages < 1"></span>
+            <mat-icon class="enter-chat-icon">arrow_forward_ios</mat-icon>
+            <mat-divider></mat-divider>
+        </div>
+    </mat-card>
+</div>

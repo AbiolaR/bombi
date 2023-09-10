@@ -1,0 +1,29 @@
+<div *ngIf="message">
+    <mat-expansion-panel>
+        <mat-expansion-panel-header (click)="toggleShrink(title)">
+            <img *ngIf="!isImgLoaded" class="cover" aria-label="Book Cover Placeholder" 
+            src="/assets/images/covers/loading-cover.png"/>
+            <img (load)="isImgLoaded = true" loading="lazy" [class.hidden]="!isImgLoaded" 
+            class="cover" aria-label="Book Cover" 
+            src="{{message.cover_url == 'img/blank.png' ? '/assets/images/covers/blank.png' 
+            : 'https://libgen.li/' + message.cover_url}}"/>
+
+            <span #title class="title">{{message.title}}</span>
+        </mat-expansion-panel-header>
+        <ng-template matExpansionPanelContent>
+            <div class="more-info">
+                <img class="lang" src="/assets/images/flags/{{message.language}}.svg" aria-label="Book Language"/>
+                <span class="author">{{message.author || "author unknown"}}</span>
+            </div>
+            <button mat-mini-fab class="search-more mobile" color="primary" (click)="searchMore()">
+                <mat-icon>search</mat-icon>
+            </button>
+            <div class="action-buttons">
+                <app-download-cluster [book]="message"></app-download-cluster>    
+                <button mat-mini-fab class="search-more desktop" color="primary" (click)="searchMore()">
+                    <mat-icon>search</mat-icon>
+                </button>            
+            </div>
+        </ng-template>
+    </mat-expansion-panel>
+</div>

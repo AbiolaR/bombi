@@ -1,0 +1,77 @@
+@import '@angular/material/theming';
+@import '../../../styles.scss'; // /angular/src/styles.scss
+
+.chats {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: calc(100vh - 160px);
+
+    button {        
+        //width: 70%;
+        margin: 0.5em;
+        height: 3em;
+    }
+
+    mat-card:nth-child(even) {
+        .faux-icon {            
+            background-color: var(--primary-tinted-color);
+        }
+    }
+
+    mat-card:nth-child(odd) {
+        .faux-icon {
+            background-color: mat-color($accent);
+            color: var(--dark-color);
+        }
+    }
+}
+
+.chat {    
+    display: flex;
+    align-items: center;
+    height: 4em;
+    width: 100%;
+    border-radius: 4px;
+    margin-bottom: 2px;
+    padding-left: 4px;
+    cursor: pointer;
+
+    .faux-icon {        
+        height: 36px;
+        width: 36px;
+        font-size: 18px;
+        border-radius: 360px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1em;
+    }
+
+    .enter-chat-icon {
+        display: none;
+    }
+
+    .preview {
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        width: calc(100% - 60px - 1em);
+
+        .contact {
+            font-weight: 500;
+            font-size: 16px;
+        }
+    }
+}
+
+@media screen and (max-width: 700px) {
+    .chat {
+        width: 80%;
+        padding: 0;
+    }
+
+    /*.enter-chat-icon {
+        //display: inline !important;
+    }*/
+}

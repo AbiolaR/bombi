@@ -1,3 +1,6 @@
+@import '@angular/material/theming';
+@import '../../../../styles.scss'; // /angular/src/styles.scss
+
 mat-dialog-content {
     display: flex;
     flex-direction: column;
@@ -11,11 +14,31 @@ mat-dialog-actions {
     justify-content: center;
 }
 
-#lgtBtn {
+.profile-dialog {
+    padding: 20px 15px;
+}
+
+#lgtBtn,#messagesBtn {
     position: absolute;
-    right: 24px;
     top: 18px;
     max-width: 25vw;
+}
+
+#lgtBtn {
+    right: 24px;
+}
+
+#messagesBtn {
+    left: 24px;
+}
+
+mat-expansion-panel {
+    margin-bottom: 1em;
+    border-radius: 4px !important;
+}
+
+mat-accordion {
+    width: 100%;
 }
 
 app-ereader-config {
@@ -32,6 +55,11 @@ h5 {
 
 h4 {
     margin: 0;
+    text-align: center;
+}
+
+h3 {
+    text-align: center;
 }
 
 .language {
@@ -45,5 +73,73 @@ h4 {
 
     .selected {
         border: solid 2px var(--primary-tinted-color);
+    }
+}
+
+::ng-deep.friend-requests {
+    margin-bottom: 2em;
+}
+
+.friend-request-amount {
+    margin-left: 20px;
+    top: 11px
+}
+
+.friend-request {
+    background: mat-color($warn, lighter);
+    color: var(--dark-color) !important;
+    margin-bottom: 1em !important;
+
+    .friend-request-action {
+        display: flex;
+        justify-content: space-evenly;
+
+        button {
+            max-width: 90px;
+        }
+    }
+
+    ::ng-deep.mat-expansion-panel-body {
+        padding: 0 4px 16px !important;
+    }
+
+    .mat-expansion-panel-header {
+        background: mat-color($warn, lighter) !important;
+        padding: 0 10px;
+        text-align: center;
+
+        ::ng-deep.mat-content {
+            justify-content: center;
+            color: var(--dark-color) !important;
+        }
+
+        ::ng-deep.mat-expansion-indicator::after {
+            color: var(--dark-color) !important;
+        }
+
+        span::after  {
+            color: var(--dark-color) !important;
+        }
+    }
+}
+
+.contacts {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    mat-icon {
+        margin: 0;
+    }
+
+    span {
+        height: 2.5em;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 4px;
+        background-color: var(--primary-tinted-color);
+        color: var(--dark-color);
+        border-radius: 4px;
     }
 }
