@@ -1,5 +1,4 @@
 var express = require('express');
-var path = require('path');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var cors = require('cors');
@@ -24,6 +23,7 @@ app.use('/api/v1/users/share', authorization);
 app.use('/api/v1/users/shared', authorization);
 app.use('/api/v1/users/friend-request/send', authorization);
 app.use('/api/v1/users/friend-request/accept', authorization);
+//app.use('/api/v1/users/connect-book-site', authorization);
 app.use('/api/v1/books', books);
 app.use('/api/v1/users', users);
 app.use('/', express.static('./static'));

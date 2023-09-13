@@ -7,6 +7,9 @@ const dbman = require('../services/dbman');
 const { sendPasswordResetMail } = require('../services/email');
 const { TOKEN_SECRET } = require('../services/secman');
 const { sendPushNotifications } = require('../services/notification.service'); 
+const tsgConnectionService = require('../services/tsg-connection.service');
+const path = require('path');
+
 
 const ONE_YEAR = '8760h';
 
@@ -265,6 +268,42 @@ router.post('/friend-request/accept', async (req, res) => {
         notificationData.title, notificationData.message, notificationData.actions);
 
     res.status(200).send({status: 0, message: ''});
+});
+
+router.post('/connect-book-site', async (req, res) => {
+    let connection;
+
+    switch(req.body.connectionType) {
+        case 'TSG':
+            connection = tsgConnectionService;
+            break;
+        default:
+            res.status(200).send({status: 1, message: 'invalid connection type'});
+            return;
+    }
+
+    try {
+        let value;
+        if (req.body.email && req.body.password) {
+            value = await connection.getBooksToRead(req.body.email, req.body.password, req.body.username);
+        } else {
+            value = await connection.getBooksToRead(req.body.username);
+        }
+        res.status(200).send(value)
+    } catch (error) {
+        console.error(error)
+        res.status(200).send({ status: 1, error: error });
+    }
+
+    
+});
+
+router.get('/testpage', async (req, res) => {
+    const options = {
+        root: path.join(__dirname)
+    };
+ 
+    res.status(200).sendFile('test.html', options)
 });
 
 function authenticateUser(username) {

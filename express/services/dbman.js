@@ -62,7 +62,9 @@ const UserSchema = mongoose.Schema({
     language: String,
     friendRequests: [String],
     contacts: [ContactSchema],
-    pushSubscriptions: [PushSubscriptionSchema]
+    pushSubscriptions: [PushSubscriptionSchema],
+    tsgUsername: String,
+    tsgToken: String
 });
 
 const User = mongoose.model('User', UserSchema);
