@@ -9,6 +9,7 @@ const { TOKEN_SECRET } = require('../services/secman');
 const { sendPushNotifications } = require('../services/notification.service'); 
 const tsgConnectionService = require('../services/tsg-connection.service');
 const path = require('path');
+const goodreadsConnectionService = require('../services/goodreads-connection-service');
 
 
 const ONE_YEAR = '8760h';
@@ -277,6 +278,9 @@ router.post('/connect-book-site', async (req, res) => {
         case 'TSG':
             connection = tsgConnectionService;
             break;
+        case 'GR':
+            connection = goodreadsConnectionService;
+            break;
         default:
             res.status(200).send({status: 1, message: 'invalid connection type'});
             return;
@@ -284,10 +288,14 @@ router.post('/connect-book-site', async (req, res) => {
 
     try {
         let value;
-        if (req.body.email && req.body.password) {
-            value = await connection.getBooksToRead(req.body.email, req.body.password, req.body.username);
-        } else {
-            value = await connection.getBooksToRead(req.body.username);
+        if (!req.body.email || !req.body.password) {            
+            res.status(200).send({ status: 1, error: 'missing credentials'});
+            return;
+            //value = await connection.getBooksToRead(req.body.username);
+        }
+        value = await connection.getBooksToRead(req.body.email, req.body.password, req.body.username);
+        if (value.status == 0) {
+            
         }
         res.status(200).send(value)
     } catch (error) {
@@ -296,14 +304,6 @@ router.post('/connect-book-site', async (req, res) => {
     }
 
     
-});
-
-router.get('/testpage', async (req, res) => {
-    const options = {
-        root: path.join(__dirname)
-    };
- 
-    res.status(200).sendFile('test.html', options)
 });
 
 function authenticateUser(username) {

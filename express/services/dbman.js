@@ -64,7 +64,9 @@ const UserSchema = mongoose.Schema({
     contacts: [ContactSchema],
     pushSubscriptions: [PushSubscriptionSchema],
     tsgUsername: String,
-    tsgToken: String
+    tsgCookies: [String],
+    grUserId: String,
+    grCookies: [String]
 });
 
 const User = mongoose.model('User', UserSchema);
