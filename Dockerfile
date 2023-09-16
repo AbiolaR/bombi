@@ -1,10 +1,3 @@
-#FROM node:bullseye-slim
-#RUN apt update
-#RUN apt install python3 wget libegl1 libopengl0 xz-utils python3-pyqt5 -y
-#RUN wget -nv -O- https://download.calibre-ebook.com/linux-installer.sh | sh /dev/stdin
-#ENV PATH="${PATH}:/opt/calibre/"
-
-#FROM node:16-alpine
 FROM frolvlad/alpine-glibc
 RUN apk add python3 py-requests py3-qt5 npm chromium chromium-chromedriver
 
