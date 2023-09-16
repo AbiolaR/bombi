@@ -25,7 +25,7 @@ module.exports.sendPushNotification = async (subscription, title, message, actio
             'title': title,
             'body': message,
             'icon': 'https://bombi.tinym.de/assets/images/icons/bombi-icon.png',
-            'badge': 'https://bombi.tinym.de/assets/images/icons/bombi-icon.png',
+            'badge': 'https://bombi.tinym.de/assets/images/icons/bombi-icon-monochrome.png',
             'urgency': 'high',
             'vibrate': [100, 50, 100],
             'data': data,
