@@ -6,7 +6,7 @@
 
 #FROM node:16-alpine
 FROM frolvlad/alpine-glibc
-RUN apk add python3 py-requests py3-qt5 npm
+RUN apk add python3 py-requests py3-qt5 npm chromium chromium-chromedriver
 
 RUN mkdir /opt/calibre/
 RUN wget "https://download.calibre-ebook.com/4.23.0/calibre-4.23.0-x86_64.txz" -P /tmp/
