@@ -40,7 +40,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var sequelize_1 = require("sequelize");
 var DEC = require('./secman').DEC;
 //const { Book } = require('../models/book.model');
-var book_model_1 = require("../models/book.model");
+var book_model_1 = require("../models/db/book.model");
 //const { BookModel } = require('../models/book.model');
 var db = new sequelize_1.Sequelize(DEC('U2FsdGVkX19Rdz0oa5ZdqlLSp24hoiVyC7T5LHFAxH4='), // DB name
 DEC('U2FsdGVkX1+C3L9Ljwi4EbDVss0tzXyRMShvEiQASCk='), // username
@@ -78,9 +78,9 @@ function searchMultiISBN(isbnList) {
         });
     });
 }
-searchMultiISBN(['9781668002537', '9781250159014', '9780374311544', '9781481497619', '9780316480772', '9798886439298']).then(function (results) {
-    results.forEach(function (result) {
+/*searchMultiISBN(['9781668002537', '9781250159014', '9780374311544', '9781481497619', '9780316480772', '9798886439298']).then((results) => {
+    results.forEach(result => {
         console.log(result.dataValues.Title);
-    });
-});
+    })
+});*/
 module.exports = db;

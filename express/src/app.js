@@ -7,7 +7,9 @@ var cors = require('cors');
 var books = require('./routes/books');
 var users = require('./routes/users');
 var authorization = require('./filters/authorization');
-const db = require('./services/rel-db-man.service');
+const { LibgenDbService } = require('./services/libgen-db.service');
+const { ENC } = require('./services/secman');
+const { BookSyncService } = require('./services/book-sync.service');
 
 var app = express();
 
@@ -31,6 +33,10 @@ app.use('/api/v1/users', users);
 app.use('/', express.static('./static'));
 app.use('/*', express.static('./static'));
 
-db
+//libgenService = new LibgenDbService();
+
+//console.log(ENC('dev_bombi'))
+
+bookSyncService = new BookSyncService();
 
 module.exports = app;
