@@ -15,6 +15,7 @@ if (ENV == 'Prod') {
 
 const CONNECTION_URL = `mongodb://${USERNAME}:${PASSWORD}@192.168.2.101:27017/bombi${ENV}DB?authMechanism=DEFAULT`
 
+mongoose.set('strictQuery', true);
 mongoose.connect(CONNECTION_URL);
 const db = mongoose.connection;
 
