@@ -36,7 +36,7 @@ export class LibgenDbService {
             results.forEach(result => {
                 console.log(result.dataValues.Title);
             })    
-        });    
+        });
     }            
       
     async searchMultiISBN(isbnList: String[]) {

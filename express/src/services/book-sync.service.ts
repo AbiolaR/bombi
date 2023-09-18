@@ -1,4 +1,4 @@
-import { DataTypes, Model, Sequelize } from "sequelize";
+import { DataTypes, Sequelize } from "sequelize";
 import { DEC } from "./secman";
 import { SyncBook } from "../models/db/sync-book.model";
 import { SyncUser } from "../models/db/sync-user.model";
@@ -26,25 +26,19 @@ export class BookSyncService {
         this.initDB();
     }
 
-    createTestRequest1() {
-        this.createSyncUser(new SyncRequest('test', 9781649374042, 'Fourth Wing', 'Yarros', new Date(), SyncStatus.WAITING));
-    }
-
-    createTestRequest2() {
-        this.createSyncUser(new SyncRequest('test', 9781649374172, 'Iron Flame', 'Yarros', new Date(), SyncStatus.UPCOMING));
-    }
-
     createSyncUser(syncRequest: SyncRequest) {
-        SyncUser.create({
-            status: syncRequest.$status,
-            username: syncRequest.$username,
-            syncBook: {
-                isbn: syncRequest.$isbn,
-                title: syncRequest.$title,
-                author: syncRequest.$author,
-                pubDate: syncRequest.$pubDate
-            }
-        }, {include: [{association: this.syncUser.syncBook}] })
+        SyncBook.upsert({
+            isbn: syncRequest.$isbn,
+            title: syncRequest.$title,
+            author: syncRequest.$author,
+            pubDate: syncRequest.$pubDate
+        }).then(() => {
+            SyncUser.upsert({
+                status: syncRequest.$status,
+                username: syncRequest.$username,
+                syncBookIsbn: syncRequest.$isbn 
+            });
+        });
     }
 
     private initDB() {
@@ -54,14 +48,15 @@ export class BookSyncService {
             this.dbPassword,
             {
                 host: DEC('U2FsdGVkX1+05Zg5oW8quqoZqd7gvSrRAt+EPn4DRpY='),
-                dialect: DEC('U2FsdGVkX1+owrCFwZIw+8WDF1hZTPAc1je+z9tlfnc=')
-            });
+                dialect: DEC('U2FsdGVkX1+owrCFwZIw+8WDF1hZTPAc1je+z9tlfnc='),
+                timezone: '+02:00',
+                logging: false
+            },
+            );
             
         this.sequelize.authenticate().then(() => {
             this.defineModels();
-            this.sequelize.sync().then(() =>{
-                //this.createTestRequest1();
-            });
+            this.sequelize.sync();
             
         }).catch((error) => {
             console.error('Unable to connect to the database: ', error);
@@ -70,13 +65,9 @@ export class BookSyncService {
 
     private defineModels() {    
         this.syncBook = SyncBook.init({
-            id: {
-                type: DataTypes.INTEGER,
-                primaryKey: true,
-                autoIncrement: true
-            },
             isbn: {
-                type: DataTypes.INTEGER,
+                primaryKey: true,
+                type: DataTypes.STRING,
                 unique: true
             },
             title: DataTypes.STRING,
@@ -88,20 +79,18 @@ export class BookSyncService {
         { sequelize: this.sequelize }
         );
         this.syncUser = SyncUser.init({
-            id: {
-                type: DataTypes.INTEGER,
-                primaryKey: true,
-                autoIncrement: true
-            },
-            username: DataTypes.STRING,
+            username: { 
+                type: DataTypes.STRING,
+                primaryKey: true
+            },            
             status: DataTypes.STRING,
             createdAt: DataTypes.DATE,
             updatedAt: DataTypes.DATE,
         },
         { sequelize: this.sequelize }
         );
-        this.syncBook.hasMany(this.syncUser);
-        this.syncUser.syncBook = this.syncUser.belongsTo(this.syncBook);
-        
+        this.syncBook.hasMany(this.syncUser, { foreignKey: 'syncBookIsbn', onDelete: 'RESTRICT' });
+        this.syncUser.belongsTo(this.syncBook,
+            { as: 'syncBook', foreignKey: {name: 'syncBookIsbn', primaryKey: true}, onDelete: 'RESTRICT' });
     }
 }

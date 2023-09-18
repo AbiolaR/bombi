@@ -1,1 +1,1 @@
-var schedule = require('node-schedule');
+const schedule = require('node-schedule');

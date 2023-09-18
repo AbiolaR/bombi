@@ -2,13 +2,13 @@ import { SyncStatus } from "./sync-status.model";
 
 export class SyncRequest {
     private username: string;
-    private isbn: number;
+    private isbn: string;
     private title: string;
     private author: string;
     private pubDate: Date;
     private status: SyncStatus;
 
-	constructor($username: string, $isbn: number, $title: string, $author: string, $pubDate: Date, $status: SyncStatus) {
+	constructor($username: string, $isbn: string, $title: string, $author: string, $pubDate: Date, $status: SyncStatus) {
 		this.username = $username;
 		this.isbn = $isbn;
 		this.title = $title;
@@ -27,9 +27,9 @@ export class SyncRequest {
 
     /**
      * Getter $isbn
-     * @return {number}
+     * @return {string}
      */
-	public get $isbn(): number {
+	public get $isbn(): string {
 		return this.isbn;
 	}
 
