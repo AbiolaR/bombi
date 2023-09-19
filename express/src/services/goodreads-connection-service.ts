@@ -1,6 +1,8 @@
-const BookConnection = require("./book-connection.service");
+import { SyncRequest } from "../models/sync-request.model";
+import { SyncStatus } from "../models/sync-status.model";
+import GenericBookConnection from "./generic-book-connection";
 
-class GoodreadsConnection extends BookConnection {
+export default class GoodreadsConnection extends GenericBookConnection {
 
     USER_IDENT_PROPERTY = 'grUserId';
     USER_COOKIES_PROPERTY = 'grCookies';
@@ -26,7 +28,7 @@ class GoodreadsConnection extends BookConnection {
     SECOND_PAGE = 2;
     AUDIO_FORMAT = 'Audio';
 
-    populateBooks(rawBooks, books) {
+    populateBooks(username: string, rawBooks: any, books: SyncRequest[]) {
         rawBooks.forEach(rawBook => {
             this.addPrototype(rawBook);
             
@@ -34,19 +36,17 @@ class GoodreadsConnection extends BookConnection {
             if (format.includes(this.AUDIO_FORMAT)) {
                 return;
             }
-            let isbn = parseInt(rawBook.getElementText(this.ISBN_QUERY)) || 0;
+            let isbn = rawBook.getElementText(this.ISBN_QUERY);
             let title = rawBook.getElementText(this.TITLE_QUERY).split('\n')[0];
-            let author = rawBook.getElementText(this.AUTHOR_QUERY);
-            let pubDate = Date.parse(rawBook.getElementText(this.PUB_DATE_QUERY));
+            let author = rawBook.getElementText(this.AUTHOR_QUERY).split(' ').pop();
+            let pubDate = new Date(rawBook.getElementText(this.PUB_DATE_QUERY));
 
-            books.push({ title: title, author: author, isbn: isbn, pub_date: pubDate });
+            books.push(new SyncRequest(username, isbn, title, author, pubDate, SyncStatus.IGNORE));
         });
     }
 
-    getBookCount(doc) {
+    getBookCount(doc: any) {
         return doc.getElementText(this.BOOK_AMOUNT_QUERY).replace(/(\(|\))/g, '');
     }
 
 }
-
-module.exports = new GoodreadsConnection().validate();

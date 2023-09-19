@@ -7,9 +7,8 @@ const dbman = require('../services/dbman');
 const { sendPasswordResetMail } = require('../services/email');
 const { TOKEN_SECRET } = require('../services/secman');
 const { sendPushNotifications } = require('../services/notification.service'); 
-const tsgConnectionService = require('../services/tsg-connection.service');
-const path = require('path');
-const goodreadsConnectionService = require('../services/goodreads-connection-service');
+const { default: TSGConnection } = require('../services/tsg-connection.service');
+const { default: GoodreadsConnection } = require('../services/goodreads-connection-service');
 
 
 const ONE_YEAR = '8760h';
@@ -276,10 +275,10 @@ router.post('/connect-book-site', async (req, res) => {
 
     switch(req.body.connectionType) {
         case 'TSG':
-            connection = tsgConnectionService;
+            connection = new TSGConnection();
             break;
         case 'GR':
-            connection = goodreadsConnectionService;
+            connection = new GoodreadsConnection();
             break;
         default:
             res.status(200).send({status: 1, message: 'invalid connection type'});
