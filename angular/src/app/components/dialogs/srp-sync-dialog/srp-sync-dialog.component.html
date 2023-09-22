@@ -1,0 +1,67 @@
+<div *ngIf="foundBooks.length == 0">
+    <mat-icon fontIcon="help_outline" class="help_tooltip" (click)="tooltip.show()" 
+        #tooltip="matTooltip" matTooltipPosition="above"
+        matTooltip="The credentials you enter are never saved by Bombi"></mat-icon>
+    <h1 mat-dialog-title>Please enter your login credentials for {{platform}}</h1>
+    <div mat-dialog-content>
+        <mat-form-field appearance="outline">
+            <mat-label>E-Mail</mat-label>
+            <input matInput [(ngModel)]="credentials.username" (keydown)="submit($event)"/>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Password</mat-label>
+            <input matInput class="hide-text" [(ngModel)]="credentials.password" 
+            (keydown)="submit($event)"/>
+        </mat-form-field>
+        <p *ngIf="errorText" class="error-text">{{errorText}}</p>
+    </div>
+    <div mat-dialog-actions>
+        <button mat-flat-button color="primary" (click)="connect()" [disabled]="!credentials.valid()">
+            <span *ngIf="!connecting">Connect</span>
+            <mat-spinner [diameter]="30" *ngIf="connecting"></mat-spinner>
+        </button>
+    </div>
+</div>
+<div *ngIf="foundBooks.length > 0 && !syncStarted" class="books-to-sync">
+    <h1 mat-dialog-title>Select the books you would like to sync to your {{getEReader()}}</h1>
+    <div mat-dialog-content>
+        <mat-card *ngFor="let book of foundBooks" class="sync-book">
+            <mat-checkbox labelPosition="before" [checked]="book.status != syncStatus.IGNORE" 
+            (change)="book.status = $event.checked ? syncStatus.WAITING : syncStatus.IGNORE">
+                {{book.title}} <span class="highlight"> by {{book.author}}</span>
+            </mat-checkbox>
+        </mat-card>
+    </div>
+    <div mat-dialog-actions>
+        <button mat-flat-button color="primary" (click)="sync()">Sync {{syncAmount()}} 
+            <span *ngIf="syncAmount() == 1">Book</span>
+            <span *ngIf="syncAmount() != 1">Books</span>
+        </button>
+    </div>
+</div>
+<div *ngIf="booksToSync.length > 0 && syncStarted" class="books-to-sync">
+    <h1 mat-dialog-title>Syncing your books</h1>
+    <div mat-dialog-content>
+        <mat-progress-bar [value]="syncProgress()"></mat-progress-bar>
+        <mat-card *ngFor="let book of booksToSync" class="sync-book">
+            <div class="sync-book-status">
+                <label>{{book.title}} <span class="highlight"> by {{book.author}}</span></label>
+                <div class="sync-status-container">
+                    <div class="sync-status">
+                        <mat-spinner [diameter]="25" *ngIf="book.status == syncStatus.WAITING">                            
+                        </mat-spinner>
+                        <mat-icon class="success" *ngIf="book.status == syncStatus.SENT">
+                            check_circle_outline
+                        </mat-icon>
+                        <mat-icon class="failure" *ngIf="book.status == syncStatus.UPCOMING">
+                            highlight_off
+                        </mat-icon>
+                    </div>
+                </div>
+            </div>
+        </mat-card>
+    </div>
+    <div mat-dialog-actions>
+        <button mat-flat-button color="primary" (click)="close()">Close</button>
+    </div>
+</div>

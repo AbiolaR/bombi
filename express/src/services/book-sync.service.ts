@@ -1,9 +1,10 @@
-import { DataTypes, Sequelize } from "sequelize";
+import { DataTypes, Op, Sequelize } from "sequelize";
 import { DEC } from "./secman";
 import { SyncBook } from "../models/db/sync-book.model";
 import { SyncUser } from "../models/db/sync-user.model";
 import { SyncRequest } from "../models/sync-request.model";
 import { SyncStatus } from "../models/sync-status.model";
+import { ServerResponse } from "../models/server-response";
 
 export class BookSyncService {
     private sequelize: Sequelize;
@@ -26,19 +27,71 @@ export class BookSyncService {
         this.initDB();
     }
 
-    createSyncUser(syncRequest: SyncRequest) {
-        SyncBook.upsert({
-            isbn: syncRequest.$isbn,
-            title: syncRequest.$title,
-            author: syncRequest.$author,
-            pubDate: syncRequest.$pubDate
-        }).then(() => {
-            SyncUser.upsert({
-                status: syncRequest.$status,
-                username: syncRequest.$username,
-                syncBookIsbn: syncRequest.$isbn 
-            });
+    async findSyncRequests(username: string, syncRequests: SyncRequest[]): Promise<ServerResponse<SyncRequest[]>> {
+        let data = [];
+        let isbns = syncRequests.map((syncRequest) => syncRequest.isbn);
+        let titles = syncRequests.map((syncRequest) => syncRequest.title);
+        let authors = syncRequests.map((syncRequest) => syncRequest.author);
+
+        let isbnSearchArray = [];
+        isbns.forEach(isbn => {
+            isbnSearchArray.push({ isbn: {[Op.like]: `%${isbn}%`} });
         });
+        let titleSearchArray = [];
+        titles.forEach(title => {
+            titleSearchArray.push({ title: {[Op.like]: `%${title}%`} });
+        });
+        let authorSearchArray = [];
+        authors.forEach(author => {
+            authorSearchArray.push({ author: {[Op.like]: `%${author}%`} });
+        });
+
+        let result = await SyncUser.findAll({
+            where: {
+                username: username
+            },
+            include: [
+                { model: SyncBook, required: true, as: 'syncBook',
+                    where: {
+                        [Op.and]: [
+                            { [Op.or]: isbnSearchArray },
+                            { [Op.or]: titleSearchArray },
+                            { [Op.or]: authorSearchArray },                   
+                        ]
+                    }
+                }
+            ]
+        });
+
+        data = result.map((syncUser) => new SyncRequest(syncUser.username, syncUser.syncBook.isbn, 
+                syncUser.syncBook.title, syncUser.syncBook.author, syncUser.syncBook.pubDate, 
+                syncUser.status));
+        return new ServerResponse<SyncRequest[]>(data, 0, '');
+    }
+
+    createSyncRequest(syncRequest: SyncRequest) {
+        try {
+            SyncBook.upsert({
+                isbn: syncRequest.isbn,
+                title: syncRequest.title,
+                author: syncRequest.author,
+                pubDate: syncRequest.pubDate
+            }).then((book) => {
+                SyncUser.findOrCreate({
+                    where: {
+                        username: syncRequest.username,
+                        syncBookId: book[0].dataValues.id
+                    }, 
+                    defaults: {
+                        status: syncRequest.status,
+                        username: syncRequest.username,
+                        syncBookId: book[0].dataValues.id
+                    }
+                });
+            });
+        } catch (error) {
+
+        }
     }
 
     private initDB() {
@@ -65,8 +118,13 @@ export class BookSyncService {
 
     private defineModels() {    
         this.syncBook = SyncBook.init({
-            isbn: {
+            id: {
                 primaryKey: true,
+                type: DataTypes.INTEGER,
+                unique: true,
+                autoIncrement: true
+            },
+            isbn: {
                 type: DataTypes.STRING,
                 unique: true
             },
@@ -89,8 +147,8 @@ export class BookSyncService {
         },
         { sequelize: this.sequelize }
         );
-        this.syncBook.hasMany(this.syncUser, { foreignKey: 'syncBookIsbn', onDelete: 'RESTRICT' });
+        this.syncBook.hasMany(this.syncUser, { foreignKey: 'syncBookId', onDelete: 'RESTRICT' });
         this.syncUser.belongsTo(this.syncBook,
-            { as: 'syncBook', foreignKey: {name: 'syncBookIsbn', primaryKey: true}, onDelete: 'RESTRICT' });
+            { as: 'syncBook', foreignKey: {name: 'syncBookId', primaryKey: true}, onDelete: 'RESTRICT' });
     }
 }

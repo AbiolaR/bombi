@@ -1,3 +1,4 @@
+import { Credentials } from "../models/credentials";
 import { ExternalLoginResult } from "../models/external-login-result";
 import { ServerResponse } from "../models/server-response";
 import { SyncRequest } from "../models/sync-request.model";
@@ -34,12 +35,12 @@ export interface BookConnection {
 
     getBooksToRead(): Promise<ServerResponse<SyncRequest[]>>;
     getBooksToReadByUsername(username: string): Promise<ServerResponse<SyncRequest[]>>;
-    getBooksToReadByLogin(email: string, password: string, username: string): Promise<ServerResponse<SyncRequest[]>>;
+    getBooksToReadByLogin(username: string, credentials: Credentials): Promise<ServerResponse<SyncRequest[]>>;
 
     getToReadPage(userIdent: string, cookies: string[]): Promise<Document>;
     getBooks(username: string, userIdent: string, cookies: string[], doc: Document): Promise<SyncRequest[]>;
     
-    login(email: string, password: string): Promise<ExternalLoginResult>;
+    login(credentials: Credentials): Promise<ExternalLoginResult>;
     addPrototype(obj: any): void;
     
     getBookCount(doc: Document): number;

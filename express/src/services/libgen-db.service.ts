@@ -1,8 +1,9 @@
 //const { Sequelize, Op } = require('sequelize');
-import { Sequelize, Op, Model } from "sequelize";
+import { Sequelize, Op, Model, DataTypes } from "sequelize";
 const { DEC } = require('./secman');
 //const { Book } = require('../models/book.model');
 import { Book } from "../models/db/book.model";
+import { LibgenParams } from "../models/db/libgen-params.model";
 //const { BookModel } = require('../models/book.model');
 
 export class LibgenDbService {
@@ -30,12 +31,13 @@ export class LibgenDbService {
             console.error('Unable to connect to the database: ', error);
         });
         
-        this.book = Book(this.db)
+        this.book = Book(this.db);
+        this.defineModel();
 
         this.searchMultiISBN(['9781668002537', '9781250159014', '9780374311544', '9781481497619', '9780316480772', '9798886439298']).then((results) => {
             results.forEach(result => {
                 console.log(result.dataValues.Title);
-            })    
+            });
         });
     }            
       
@@ -51,6 +53,17 @@ export class LibgenDbService {
         });  
     }
     
-        
+    private defineModel() {
+        LibgenParams.init({
+            name: {
+                type: DataTypes.STRING,
+                primaryKey: true,
+                unique: true
+            },
+            value: DataTypes.STRING,
+            createdAt: DataTypes.DATE,
+            updatedAt: DataTypes.DATE
+        }, { sequelize: this.db });
+    }
 
 }

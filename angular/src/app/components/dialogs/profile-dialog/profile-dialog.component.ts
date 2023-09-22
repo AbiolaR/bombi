@@ -29,7 +29,7 @@ export class ProfileDialogComponent implements OnInit {
         this.userData = userData; 
         this.selectedLanguage = userData.language;
       }
-    })
+    });
   }
 
   logout(): void {

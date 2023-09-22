@@ -6,7 +6,7 @@ export class SyncBook extends Model<InferAttributes<SyncBook>, InferCreationAttr
     declare author: string;
     declare pubDate: Date;
     
-    //declare id: CreationOptional<number>;
+    declare id: CreationOptional<number>;
     declare createdAt: CreationOptional<Date>;
     declare updatedAt: CreationOptional<Date>;
 }

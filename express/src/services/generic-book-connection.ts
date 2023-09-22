@@ -7,6 +7,7 @@ import { ServerResponse } from "../models/server-response";
 import { SyncRequest } from "../models/sync-request.model";
 import { BookConnection } from "./book-connection.interface";
 import { findUserAsync, updateUserAsync } from "./dbman";
+import { Credentials } from "../models/credentials";
 
 export default abstract class GenericBookConnection implements BookConnection {
     USER_IDENT_PROPERTY: string;
@@ -38,8 +39,8 @@ export default abstract class GenericBookConnection implements BookConnection {
         switch (arguments.length) {
             case 1:
                 return await this.getBooksToReadByUsername(arguments[0]);
-            case 3:
-                return await this.getBooksToReadByLogin(arguments[0], arguments[1], arguments[2]);
+            case 2:
+                return await this.getBooksToReadByLogin(arguments[0], arguments[1]);
             default:
                 throw new Error('Invalid number of arguments!');
         }
@@ -61,8 +62,8 @@ export default abstract class GenericBookConnection implements BookConnection {
         return new ServerResponse(syncRequests);
     }
 
-    async getBooksToReadByLogin(email: string, password: string, username: string): Promise<ServerResponse<SyncRequest[]>> {
-        let loginResult = await this.login(email, password);
+    async getBooksToReadByLogin(username: string, credentials: Credentials): Promise<ServerResponse<SyncRequest[]>> {
+        let loginResult = await this.login(credentials);
         if (loginResult.userIdent && loginResult.cookies) {            
             await updateUserAsync({username: username, 
                 [this.USER_IDENT_PROPERTY]: loginResult.userIdent, 
@@ -113,7 +114,7 @@ export default abstract class GenericBookConnection implements BookConnection {
     }
     
     
-    async login(email: string, password: string): Promise<ExternalLoginResult> {
+    async login(credentials: Credentials): Promise<ExternalLoginResult> {
         const headless = true;
         const prod = false;
         let driver;
@@ -133,8 +134,9 @@ export default abstract class GenericBookConnection implements BookConnection {
         if (this.REMEMBER_ME_QUERY) {
             await driver.findElement(By.css(this.REMEMBER_ME_QUERY)).sendKeys(Key.SPACE);
         }
-        await driver.findElement(By.id(this.EMAIL_FIELD_ID)).sendKeys(email);
-        await driver.findElement(By.id(this.PASSWORD_FIELD_ID)).sendKeys(password, Key.RETURN);
+        await driver.findElement(By.id(this.EMAIL_FIELD_ID)).sendKeys(credentials.username);
+        await driver.findElement(By.id(this.PASSWORD_FIELD_ID))
+            .sendKeys(credentials.password, Key.RETURN);
 
         let loginResult = new ExternalLoginResult();
     

@@ -27,15 +27,13 @@ app.use('/api/v1/users/share', authorization);
 app.use('/api/v1/users/shared', authorization);
 app.use('/api/v1/users/friend-request/send', authorization);
 app.use('/api/v1/users/friend-request/accept', authorization);
-//app.use('/api/v1/users/connect-book-site', authorization);
+app.use('/api/v1/users/srp-connection', authorization);
+app.use('/api/v1/users/srp-sync', authorization);
+app.use('/api/v1/users/srp-sync/status', authorization);
 app.use('/api/v1/books', books);
 app.use('/api/v1/users', users);
 app.use('/', express.static('./static'));
 app.use('/*', express.static('./static'));
-
-//libgenService = new LibgenDbService();
-
-//console.log(ENC('dev_bombi'))
 
 bookSyncService = new BookSyncService();
 

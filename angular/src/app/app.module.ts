@@ -44,6 +44,11 @@ import { MatDividerModule } from '@angular/material/divider';
 import { ChatOverviewComponent } from './components/chat-overview/chat-overview.component';
 import { AddContactDialogComponent } from './components/dialogs/add-contact-dialog/add-contact-dialog.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { SocialReadingPlatformConfigComponent } from './components/social-reading-platform-config/social-reading-platform-config.component';
+import { SrpSyncDialogComponent } from './components/dialogs/srp-sync-dialog/srp-sync-dialog.component';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http);
@@ -70,6 +75,8 @@ export function HttpLoaderFactory(http: HttpClient) {
     ChatComponent,
     ChatOverviewComponent,
     AddContactDialogComponent,
+    SocialReadingPlatformConfigComponent,
+    SrpSyncDialogComponent,
   ],
   imports: [
     BrowserModule,
@@ -92,6 +99,9 @@ export function HttpLoaderFactory(http: HttpClient) {
     MatRippleModule,
     MatDividerModule,
     MatSnackBarModule,
+    MatTooltipModule,
+    MatCheckboxModule,
+    MatProgressBarModule,
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,
@@ -103,7 +113,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     MatSidenavModule,
     MatExpansionModule,
     ServiceWorkerModule.register('custom-service-worker.js', {
-      enabled: true,
+      enabled: !isDevMode(),
       // Register the ServiceWorker as soon as the application is stable
       // or after 30 seconds (whichever comes first).
       registrationStrategy: 'registerWhenStable:30000'

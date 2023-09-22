@@ -1,0 +1,16 @@
+<div class="something">
+    <h4>Verbinde deine lieblings Social Reading Platformen</h4>
+    <div class="srp-config">
+        <mat-form-field appearance="outline">
+            <mat-label>Social Reading Platform</mat-label>
+            <mat-select [(value)]="selectedSRP" hideSingleSelectionIndicator>
+                <mat-option *ngFor="let platform of socialReadingPlatform | keyvalue"
+                [value]="platform.value">{{platform.value}}</mat-option>
+            </mat-select>
+        </mat-form-field>
+        <div class="action">
+            <button mat-flat-button color="primary" *ngIf="!isConnected()" (click)="connect()">Connect</button>
+            <button mat-flat-button color="primary" *ngIf="isConnected()" (click)="disconnect()">Disconnect</button>
+        </div>
+    </div>
+</div>

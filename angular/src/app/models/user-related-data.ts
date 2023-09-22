@@ -17,6 +17,10 @@ export class UserRelatedData {
     friendRequests: string[] = [];
     contacts: Contact[] = [];
     pushSubscriptions: PushSubscription[] = [];
+    tsgUsername: string = '';
+    tsgCookies: string[] = [];
+    grUserId: string = '';
+    grCookies: string[] = [];
 
     sanitize(): void {
         if (this.eReaderDeviceId && this.eReaderDeviceId.length > 4) {

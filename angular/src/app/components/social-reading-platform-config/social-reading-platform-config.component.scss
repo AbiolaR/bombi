@@ -1,0 +1,61 @@
+mat-tab-group {
+    width: 100%
+}
+
+mat-tab {
+    width: 100%
+}
+
+mat-form-field {
+    width: 100%;
+    margin-top: 0.5em;
+}
+
+h4 {
+    margin: 0;
+}
+
+.something {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.srp-config {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+
+    width: 100%;
+    margin-top: 1.5em;
+
+    button {
+        width: fit-content;
+        white-space: nowrap;
+    }
+
+    mat-form-field {
+        margin: 0 1em 0 0;
+    }
+
+    .action {
+        display: flex;
+        justify-content: center;
+    }
+
+}
+
+h4 {
+    text-align: center;
+}
+
+@media screen and (max-width: 700px) {
+    .srp-config {
+        flex-direction: column;
+
+        mat-form-field {
+            margin: 0 0 1em 0;
+        }
+    }
+}

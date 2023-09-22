@@ -1,0 +1,151 @@
+.mat-mdc-dialog-title {
+    text-align: center;
+}
+
+.mat-mdc-dialog-content,.books-to-sync {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    //align-items: center;
+
+    mat-form-field {
+        //width: 100%;
+        margin-top: 0.5em;
+    }
+}
+
+.mat-mdc-dialog-actions {
+    justify-content: center !important;
+    margin: 0 0 1em 0;
+}
+
+.help_tooltip {
+    position: relative;
+    float: right;
+    margin: 0.5em;
+    z-index: 1000;
+}
+
+.hide-text {
+    -webkit-text-security: disc;
+}
+
+.books-to-sync {
+    mat-checkbox {
+        width: 100%;
+        align-items: center;
+    }
+
+    ::ng-deep.mdc-form-field {
+        width: 99%;
+
+        label {
+            width: 100%;
+            margin: auto;
+            padding: 5px;
+        }
+    }
+
+    .sync-book {
+        margin-bottom: 0.5em;
+    }
+
+    .highlight {
+        color: var(--primary-tinted-color);
+    }
+
+    input {
+        float: right;
+    }
+    
+    ::ng-deep.mdc-checkbox .mdc-checkbox__background {
+        top: calc((var(--mdc-checkbox-state-layer-size) - 25px) / 2);
+        left: calc((var(--mdc-checkbox-state-layer-size) - 25px) / 2);
+    }
+    
+    ::ng-deep.mdc-checkbox__background {
+        width: 25px;
+        height: 25px;
+        border-radius: 70%;
+    }
+
+
+}
+
+.sync-book-status {
+    display: flex;
+    align-items: center;
+
+    label {
+        width: 100%;
+        margin: auto;
+        padding: 5px;
+        color: var(--main-text-color);
+    }
+}
+
+.sync-status {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    align-items: center;
+
+    mat-icon {
+        width: 28px;
+        height: 28px;
+        font-size: 28px;
+        margin: auto 8px auto auto;
+    }
+
+    mat-icon.success {
+        color: var(--success-icon-color);
+    }
+
+    mat-icon.failure {
+        color: var(--failure-icon-color);
+    }
+
+}
+
+.sync-status-container {
+    float: right;
+    
+    width: 40px;
+    height: 40px;
+
+    mat-spinner {
+        margin: auto 9px auto auto;
+        width: 25px !important;
+        height: 25px !important;
+    
+        ::ng-deep circle {
+            stroke: var(--primary-tinted-color) !important;
+        }
+    }
+}
+
+button {
+    min-width: 140px;
+
+    mat-spinner {
+        position: absolute;
+        inset: 0;
+        margin: auto;
+        transform: translateX(-50%);
+
+        ::ng-deep circle {
+            stroke: var(--muted-spinner-color) !important;
+        }
+    }
+}
+
+.error-text {
+    margin: 1em 0 -1em 0;
+    color: #f44336;
+    text-align: center;
+}
+
+mat-progress-bar {
+    margin-bottom: 1.5em;
+}
