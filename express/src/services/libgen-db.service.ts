@@ -7,39 +7,47 @@ import { LibgenParams } from "../models/db/libgen-params.model";
 //const { BookModel } = require('../models/book.model');
 
 export class LibgenDbService {
-    private db: Sequelize;
+    private sequelize: Sequelize;
     private book: any;
+    private HOST_IP = 'host_ip';    
 
     constructor() {
         this.initDB();
     }
 
     private initDB() {
-        this.db = new Sequelize(
+        console.log('about to assign sequelize')
+        this.sequelize = new Sequelize(
             DEC('U2FsdGVkX19Rdz0oa5ZdqlLSp24hoiVyC7T5LHFAxH4='), // DB name
             DEC('U2FsdGVkX1+C3L9Ljwi4EbDVss0tzXyRMShvEiQASCk='), // username
             DEC('U2FsdGVkX1/UuKxHGBGj1ote/c3ZTCh8iOeJZPFqSpo='), // password
             {
                 host: DEC('U2FsdGVkX1+05Zg5oW8quqoZqd7gvSrRAt+EPn4DRpY='),
-                dialect: DEC('U2FsdGVkX1+owrCFwZIw+8WDF1hZTPAc1je+z9tlfnc=')
+                dialect: DEC('U2FsdGVkX1+owrCFwZIw+8WDF1hZTPAc1je+z9tlfnc='),
+                timezone: '+02:00',
+                logging: false
             }
-            );
-            
-        this.db.authenticate().then(() => {
-            console.info('Connection has been established successfully.');
+        );
+        console.log('done with assigning sequelize')            
+        
+        this.sequelize.authenticate().then(() => {
+            this.book = Book(this.sequelize);
+            this.defineModel();
+            this.sequelize.sync();
         }).catch((error) => {
             console.error('Unable to connect to the database: ', error);
         });
         
-        this.book = Book(this.db);
-        this.defineModel();
+            //return this;                
+    }
 
-        this.searchMultiISBN(['9781668002537', '9781250159014', '9780374311544', '9781481497619', '9780316480772', '9798886439298']).then((results) => {
-            results.forEach(result => {
-                console.log(result.dataValues.Title);
-            });
-        });
-    }            
+    async sync() {
+        return this.sequelize.sync();
+    }
+
+    async isConnected() {
+        return this.sequelize.authenticate();
+    }
       
     async searchMultiISBN(isbnList: String[]) {
         let searchArray = [];
@@ -52,6 +60,14 @@ export class LibgenDbService {
             }    
         });  
     }
+
+    async getParam(param: string): Promise<string> {
+        return (await LibgenParams.findOne({ where: { name: param } })).value
+    }
+
+    updateHostIp(hostIp: string): void {
+        LibgenParams.update({ value: hostIp }, { where: { name: this.HOST_IP } });
+    }
     
     private defineModel() {
         LibgenParams.init({
@@ -63,7 +79,12 @@ export class LibgenDbService {
             value: DataTypes.STRING,
             createdAt: DataTypes.DATE,
             updatedAt: DataTypes.DATE
-        }, { sequelize: this.db });
+        }, { sequelize: this.sequelize });
+
+        /*LibgenParams.bulkCreate([
+            { name: 'host_ip', value: '176.119.25.72'},
+            { name: 'test_hash', value: '802D6390F04E39EF3D0C3BBF6678A2CD'}
+        ]);*/
     }
 
 }

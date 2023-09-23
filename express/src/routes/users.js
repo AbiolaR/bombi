@@ -10,7 +10,9 @@ const { sendPushNotifications } = require('../services/notification.service');
 const { default: TSGConnection } = require('../services/tsg-connection.service');
 const { default: GoodreadsConnection } = require('../services/goodreads-connection-service');
 const { SocialReadingPlatform } = require('../models/social-reading-platform');
+const { BookSyncDbService } = require('../services/book-sync-db.service');
 const { BookSyncService } = require('../services/book-sync.service');
+const { LibgenDbService } = require('../services/libgen-db.service');
 
 const ONE_YEAR = '8760h';
 
@@ -274,7 +276,7 @@ router.post('/friend-request/accept', async (req, res) => {
 router.post('/srp-sync/status', async(req, res) => {
     const username = req.body.username;
     const syncRequests = req.body.syncRequests;
-    const bookSyncService = new BookSyncService();
+    const bookSyncService = new BookSyncDbService();
 
     let response = await bookSyncService.findSyncRequests(username, syncRequests);
     res.status(200).send(response);
@@ -282,7 +284,7 @@ router.post('/srp-sync/status', async(req, res) => {
 
 router.post('/srp-sync', async(req, res) => {
     const syncRequests = req.body.syncRequests;
-    const bookSyncService = new BookSyncService();
+    const bookSyncService = new BookSyncDbService();
 
     syncRequests.forEach((syncRequest) => {
         bookSyncService.createSyncRequest(syncRequest);
@@ -294,8 +296,14 @@ router.post('/srp-connection', async (req, res) => {
     const credentials = req.body.credentials;
     let connection;
 
+    const bookSyncService = new BookSyncService(new LibgenDbService());
+
+    bookSyncService.updateHostIp();
+
+    res.status(200).send('updateHostIp')
+
     //await new Promise(resolve => setTimeout(resolve, 5000));
-    res.status(200).send({ "data": [ { "username": "test", "isbn": "", "title": "The Ballad of Songbirds and Snakes", "author": "Suzanne", "pubDate": "2020-05-18T22:00:00.000Z", "status": "IGNORE" }, { "username": "test", "isbn": "9781649374172", "title": "Iron Flame", "author": "Rebecca", "pubDate": "2023-11-06T23:00:00.000Z", "status": "IGNORE" } ], "status": 0, "message": "" });
+    //res.status(200).send({ "data": [ { "username": "test", "isbn": "", "title": "The Ballad of Songbirds and Snakes", "author": "Suzanne", "pubDate": "2020-05-18T22:00:00.000Z", "status": "IGNORE" }, { "username": "test", "isbn": "9781649374172", "title": "Iron Flame", "author": "Rebecca", "pubDate": "2023-11-06T23:00:00.000Z", "status": "IGNORE" } ], "status": 0, "message": "" });
     
     //res.status(200).send({ "data": [ { "username": "test", "isbn": "", "title": "The Ballad of Songbirds and Snakes", "author": "Suzanne", "pubDate": "2020-05-18T22:00:00.000Z", "status": "IGNORE" }, { "username": "test", "isbn": "9781649374172", "title": "Iron Flame", "author": "Rebecca", "pubDate": "2023-11-06T23:00:00.000Z", "status": "IGNORE" }, { "username": "test", "isbn": "", "title": "The Ballad of Songbirds and Snakes", "author": "Suzanne", "pubDate": "2020-05-18T22:00:00.000Z", "status": "IGNORE" }, { "username": "test", "isbn": "9781649374172", "title": "Iron Flame", "author": "Rebecca", "pubDate": "2023-11-06T23:00:00.000Z", "status": "IGNORE" }, { "username": "test", "isbn": "", "title": "The Ballad of Songbirds and Snakes", "author": "Suzanne", "pubDate": "2020-05-18T22:00:00.000Z", "status": "IGNORE" }, { "username": "test", "isbn": "9781649374172", "title": "Iron Flame", "author": "Rebecca", "pubDate": "2023-11-06T23:00:00.000Z", "status": "IGNORE" }, { "username": "test", "isbn": "", "title": "The Ballad of Songbirds and Snakes", "author": "Suzanne", "pubDate": "2020-05-18T22:00:00.000Z", "status": "IGNORE" }, { "username": "test", "isbn": "9781649374172", "title": "Iron Flame", "author": "Rebecca", "pubDate": "2023-11-06T23:00:00.000Z", "status": "IGNORE" }, { "username": "test", "isbn": "", "title": "The Ballad of Songbirds and Snakes", "author": "Suzanne", "pubDate": "2020-05-18T22:00:00.000Z", "status": "IGNORE" }, { "username": "test", "isbn": "9781649374172", "title": "Iron Flame", "author": "Rebecca", "pubDate": "2023-11-06T23:00:00.000Z", "status": "IGNORE" }, { "username": "test", "isbn": "", "title": "The Ballad of Songbirds and Snakes", "author": "Suzanne", "pubDate": "2020-05-18T22:00:00.000Z", "status": "IGNORE" }, { "username": "test", "isbn": "9781649374172", "title": "Iron Flame", "author": "Rebecca", "pubDate": "2023-11-06T23:00:00.000Z", "status": "IGNORE" }, { "username": "test", "isbn": "", "title": "The Ballad of Songbirds and Snakes", "author": "Suzanne", "pubDate": "2020-05-18T22:00:00.000Z", "status": "IGNORE" }, { "username": "test", "isbn": "9781649374172", "title": "Iron Flame", "author": "Rebecca", "pubDate": "2023-11-06T23:00:00.000Z", "status": "IGNORE" }, { "username": "test", "isbn": "", "title": "The Ballad of Songbirds and Snakes", "author": "Suzanne", "pubDate": "2020-05-18T22:00:00.000Z", "status": "IGNORE" }, { "username": "test", "isbn": "9781649374172", "title": "Iron Flame", "author": "Rebecca", "pubDate": "2023-11-06T23:00:00.000Z", "status": "IGNORE" }, { "username": "test", "isbn": "", "title": "The Ballad of Songbirds and Snakes", "author": "Suzanne", "pubDate": "2020-05-18T22:00:00.000Z", "status": "IGNORE" }, { "username": "test", "isbn": "9781649374172", "title": "Iron Flame", "author": "Rebecca", "pubDate": "2023-11-06T23:00:00.000Z", "status": "IGNORE" }, { "username": "test", "isbn": "", "title": "The Ballad of Songbirds and Snakes", "author": "Suzanne", "pubDate": "2020-05-18T22:00:00.000Z", "status": "IGNORE" }, { "username": "test", "isbn": "9781649374172", "title": "Iron Flame", "author": "Rebecca", "pubDate": "2023-11-06T23:00:00.000Z", "status": "IGNORE" }, { "username": "test", "isbn": "", "title": "The Ballad of Songbirds and Snakes", "author": "Suzanne", "pubDate": "2020-05-18T22:00:00.000Z", "status": "IGNORE" }, { "username": "test", "isbn": "9781649374172", "title": "Iron Flame", "author": "Rebecca", "pubDate": "2023-11-06T23:00:00.000Z", "status": "IGNORE" }, { "username": "test", "isbn": "", "title": "The Ballad of Songbirds and Snakes", "author": "Suzanne", "pubDate": "2020-05-18T22:00:00.000Z", "status": "IGNORE" }, { "username": "test", "isbn": "9781649374172", "title": "Iron Flame", "author": "Rebecca", "pubDate": "2023-11-06T23:00:00.000Z", "status": "IGNORE" } ], "status": 0, "message": "" });    
     return;

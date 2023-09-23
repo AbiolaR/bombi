@@ -9,6 +9,7 @@ var users = require('./routes/users');
 var authorization = require('./filters/authorization');
 const { LibgenDbService } = require('./services/libgen-db.service');
 const { ENC } = require('./services/secman');
+const { BookSyncDbService } = require('./services/book-sync-db.service');
 const { BookSyncService } = require('./services/book-sync.service');
 
 var app = express();
@@ -35,6 +36,18 @@ app.use('/api/v1/users', users);
 app.use('/', express.static('./static'));
 app.use('/*', express.static('./static'));
 
-bookSyncService = new BookSyncService();
+new BookSyncDbService();
+
+/*new LibgenDbService().initDB().then((libgenDbService) => {
+    new BookSyncService(libgenDbService).updateHostIp();
+});*/
+
+//console.log('start')
+new LibgenDbService();
+
+/*console.log(await (this.libgenDbService.getParam('host_ip')))
+//console.log(new BookSyncService().updateHostIp())
+console.log('end')*/
+
 
 module.exports = app;
