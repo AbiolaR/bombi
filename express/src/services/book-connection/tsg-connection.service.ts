@@ -1,5 +1,7 @@
-import { SyncRequest } from "../models/sync-request.model";
-import { SyncStatus } from "../models/sync-status.model";
+import { raw } from "mysql2";
+import { SyncLanguage } from "../../models/sync-language.model";
+import { SyncRequest } from "../../models/sync-request.model";
+import { SyncStatus } from "../../models/sync-status.model";
 import GenericBookConnection from "./generic-book-connection";
 
 export default class TSGConnection extends GenericBookConnection {
@@ -20,7 +22,8 @@ export default class TSGConnection extends GenericBookConnection {
     TITLE_QUERY = 'div.book-title-author-and-series > h3 > a';
     AUTHOR_QUERY = 'div.book-title-author-and-series > h3 > p:last-of-type > a';
     PUB_DATE_QUERY = 'div.edition-info.mt-3 > p:nth-child(5)';
-    FORMAT_QUERY = 'div.edition-info.mt-3 > p:nth-child(2)';    
+    FORMAT_QUERY = 'div.edition-info.mt-3 > p:nth-child(2)';
+    LANGUAGE_QUERY = 'div.edition-info.mt-3 > p:nth-child(3)';
 
     AUDIO_FORMAT = 'Audio';
     BOOKS_PER_PAGE = 10;
@@ -40,11 +43,21 @@ export default class TSGConnection extends GenericBookConnection {
             }
             let isbn = rawBook.getElementText(this.ISBN_QUERY).split(this.ISBN_SEPERATOR)[1];
             let title = rawBook.getElementText(this.TITLE_QUERY);
-            let author = rawBook.getElementText(this.AUTHOR_QUERY).split(' ').pop();
+            let author = rawBook.getElementText(this.AUTHOR_QUERY);
             let pubDate = rawBook.getElementText(this.PUB_DATE_QUERY).split(this.GEN_SEPERATOR)[1];
             pubDate = new Date(pubDate);
+            let language = rawBook.getElementText(this.LANGUAGE_QUERY).split(this.GEN_SEPERATOR)[1];
 
-            books.push(new SyncRequest(username, isbn, title, author, pubDate, SyncStatus.IGNORE));
+            switch (language) {
+                case 'German':
+                    language = SyncLanguage.GERMAN
+                    break;
+                default:
+                    language = SyncLanguage.ENGLISH
+                    break;
+            }
+
+            books.push(new SyncRequest(username, isbn, title, author, pubDate, SyncStatus.IGNORE, language));
         });
     }
 

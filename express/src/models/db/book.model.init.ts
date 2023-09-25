@@ -1,8 +1,8 @@
-//import { DataTypes } from "sequelize";
-const { DataTypes } = require('sequelize')
+import { DataTypes, Sequelize } from "sequelize";
+import { LibgenBook } from "./libgen-book.model";
 
-module.exports.Book = (sequelize) => {
-    const Book = sequelize.define('fiction', {
+export const initBook = (sequelize: Sequelize) => {
+    LibgenBook.init({
         ID: {
             type: DataTypes.INTEGER,
             allowNull: false,
@@ -92,13 +92,12 @@ module.exports.Book = (sequelize) => {
             allowNull: false
         },
         TimeAdded: {
-            type: DataTypes.TIME,
+            type: DataTypes.DATE,
             allowNull: false
         },
         TimeLastModified: {
-            type: DataTypes.TIME,
+            type: DataTypes.DATE,
             allowNull: false
         },    
-    }, { timestamps: false })
-    return Book;
+    }, { sequelize: sequelize, timestamps: false, tableName: 'fiction' });
 }

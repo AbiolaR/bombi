@@ -1,22 +1,20 @@
-//const { Sequelize, Op } = require('sequelize');
-import { Sequelize, Op, Model, DataTypes } from "sequelize";
-const { DEC } = require('./secman');
-//const { Book } = require('../models/book.model');
-import { Book } from "../models/db/book.model";
-import { LibgenParams } from "../models/db/libgen-params.model";
-//const { BookModel } = require('../models/book.model');
+import { Sequelize, Op, DataTypes } from "sequelize";
+//import { Book } from "../../models/db/book.model.init";
+import { LibgenParams } from "../../models/db/libgen-params.model";
+import { initBook } from "../../models/db/book.model.init";
+import { LibgenBook, LibgenBookColumn } from "../../models/db/libgen-book.model";
+const { DEC } = require('../secman');
 
 export class LibgenDbService {
     private sequelize: Sequelize;
-    private book: any;
-    private HOST_IP = 'host_ip';    
+    private HOST_IP = 'host_ip';
+    private permittedExtensions = ['epub']
 
     constructor() {
         this.initDB();
     }
 
     private initDB() {
-        console.log('about to assign sequelize')
         this.sequelize = new Sequelize(
             DEC('U2FsdGVkX19Rdz0oa5ZdqlLSp24hoiVyC7T5LHFAxH4='), // DB name
             DEC('U2FsdGVkX1+C3L9Ljwi4EbDVss0tzXyRMShvEiQASCk='), // username
@@ -28,11 +26,10 @@ export class LibgenDbService {
                 logging: false
             }
         );
-        console.log('done with assigning sequelize')            
         
         this.sequelize.authenticate().then(() => {
-            this.book = Book(this.sequelize);
-            this.defineModel();
+            //this.book = Book(this.sequelize);
+            this.initModels();
             this.sequelize.sync();
         }).catch((error) => {
             console.error('Unable to connect to the database: ', error);
@@ -40,24 +37,19 @@ export class LibgenDbService {
         
             //return this;                
     }
-
-    async sync() {
-        return this.sequelize.sync();
-    }
-
-    async isConnected() {
-        return this.sequelize.authenticate();
-    }
       
-    async searchMultiISBN(isbnList: String[]) {
+    searchMulti(valueList: String[], columnName: LibgenBookColumn) {
         let searchArray = [];
-        isbnList.forEach(isbn => {
-            searchArray.push({ Identifier: {[Op.like]: `%${isbn}%`} });
+        valueList.forEach(value => {
+            searchArray.push({ [columnName]: {[Op.like]: `%${value}%`} });
         })
-        return await this.book.findAll({
+        return LibgenBook.findAll({
             where: {
-                [Op.or]: searchArray
-            }    
+                [Op.or]: searchArray,
+                Visible: { [Op.ne]: 'no' },
+                Extension: this.permittedExtensions
+            },
+            group: ['Title']
         });  
     }
 
@@ -69,7 +61,7 @@ export class LibgenDbService {
         LibgenParams.update({ value: hostIp }, { where: { name: this.HOST_IP } });
     }
     
-    private defineModel() {
+    private initModels() {
         LibgenParams.init({
             name: {
                 type: DataTypes.STRING,
@@ -81,10 +73,7 @@ export class LibgenDbService {
             updatedAt: DataTypes.DATE
         }, { sequelize: this.sequelize });
 
-        /*LibgenParams.bulkCreate([
-            { name: 'host_ip', value: '176.119.25.72'},
-            { name: 'test_hash', value: '802D6390F04E39EF3D0C3BBF6678A2CD'}
-        ]);*/
+        initBook(this.sequelize);
     }
 
 }

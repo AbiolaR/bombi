@@ -1,9 +1,10 @@
-import { DataTypes, Op, Sequelize } from "sequelize";
-import { DEC } from "./secman";
-import { SyncBook } from "../models/db/sync-book.model";
-import { SyncUser } from "../models/db/sync-user.model";
-import { SyncRequest } from "../models/sync-request.model";
-import { ServerResponse } from "../models/server-response";
+import { DataTypes, Op, Sequelize, where } from "sequelize";
+import { DEC } from "../secman";
+import { SyncBook } from "../../models/db/sync-book.model";
+import { SyncUser } from "../../models/db/sync-user.model";
+import { SyncRequest } from "../../models/sync-request.model";
+import { ServerResponse } from "../../models/server-response";
+import { SyncStatus } from "../../models/sync-status.model";
 
 export class BookSyncDbService {
     private sequelize: Sequelize;
@@ -23,12 +24,10 @@ export class BookSyncDbService {
             this.dbUsername = DEC('U2FsdGVkX19IHfihjXuIRi//Wbq7/GhIyMlsEZjuNq0=');
             this.dbPassword = DEC('U2FsdGVkX1/gyYD3KK46HjAfLPXVovQlUgOH9NQqUu8=');
         }
-        console.log('first');
         this.initDB();
-        console.log('sixth');
     }
 
-    async findSyncRequests(username: string, syncRequests: SyncRequest[]): Promise<ServerResponse<SyncRequest[]>> {
+    async findSyncRequests(username: string, syncRequests: SyncRequest[], syncStatus: SyncStatus): Promise<ServerResponse<SyncRequest[]>> {
         let data = [];
         let isbns = syncRequests.map((syncRequest) => syncRequest.isbn);
         let titles = syncRequests.map((syncRequest) => syncRequest.title);
@@ -47,9 +46,17 @@ export class BookSyncDbService {
             authorSearchArray.push({ author: {[Op.like]: `%${author}%`} });
         });
 
+        let statusRestrict = {};
+        if (syncStatus) {
+            statusRestrict = { status: syncStatus };
+        }
+
         let result = await SyncUser.findAll({
             where: {
-                username: username
+                [Op.and]: [
+                    { username: username },
+                    statusRestrict
+                ]
             },
             include: [
                 { model: SyncBook, required: true, as: 'syncBook',
@@ -66,7 +73,7 @@ export class BookSyncDbService {
 
         data = result.map((syncUser) => new SyncRequest(syncUser.username, syncUser.syncBook.isbn, 
                 syncUser.syncBook.title, syncUser.syncBook.author, syncUser.syncBook.pubDate, 
-                syncUser.status));
+                syncUser.status, syncUser.syncBook.language));
         return new ServerResponse<SyncRequest[]>(data, 0, '');
     }
 
@@ -95,6 +102,26 @@ export class BookSyncDbService {
         }
     }
 
+    async updateSyncStatus(syncRequest: SyncRequest, syncStatus: SyncStatus) {
+        try {
+            SyncBook.findOne({
+                where: {
+                    isbn: syncRequest.isbn,
+                    title: syncRequest.title,
+                    author: syncRequest.author,
+                    asin: syncRequest.asin,
+                    md5Hash: syncRequest.md5Hash
+                }
+            }).then((book) => {
+                SyncUser.update({
+                    status: syncStatus
+                }, { where: { username: syncRequest.username, syncBookId: book.id} });
+            });
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
     private initDB() {
         this.sequelize = new Sequelize(
             this.dbName,
@@ -107,17 +134,13 @@ export class BookSyncDbService {
                 logging: false
             },
             );
-        console.log('second');
             
         this.sequelize.authenticate().then(() => {
-            console.log('third');
             this.defineModels();
-            this.sequelize.sync();
-            console.log('fourth');
+            this.sequelize.sync({alter: true});
         }).catch((error) => {
             console.error('Unable to connect to the database: ', error);
         });
-        console.log('fifth');
     }
 
     private defineModels() {    
@@ -125,16 +148,31 @@ export class BookSyncDbService {
             id: {
                 primaryKey: true,
                 type: DataTypes.INTEGER,
-                unique: true,
+                unique: 'id',
                 autoIncrement: true
             },
             isbn: {
                 type: DataTypes.STRING,
-                unique: true
+                unique: 'isbn'
+            },
+            asin: {
+                type: DataTypes.STRING,
+                unique: 'asin'
+            },
+            language: {
+                type: DataTypes.STRING,
+                primaryKey: true,
+                unique: 'language'
+            },
+            md5Hash: { 
+                type: DataTypes.STRING,
+                unique: 'md5Hash'
             },
             title: DataTypes.STRING,
             author: DataTypes.STRING,
-            pubDate: DataTypes.DATE,
+            pubDate: DataTypes.DATE,            
+            downloadUrl: DataTypes.STRING,
+            coverUrl: DataTypes.STRING,
             createdAt: DataTypes.DATE,
             updatedAt: DataTypes.DATE
         }, 

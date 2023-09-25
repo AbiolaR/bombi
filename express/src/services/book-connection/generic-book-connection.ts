@@ -2,12 +2,12 @@ import axios from "axios";
 import { JSDOM } from "jsdom";
 import { Options } from "selenium-webdriver/chrome";
 import { By, Key, Builder } from "selenium-webdriver";
-import { ExternalLoginResult } from "../models/external-login-result";
-import { ServerResponse } from "../models/server-response";
-import { SyncRequest } from "../models/sync-request.model";
+import { ExternalLoginResult } from "../../models/external-login-result";
+import { ServerResponse } from "../../models/server-response";
+import { SyncRequest } from "../../models/sync-request.model";
 import { BookConnection } from "./book-connection.interface";
-import { findUserAsync, updateUserAsync } from "./dbman";
-import { Credentials } from "../models/credentials";
+import { findUserAsync, updateUserAsync } from "../dbman";
+import { Credentials } from "../../models/credentials";
 
 export default abstract class GenericBookConnection implements BookConnection {
     USER_IDENT_PROPERTY: string;
@@ -26,6 +26,8 @@ export default abstract class GenericBookConnection implements BookConnection {
     AUTHOR_QUERY: string;
     PUB_DATE_QUERY: string;
     FORMAT_QUERY: string;
+    LANGUAGE_QUERY: string;
+    ASIN_QUERY: string; 
     BOOKS_PER_PAGE: number;
     FIRST_PAGE: number;
     SECOND_PAGE: number;

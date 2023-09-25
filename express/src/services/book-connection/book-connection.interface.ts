@@ -1,7 +1,7 @@
-import { Credentials } from "../models/credentials";
-import { ExternalLoginResult } from "../models/external-login-result";
-import { ServerResponse } from "../models/server-response";
-import { SyncRequest } from "../models/sync-request.model";
+import { Credentials } from "../../models/credentials";
+import { ExternalLoginResult } from "../../models/external-login-result";
+import { ServerResponse } from "../../models/server-response";
+import { SyncRequest } from "../../models/sync-request.model";
 
 export interface BookConnection {
     readonly BROWSER: string;
@@ -26,7 +26,9 @@ export interface BookConnection {
     readonly TITLE_QUERY: string;
     readonly AUTHOR_QUERY: string;
     readonly PUB_DATE_QUERY: string;
-    readonly FORMAT_QUERY: string;    
+    readonly FORMAT_QUERY: string;   
+    readonly LANGUAGE_QUERY: string;
+    readonly ASIN_QUERY: string; 
 
     readonly BOOKS_PER_PAGE: number;
     readonly FIRST_PAGE: number;

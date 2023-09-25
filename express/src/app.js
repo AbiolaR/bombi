@@ -7,10 +7,10 @@ var cors = require('cors');
 var books = require('./routes/books');
 var users = require('./routes/users');
 var authorization = require('./filters/authorization');
-const { LibgenDbService } = require('./services/libgen-db.service');
+const { LibgenDbService } = require('./services/db/libgen-db.service');
 const { ENC } = require('./services/secman');
-const { BookSyncDbService } = require('./services/book-sync-db.service');
-const { BookSyncService } = require('./services/book-sync.service');
+const { BookSyncDbService } = require('./services/db/book-sync-db.service');
+const { BookSyncService } = require('./services/book/book-sync.service');
 
 var app = express();
 
