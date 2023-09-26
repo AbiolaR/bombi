@@ -36,7 +36,7 @@ app.use('/api/v1/users', users);
 app.use('/', express.static('./static'));
 app.use('/*', express.static('./static'));
 
-new BookSyncDbService();
+service = new BookSyncDbService();
 
 /*new LibgenDbService().initDB().then((libgenDbService) => {
     new BookSyncService(libgenDbService).updateHostIp();
@@ -49,5 +49,6 @@ new LibgenDbService();
 //console.log(new BookSyncService().updateHostIp())
 console.log('end')*/
 
+//console.log(service)
 
 module.exports = app;

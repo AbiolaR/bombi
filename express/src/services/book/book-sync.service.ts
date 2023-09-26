@@ -5,8 +5,9 @@ import { BookService } from "./book.service";
 import { findUserAsync } from "../dbman";
 import { BookSyncDbService } from "../db/book-sync-db.service";
 import { SyncStatus } from "../../models/sync-status.model";
-import { LibgenBook } from "../../models/db/libgen-book.model";
+import { LibgenBook, LibgenBookColumn } from "../../models/db/libgen-book.model";
 import { SyncLanguage } from "../../models/sync-language.model";
+import { SyncBookProperty } from "../../models/db/sync-book.model";
 
 export class BookSyncService {
 
@@ -41,16 +42,14 @@ export class BookSyncService {
             this.libgenDbService.updateHostIp(hostIp);
           }
         } catch(error) {
-          console.log('Error while trying to update host ip: ', error);
+          console.error('Error while trying to update host ip: ', error);
         }
     }
 
   download(syncRequests: SyncRequest[]) {
     syncRequests.forEach(syncRequest => {
       if (syncRequest.downloadUrl) {
-        console.log('before attempt to send');
         this.attemptToSendBook(syncRequest);
-        console.log('after attempt to send');
       }
     });
   }
@@ -81,33 +80,81 @@ export class BookSyncService {
         console.error(result.message);
         return;
       }
-
       this.bookSyncDbService.updateSyncStatus(syncRequest, SyncStatus.SENT);
-      console.log('sent and updated');
     } else {
+      this.bookSyncDbService.updateSyncStatus(syncRequest, SyncStatus.UPCOMING);
       console.log('Error: failed to download syncRequest for: ', syncRequest.title);
       //this.updateSyncBookData(syncRequest);
     }
     
   }
 
-  async updateSyncBooksData(syncRequests: SyncRequest[]) {
-    await this.tryBasedOnIsbn(syncRequests);
-    console.log(syncRequests);
+  /*async createAndSync(syncRequests: SyncRequest[]) {
+
   }
 
-  async tryBasedOnIsbn(syncRequests: SyncRequest[]) {
+  async createSyncRequests(syncRequests: SyncRequest[]) {
+    syncRequests.forEach((syncRequest) => {
+      createSyncRequest(syncRequest);
+    });
+  }*/
+
+  async syncBooks(syncRequests: SyncRequest[]) {
+    await this.tryBasedOnProperty(syncRequests, 'isbn', 'Identifier');
+    await this.tryBasedOnProperty(syncRequests, 'asin', 'ASIN');
+    await this.tryBasedOnTitleAndAuthor(syncRequests);
+    syncRequests.filter(this.noDownloadData).forEach(syncRequest => syncRequest.status = SyncStatus.UPCOMING);
+    this.bookSyncDbService.updateDownloadData(syncRequests);
+    this.download(syncRequests.filter(syncRequest => syncRequest.status == SyncStatus.WAITING));
+  }
+
+  async tryBasedOnProperty(syncRequests: SyncRequest[], property: SyncBookProperty, column: LibgenBookColumn): Promise<void> {
+    let values = syncRequests.filter(this.noDownloadData)
+      .map((syncRequest) => syncRequest[property]).filter((prop) => !!prop?.trim());
+    let libgenBooks = await this.libgenDbService.searchOneColumn(values, column);
+    libgenBooks.forEach((libgenBook) => {
+      syncRequests.filter((syncRequest) => {
+        if(typeof libgenBook[column] === 'string') {
+          return (libgenBook[column] as string).split(',').includes(syncRequest[property]);
+        }
+      }).forEach(syncRequest => this.setSyncBookDownloadData(syncRequest, libgenBook));
+    });
+  }
+
+  async tryBasedOnTitleAndAuthor(syncRequests: SyncRequest[]) {
+    let searchValues = syncRequests.filter(this.noDownloadData)
+      .map((syncRequest) => { return {title: syncRequest.title, author: syncRequest.author.split(' ').pop()} })
+      .filter((searchObj) => !!searchObj.title?.trim() && !!searchObj.author?.trim());
+    let libgenBooks = await this.libgenDbService.searchMultiColumn(searchValues, 'Title', 'Author');
+    libgenBooks.forEach((libgenBook) => {
+      syncRequests.filter((syncRequest) => libgenBook.Title.toLowerCase().includes(syncRequest.title.toLowerCase()) 
+      && libgenBook.Author.toLowerCase().includes(syncRequest.author.split(' ').pop().toLowerCase()))
+      .forEach(syncRequest => this.setSyncBookDownloadData(syncRequest, libgenBook));
+    });
+  }
+
+  /*async tryBasedOnIsbn(syncRequests: SyncRequest[]) {
     let isbns = syncRequests.filter(this.noDownloadData)
-    .map((syncRequest) => syncRequest.isbn).filter((isbn) => !!isbn?.trim());
-    let libgenBooks = await this.libgenDbService.searchMulti(isbns, 'Identifier');
+      .map((syncRequest) => syncRequest.isbn).filter((isbn) => !!isbn?.trim());
+    let libgenBooks = await this.libgenDbService.searchOneColumn(isbns, 'Identifier');
     libgenBooks.forEach((libgenBook) => {
       let i = syncRequests.findIndex((syncRequest) => libgenBook.Identifier.split(',').includes(syncRequest.isbn));
       this.setSyncBookDownloadData(syncRequests[i], libgenBook);
     });
   }
 
-  setSyncBookDownloadData(syncRequest: SyncRequest, libgenBook: LibgenBook) {
-    if (syncRequest.language || SyncLanguage.ENGLISH == libgenBook.Language) {
+  async tryBasedOnAsin(syncRequests: SyncRequest[]) {
+    let asins = syncRequests.filter(this.noDownloadData)
+      .map((syncRequest) => syncRequest.asin).filter((asin) => !!asin?.trim());
+    let libgenBooks = await this.libgenDbService.searchOneColumn(asins, 'ASIN');
+    libgenBooks.forEach((libgenBook) => {
+      let i = syncRequests.findIndex((syncRequest) => libgenBook.Identifier.split(',').includes(syncRequest.asin));
+      this.setSyncBookDownloadData(syncRequests[i], libgenBook);
+    })
+  }*/
+
+  setSyncBookDownloadData(syncRequest: SyncRequest, libgenBook: LibgenBook): void {
+    if ((syncRequest.language || SyncLanguage.ENGLISH) == libgenBook.Language) {
       syncRequest.md5Hash = libgenBook.MD5;
       syncRequest.coverUrl = libgenBook.Coverurl;
       syncRequest.downloadUrl = this.parseDownloadUrl(libgenBook);
@@ -122,7 +169,7 @@ export class BookSyncService {
     return this.encodeUriAll(`/fiction/${this.torrentNumber(libgenBook)}/${libgenBook.MD5}.${libgenBook.Extension}/${series} ${libgenBook.Author} - ${libgenBook.Title}.${libgenBook.Extension}`);
   }
 
-  private encodeUriAll(value: string) {
+  private encodeUriAll(value: string): string {
     return value.replace(/[^A-Za-z0-9/.]/g, c =>
       `%${c.charCodeAt(0).toString(16).toUpperCase()}`
     ).toLowerCase();

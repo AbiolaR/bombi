@@ -1,5 +1,5 @@
 import { CreationOptional, ForeignKey, InferAttributes, InferCreationAttributes, Model } from "sequelize";
-import { SyncBook, SyncBookModel } from "./sync-book.model";
+import { SyncBook } from "./sync-book.model";
 import { SyncStatus } from "../sync-status.model";
 
 export class SyncUser extends Model<InferAttributes<SyncUser>, InferCreationAttributes<SyncUser>> {

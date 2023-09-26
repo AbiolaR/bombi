@@ -78,31 +78,38 @@ export class BookSyncDbService {
     }
 
     createSyncRequest(syncRequest: SyncRequest) {
+        this.sequelize.transaction().then((transaction) => {
         try {
-            SyncBook.upsert({
-                isbn: syncRequest.isbn,
-                title: syncRequest.title,
-                author: syncRequest.author,
-                pubDate: syncRequest.pubDate
-            }).then((book) => {
-                SyncUser.findOrCreate({
-                    where: {
-                        username: syncRequest.username,
-                        syncBookId: book[0].dataValues.id
-                    }, 
-                    defaults: {
-                        status: syncRequest.status,
-                        username: syncRequest.username,
-                        syncBookId: book[0].dataValues.id
-                    }
+                SyncBook.upsert({
+                    isbn: syncRequest.isbn,
+                    title: syncRequest.title,
+                    author: syncRequest.author,
+                    language: syncRequest.language,
+                    asin: syncRequest.asin,
+                    pubDate: syncRequest.pubDate
+                }, { transaction: transaction }).then((book) => {
+                    SyncUser.findOrCreate({
+                        where: {
+                            username: syncRequest.username,
+                            syncBookId: book[0].dataValues.id
+                        }, 
+                        defaults: {
+                            status: syncRequest.status,
+                            username: syncRequest.username,
+                            syncBookId: book[0].dataValues.id
+                        }, 
+                        transaction: transaction
+                    }).then(() => {
+                        transaction.commit();
+                    });
                 });
-            });
-        } catch (error) {
-
-        }
+            } catch (error) {
+                transaction.rollback();     
+            }
+        });
     }
 
-    async updateSyncStatus(syncRequest: SyncRequest, syncStatus: SyncStatus) {
+    updateSyncStatus(syncRequest: SyncRequest, syncStatus: SyncStatus) {
         try {
             SyncBook.findOne({
                 where: {
@@ -110,12 +117,36 @@ export class BookSyncDbService {
                     title: syncRequest.title,
                     author: syncRequest.author,
                     asin: syncRequest.asin,
-                    md5Hash: syncRequest.md5Hash
+                    language: syncRequest.language
                 }
             }).then((book) => {
-                SyncUser.update({
-                    status: syncStatus
-                }, { where: { username: syncRequest.username, syncBookId: book.id} });
+                if (book?.id) {
+                    SyncUser.update({
+                        status: syncStatus
+                    }, { where: { username: syncRequest.username, syncBookId: book.id} });
+                }
+            });
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    updateDownloadData(syncRequests: SyncRequest[]) {
+        try {
+            syncRequests.forEach(syncRequest => {
+                SyncBook.update({
+                    md5Hash: syncRequest.md5Hash,
+                    downloadUrl: syncRequest.downloadUrl,
+                    coverUrl: syncRequest.coverUrl
+                }, { where: {
+                    isbn: syncRequest.isbn,
+                    title: syncRequest.title,
+                    author: syncRequest.author,
+                    language: syncRequest.language,
+                    asin: syncRequest.asin
+                }}).then(() => {
+                    this.updateSyncStatus(syncRequest, syncRequest.status);
+                });
             });
         } catch (error) {
             console.error(error);

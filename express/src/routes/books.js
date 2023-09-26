@@ -148,9 +148,10 @@ router.post('/tolino/test', async(req, res) => {
 });
 
 async function sendFileToKindle(recipient, data, filename) {
-  const file = await convertToMobiAsync(data, filename);
-  if (!file.path) return;
-  return await mailservice.sendFileToKindle(recipient, file.path, file.name);
+  //const file = await convertToMobiAsync(data, filename);
+  const filePath = await saveToDiskAsync(data, filename);
+  //if (!file.path) return;
+  return await mailservice.sendFileToKindle(recipient, filePath, filename);
 }
 
 async function sendFileToTolino(book, filename, user) {

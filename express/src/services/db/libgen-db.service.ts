@@ -38,7 +38,7 @@ export class LibgenDbService {
             //return this;                
     }
       
-    searchMulti(valueList: String[], columnName: LibgenBookColumn) {
+    searchOneColumn(valueList: String[], columnName: LibgenBookColumn) {
         let searchArray = [];
         valueList.forEach(value => {
             searchArray.push({ [columnName]: {[Op.like]: `%${value}%`} });
@@ -49,7 +49,28 @@ export class LibgenDbService {
                 Visible: { [Op.ne]: 'no' },
                 Extension: this.permittedExtensions
             },
-            group: ['Title']
+            group: ['Title', 'Language']
+        });  
+    }
+
+    searchMultiColumn(valueList: Object[], ...columnNames: LibgenBookColumn[]) {
+        let searchArray = [];
+        valueList.forEach(value => {
+            let search = [];
+            let i = 0;
+            columnNames.forEach(columnName => {
+                search.push({ [columnName]: {[Op.like]: `%${value[Object.keys(value)[i]]}%`}})
+                i++;
+            })
+            searchArray.push({ [Op.and]: search });
+        })
+        return LibgenBook.findAll({
+            where: {
+                [Op.or]: searchArray,
+                Visible: { [Op.ne]: 'no' },
+                Extension: this.permittedExtensions
+            },
+            group: ['Title', 'Language']
         });  
     }
 

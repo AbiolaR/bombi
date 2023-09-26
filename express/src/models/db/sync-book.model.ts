@@ -17,9 +17,16 @@ export class SyncBook extends Model<InferAttributes<SyncBook>, InferCreationAttr
     declare updatedAt: CreationOptional<Date>;
 }
 
-export interface SyncBookModel {
-    isbn: string;
-    title: string;
-    author: string;
-    pubDate: Date;
-}
+export type SyncBookProperty = 
+| 'isbn'
+| 'asin'
+| 'title'
+| 'author'
+| 'language'
+| 'pubDate'
+| 'md5Hash'
+| 'downloadUrl'
+| 'coverUrl'
+| 'id'
+| 'createdAt'
+| 'updatedAt'
