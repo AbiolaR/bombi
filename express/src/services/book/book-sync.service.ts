@@ -84,20 +84,9 @@ export class BookSyncService {
     } else {
       this.bookSyncDbService.updateSyncStatus(syncRequest, SyncStatus.UPCOMING);
       console.log('Error: failed to download syncRequest for: ', syncRequest.title);
-      //this.updateSyncBookData(syncRequest);
     }
     
   }
-
-  /*async createAndSync(syncRequests: SyncRequest[]) {
-
-  }
-
-  async createSyncRequests(syncRequests: SyncRequest[]) {
-    syncRequests.forEach((syncRequest) => {
-      createSyncRequest(syncRequest);
-    });
-  }*/
 
   async syncBooks(syncRequests: SyncRequest[]) {
     await this.tryBasedOnProperty(syncRequests, 'isbn', 'Identifier');
@@ -132,26 +121,6 @@ export class BookSyncService {
       .forEach(syncRequest => this.setSyncBookDownloadData(syncRequest, libgenBook));
     });
   }
-
-  /*async tryBasedOnIsbn(syncRequests: SyncRequest[]) {
-    let isbns = syncRequests.filter(this.noDownloadData)
-      .map((syncRequest) => syncRequest.isbn).filter((isbn) => !!isbn?.trim());
-    let libgenBooks = await this.libgenDbService.searchOneColumn(isbns, 'Identifier');
-    libgenBooks.forEach((libgenBook) => {
-      let i = syncRequests.findIndex((syncRequest) => libgenBook.Identifier.split(',').includes(syncRequest.isbn));
-      this.setSyncBookDownloadData(syncRequests[i], libgenBook);
-    });
-  }
-
-  async tryBasedOnAsin(syncRequests: SyncRequest[]) {
-    let asins = syncRequests.filter(this.noDownloadData)
-      .map((syncRequest) => syncRequest.asin).filter((asin) => !!asin?.trim());
-    let libgenBooks = await this.libgenDbService.searchOneColumn(asins, 'ASIN');
-    libgenBooks.forEach((libgenBook) => {
-      let i = syncRequests.findIndex((syncRequest) => libgenBook.Identifier.split(',').includes(syncRequest.asin));
-      this.setSyncBookDownloadData(syncRequests[i], libgenBook);
-    })
-  }*/
 
   setSyncBookDownloadData(syncRequest: SyncRequest, libgenBook: LibgenBook): void {
     if ((syncRequest.language || SyncLanguage.ENGLISH) == libgenBook.Language) {
