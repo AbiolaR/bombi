@@ -122,6 +122,10 @@ export class BookSyncService {
     });
   }
 
+  async updateUpcoming(): Promise<void> {
+    console.log(await this.bookSyncDbService.findSyncRequests(undefined, [], SyncStatus.UPCOMING));
+  }
+
   setSyncBookDownloadData(syncRequest: SyncRequest, libgenBook: LibgenBook): void {
     if ((syncRequest.language || SyncLanguage.ENGLISH) == libgenBook.Language) {
       syncRequest.md5Hash = libgenBook.MD5;

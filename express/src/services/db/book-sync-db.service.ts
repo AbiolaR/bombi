@@ -50,22 +50,30 @@ export class BookSyncDbService {
         if (syncStatus) {
             statusRestrict = { status: syncStatus };
         }
+        let usernameRestrict = {};
+        if (username) {
+            usernameRestrict = { username: username };
+        }
+        let bookSearchArray = [];
+        if (!!syncRequests.length) {
+            bookSearchArray = [
+                { [Op.or]: isbnSearchArray },
+                { [Op.or]: titleSearchArray },
+                { [Op.or]: authorSearchArray },                   
+            ]
+        }
 
         let result = await SyncUser.findAll({
             where: {
                 [Op.and]: [
-                    { username: username },
+                    usernameRestrict,
                     statusRestrict
                 ]
             },
             include: [
                 { model: SyncBook, required: true, as: 'syncBook',
                     where: {
-                        [Op.and]: [
-                            { [Op.or]: isbnSearchArray },
-                            { [Op.or]: titleSearchArray },
-                            { [Op.or]: authorSearchArray },                   
-                        ]
+                        [Op.and]: bookSearchArray
                     }
                 }
             ]
@@ -148,6 +156,16 @@ export class BookSyncDbService {
                     this.updateSyncStatus(syncRequest, syncRequest.status);
                 });
             });
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    bulkUpdate(syncRequests: SyncRequest[]) {
+        let users = syncRequests.map(syncRequest => syncRequest.username);
+        let bookIds = syncRequests.map(syncRequest => syncRequest.);
+        try {
+            Syn
         } catch (error) {
             console.error(error);
         }

@@ -299,7 +299,11 @@ router.post('/srp-sync', async(req, res) => {
 });
 
 router.post('/srp-resync', async(req, res) => {
-    
+    const bookSyncService = new BookSyncService(new LibgenDbService(), new BookSyncDbService());
+
+    bookSyncService.updateUpcoming();
+
+    res.status(200).send({status: 0, message: 'Resync started', data: true})
 });
 
 router.post('/srp-connection', async (req, res) => {
