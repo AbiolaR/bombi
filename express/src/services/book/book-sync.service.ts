@@ -8,6 +8,7 @@ import { SyncStatus } from "../../models/sync-status.model";
 import { LibgenBook, LibgenBookColumn } from "../../models/db/libgen-book.model";
 import { SyncLanguage } from "../../models/sync-language.model";
 import { SyncBookProperty } from "../../models/db/sync-book.model";
+import { connection } from "mongoose";
 
 export class BookSyncService {
 
@@ -88,7 +89,7 @@ export class BookSyncService {
     
   }
 
-  async syncBooks(syncRequests: SyncRequest[]) {
+  async syncBooks(syncRequests: SyncRequest[]): Promise<void> {
     await this.tryBasedOnProperty(syncRequests, 'isbn', 'Identifier');
     await this.tryBasedOnProperty(syncRequests, 'asin', 'ASIN');
     await this.tryBasedOnTitleAndAuthor(syncRequests);
@@ -97,7 +98,26 @@ export class BookSyncService {
     this.download(syncRequests.filter(syncRequest => syncRequest.status == SyncStatus.WAITING));
   }
 
-  async tryBasedOnProperty(syncRequests: SyncRequest[], property: SyncBookProperty, column: LibgenBookColumn): Promise<void> {
+  async reSyncBooks(syncRequests: SyncRequest[]): Promise<void> {
+    for(const syncRequest of syncRequests) {
+      syncRequest.status = SyncStatus.WAITING;
+      await this.bookSyncDbService.createSyncRequest(syncRequest);
+    }
+    this.syncBooks(syncRequests);
+    /*this.updateUpcoming().then(() => {
+      this.bookSyncDbService.findSyncRequests(undefined, [], SyncStatus.WAITING).then((syncRequests) => {
+        this.syncBooks(syncRequests);
+      });
+    })*/
+  }
+
+  async updateUpcoming(): Promise<void> {
+    let upcomingRequests = (await this.bookSyncDbService.findSyncRequests(undefined, [], SyncStatus.UPCOMING));
+    let shouldBeWaitingRequests = upcomingRequests.filter(syncRequest => syncRequest.pubDate <= new Date());
+    await this.bookSyncDbService.bulkUpdateSyncStatus(shouldBeWaitingRequests, SyncStatus.WAITING);
+  }
+
+  private async tryBasedOnProperty(syncRequests: SyncRequest[], property: SyncBookProperty, column: LibgenBookColumn): Promise<void> {
     let values = syncRequests.filter(this.noDownloadData)
       .map((syncRequest) => syncRequest[property]).filter((prop) => !!prop?.trim());
     let libgenBooks = await this.libgenDbService.searchOneColumn(values, column);
@@ -110,7 +130,7 @@ export class BookSyncService {
     });
   }
 
-  async tryBasedOnTitleAndAuthor(syncRequests: SyncRequest[]) {
+  private async tryBasedOnTitleAndAuthor(syncRequests: SyncRequest[]): Promise<void> {
     let searchValues = syncRequests.filter(this.noDownloadData)
       .map((syncRequest) => { return {title: syncRequest.title, author: syncRequest.author.split(' ').pop()} })
       .filter((searchObj) => !!searchObj.title?.trim() && !!searchObj.author?.trim());
@@ -122,11 +142,7 @@ export class BookSyncService {
     });
   }
 
-  async updateUpcoming(): Promise<void> {
-    console.log(await this.bookSyncDbService.findSyncRequests(undefined, [], SyncStatus.UPCOMING));
-  }
-
-  setSyncBookDownloadData(syncRequest: SyncRequest, libgenBook: LibgenBook): void {
+  private setSyncBookDownloadData(syncRequest: SyncRequest, libgenBook: LibgenBook): void {
     if ((syncRequest.language || SyncLanguage.ENGLISH) == libgenBook.Language) {
       syncRequest.md5Hash = libgenBook.MD5;
       syncRequest.coverUrl = libgenBook.Coverurl;
@@ -134,7 +150,7 @@ export class BookSyncService {
     }
   }
 
-  parseDownloadUrl(libgenBook: LibgenBook): string {
+  private parseDownloadUrl(libgenBook: LibgenBook): string {
     let series = '';
     if (libgenBook.Series) {
       series = `(${libgenBook.Series})`

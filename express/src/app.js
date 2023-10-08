@@ -30,6 +30,7 @@ app.use('/api/v1/users/friend-request/send', authorization);
 app.use('/api/v1/users/friend-request/accept', authorization);
 app.use('/api/v1/users/srp-connection', authorization);
 app.use('/api/v1/users/srp-sync', authorization);
+app.use('/api/v1/users/srp-resync', authorization);
 app.use('/api/v1/users/srp-sync/status', authorization);
 app.use('/api/v1/books', books);
 app.use('/api/v1/users', users);

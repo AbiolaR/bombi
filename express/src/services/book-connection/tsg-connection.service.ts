@@ -3,6 +3,7 @@ import { SyncLanguage } from "../../models/sync-language.model";
 import { SyncRequest } from "../../models/sync-request.model";
 import { SyncStatus } from "../../models/sync-status.model";
 import GenericBookConnection from "./generic-book-connection";
+import { SocialReadingPlatform } from "../../models/social-reading-platform";
 
 export default class TSGConnection extends GenericBookConnection {
 
@@ -46,9 +47,9 @@ export default class TSGConnection extends GenericBookConnection {
             let author = rawBook.getElementText(this.AUTHOR_QUERY);
             let pubDate = rawBook.getElementText(this.PUB_DATE_QUERY).split(this.GEN_SEPERATOR)[1];
             pubDate = new Date(pubDate);
-            let language = rawBook.getElementText(this.LANGUAGE_QUERY).split(this.GEN_SEPERATOR)[1];
-
-            switch (language) {
+            let languageText = rawBook.getElementText(this.LANGUAGE_QUERY).split(this.GEN_SEPERATOR)[1];
+            let language: SyncLanguage;
+            switch (languageText) {
                 case 'German':
                     language = SyncLanguage.GERMAN
                     break;
@@ -57,7 +58,8 @@ export default class TSGConnection extends GenericBookConnection {
                     break;
             }
 
-            books.push(new SyncRequest(username, isbn, title, author, pubDate, SyncStatus.IGNORE, language));
+            books.push(new SyncRequest(username, isbn, title, author, pubDate, SyncStatus.IGNORE, 
+                SocialReadingPlatform.THE_STORY_GRAPH, language));
         });
     }
 

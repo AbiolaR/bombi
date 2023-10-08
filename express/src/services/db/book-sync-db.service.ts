@@ -27,11 +27,11 @@ export class BookSyncDbService {
         this.initDB();
     }
 
-    async findSyncRequests(username: string, syncRequests: SyncRequest[], syncStatus: SyncStatus): Promise<ServerResponse<SyncRequest[]>> {
-        let data = [];
+    async findSyncRequests(username: string, syncRequests: SyncRequest[], syncStatus: SyncStatus): Promise<SyncRequest[]> {
         let isbns = syncRequests.map((syncRequest) => syncRequest.isbn);
         let titles = syncRequests.map((syncRequest) => syncRequest.title);
         let authors = syncRequests.map((syncRequest) => syncRequest.author);
+        let platforms = syncRequests.map(syncRequest => syncRequest.platform);
 
         let isbnSearchArray = [];
         isbns.forEach(isbn => {
@@ -62,12 +62,17 @@ export class BookSyncDbService {
                 { [Op.or]: authorSearchArray },                   
             ]
         }
+        let platformRestrict = {};
+        if(!!syncRequests.length) {
+            platformRestrict = { platform: platforms };
+        }
 
         let result = await SyncUser.findAll({
             where: {
                 [Op.and]: [
                     usernameRestrict,
-                    statusRestrict
+                    statusRestrict,
+                    platformRestrict
                 ]
             },
             include: [
@@ -79,42 +84,40 @@ export class BookSyncDbService {
             ]
         });
 
-        data = result.map((syncUser) => new SyncRequest(syncUser.username, syncUser.syncBook.isbn, 
+        return result.map((syncUser) => new SyncRequest(syncUser.username, syncUser.syncBook.isbn, 
                 syncUser.syncBook.title, syncUser.syncBook.author, syncUser.syncBook.pubDate, 
-                syncUser.status, syncUser.syncBook.language));
-        return new ServerResponse<SyncRequest[]>(data, 0, '');
+                syncUser.status, syncUser.platform, syncUser.syncBook.language));
     }
 
-    createSyncRequest(syncRequest: SyncRequest) {
-        this.sequelize.transaction().then((transaction) => {
+    async createSyncRequest(syncRequest: SyncRequest): Promise<void> {
+        const transaction = await this.sequelize.transaction();
         try {
-                SyncBook.upsert({
+            let book = await SyncBook.upsert({
                     isbn: syncRequest.isbn,
                     title: syncRequest.title,
                     author: syncRequest.author,
                     language: syncRequest.language,
                     asin: syncRequest.asin,
                     pubDate: syncRequest.pubDate
-                }, { transaction: transaction }).then((book) => {
-                    SyncUser.findOrCreate({
-                        where: {
-                            username: syncRequest.username,
-                            syncBookId: book[0].dataValues.id
-                        }, 
-                        defaults: {
-                            status: syncRequest.status,
-                            username: syncRequest.username,
-                            syncBookId: book[0].dataValues.id
-                        }, 
-                        transaction: transaction
-                    }).then(() => {
-                        transaction.commit();
-                    });
-                });
-            } catch (error) {
-                transaction.rollback();     
-            }
-        });
+                }, { transaction: transaction });
+            await SyncUser.findOrCreate({
+                where: {
+                    username: syncRequest.username,
+                    syncBookId: book[0].dataValues.id,
+                    platform: syncRequest.platform
+                }, 
+                defaults: {
+                    status: syncRequest.status,
+                    username: syncRequest.username,
+                    syncBookId: book[0].dataValues.id,
+                    platform: syncRequest.platform
+                }, 
+                transaction: transaction
+            });
+            await transaction.commit();                  
+        } catch (error) {
+            await transaction.rollback();     
+        }
     }
 
     updateSyncStatus(syncRequest: SyncRequest, syncStatus: SyncStatus) {
@@ -131,9 +134,40 @@ export class BookSyncDbService {
                 if (book?.id) {
                     SyncUser.update({
                         status: syncStatus
-                    }, { where: { username: syncRequest.username, syncBookId: book.id} });
+                    }, { where: { username: syncRequest.username, syncBookId: book.id, platform: syncRequest.platform } });
                 }
             });
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    async bulkUpdateSyncStatus(syncRequests: SyncRequest[], syncStatus: SyncStatus) {
+        let usernames = syncRequests.map(syncRequest => syncRequest.username);
+        let isbns = syncRequests.map(syncRequest => syncRequest.isbn);
+        let titles = syncRequests.map(syncRequest => syncRequest.title);
+        let authors = syncRequests.map(syncRequest => syncRequest.author);
+        let asins = syncRequests.map(syncRequest => syncRequest.asin);
+        let languages = syncRequests.map(syncRequest => syncRequest.language);
+        let platforms = syncRequests.map(syncRequest => syncRequest.platform);
+        
+        try {
+            let books = await SyncBook.findAll({
+                where: {
+                    isbn: isbns,
+                    title: titles,
+                    author: authors,
+                    asin: asins,
+                    language: languages
+                }
+            });
+            if (books) {
+                let bookIds = books.map(book => book.id);
+                await SyncUser.update({
+                    status: syncStatus
+                }, { where: { username: usernames, syncBookId: bookIds, platform: platforms } });
+            }
+
         } catch (error) {
             console.error(error);
         }
@@ -161,15 +195,6 @@ export class BookSyncDbService {
         }
     }
 
-    bulkUpdate(syncRequests: SyncRequest[]) {
-        let users = syncRequests.map(syncRequest => syncRequest.username);
-        let bookIds = syncRequests.map(syncRequest => syncRequest.);
-        try {
-            Syn
-        } catch (error) {
-            console.error(error);
-        }
-    }
 
     private initDB() {
         this.sequelize = new Sequelize(
@@ -231,7 +256,11 @@ export class BookSyncDbService {
             username: { 
                 type: DataTypes.STRING,
                 primaryKey: true
-            },            
+            },
+            platform: {
+                type: DataTypes.STRING,
+                primaryKey: true
+            },
             status: DataTypes.STRING,
             createdAt: DataTypes.DATE,
             updatedAt: DataTypes.DATE,

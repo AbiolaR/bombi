@@ -7,6 +7,7 @@ export interface BookConnection {
     readonly BROWSER: string;
     readonly HEADLESS_ARGUMENT: string;
     readonly NO_SANDBOX_ARGUMENT: string;
+    readonly ENABLE_LOGGING_SWITCH: string;
     readonly CHROME_BINARY_PATH: string;
 
     readonly USER_IDENT_PROPERTY: string;
