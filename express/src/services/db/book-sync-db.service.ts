@@ -1,7 +1,7 @@
 import { DataTypes, Op, Sequelize, where } from "sequelize";
 import { DEC } from "../secman";
-import { SyncBook } from "../../models/db/sync-book.model";
-import { SyncUser } from "../../models/db/sync-user.model";
+import { SyncBook } from "../../models/db/mysql/sync-book.model";
+import { SyncUser } from "../../models/db/mysql/sync-user.model";
 import { SyncRequest } from "../../models/sync-request.model";
 import { ServerResponse } from "../../models/server-response";
 import { SyncStatus } from "../../models/sync-status.model";

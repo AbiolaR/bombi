@@ -18,10 +18,9 @@ export class BookService {
     }
 
     static async prepareAndSendFileToKindle(recipient: string, data: any, filename: string) {
-        //const file = await convertToMobiAsync(data, filename);
-        const filePath = await saveToDiskAsync(data, filename);
-        //if (!file.path) return;
-        return await sendFileToKindle(recipient, filePath, filename);
+        const file = await convertToMobiAsync(data, filename);
+        if (!file.path) return;
+        return await sendFileToKindle(recipient, file.path, file.name);
     }
       
     static async sendFileToTolino(book: any, filename: string, user: any) {

@@ -277,9 +277,9 @@ router.post('/friend-request/accept', async (req, res) => {
 router.post('/srp-sync/status', async(req, res) => {
     const username = req.body.username;
     const syncRequests = req.body.syncRequests;
-    const bookSyncService = new BookSyncDbService();
+    const bookSyncDbService = new BookSyncDbService();
 
-    let data = await bookSyncService.findSyncRequests(username, syncRequests);
+    let data = await bookSyncDbService.findSyncRequests(username, syncRequests);
     res.status(200).send({ status: 0, message: '', data: data });
 });
 

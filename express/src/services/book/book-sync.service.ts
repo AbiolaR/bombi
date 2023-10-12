@@ -5,49 +5,52 @@ import { BookService } from "./book.service";
 import { findUserAsync } from "../dbman";
 import { BookSyncDbService } from "../db/book-sync-db.service";
 import { SyncStatus } from "../../models/sync-status.model";
-import { LibgenBook, LibgenBookColumn } from "../../models/db/libgen-book.model";
+import { LibgenBook, LibgenBookColumn } from "../../models/db/mysql/libgen-book.model";
 import { SyncLanguage } from "../../models/sync-language.model";
-import { SyncBookProperty } from "../../models/db/sync-book.model";
-import { connection } from "mongoose";
+import { SyncBookProperty } from "../../models/db/mysql/sync-book.model";
+import { User } from "../../models/db/mongodb/user.model";
+import GoodreadsConnection from "../book-connection/goodreads-connection.service";
+import TSGConnection from "../book-connection/tsg-connection.service";
+import { ServerResponse } from "../../models/server-response";
 
 export class BookSyncService {
 
-    private readonly LIBGEN_FICTION = 'https://library.lol/fiction/';
-    private TEST_HASH: Promise<string>;
-    private TEST_HASH_KEY = 'test_hash';
-    private HOST_IP: Promise<string>;
-    private HOST_IP_KEY = 'host_ip';
+  private readonly LIBGEN_FICTION = 'https://library.lol/fiction/';
+  private TEST_HASH: Promise<string>;
+  private TEST_HASH_KEY = 'test_hash';
+  private HOST_IP: Promise<string>;
+  private HOST_IP_KEY = 'host_ip';
 
-    constructor(private libgenDbService: LibgenDbService, private bookSyncDbService: BookSyncDbService) {
-      this.TEST_HASH = libgenDbService.getParam(this.TEST_HASH_KEY);
-      this.HOST_IP = libgenDbService.getParam(this.HOST_IP_KEY);
+  constructor(private libgenDbService: LibgenDbService, private bookSyncDbService: BookSyncDbService) {
+    this.TEST_HASH = libgenDbService.getParam(this.TEST_HASH_KEY);
+    this.HOST_IP = libgenDbService.getParam(this.HOST_IP_KEY);
+  }
+
+  async updateHostIp(): Promise<void> {
+    const regexDownloadURL = new RegExp(/(?<=href=")(.*)(?=">GET<)/g);
+    const regexHostIp = new RegExp(/(?<=\/\/)(.*?)(?=\/)/g);
+
+    var config = {
+        method: 'get',
+        url: `${this.LIBGEN_FICTION}${await this.TEST_HASH}`,
+      };
+    
+    var result = await axios(config);
+    const page = await result.data;
+
+    var downloadURL = '';
+    try {
+      downloadURL = page.match(regexDownloadURL).toString();
+      let hostIp = downloadURL.match(regexHostIp).toString();
+      if(hostIp) {
+        this.libgenDbService.updateHostIp(hostIp);
+      }
+    } catch(error) {
+      console.error('Error while trying to update host ip: ', error);
     }
+  }
 
-    async updateHostIp() {
-        const regexDownloadURL = new RegExp(/(?<=href=")(.*)(?=">GET<)/g);
-        const regexHostIp = new RegExp(/(?<=\/\/)(.*?)(?=\/)/g);
-
-        var config = {
-            method: 'get',
-            url: `${this.LIBGEN_FICTION}${await this.TEST_HASH}`,
-          };
-        
-          var result = await axios(config);
-          const page = await result.data;
-
-        var downloadURL = '';
-        try {
-          downloadURL = page.match(regexDownloadURL).toString();
-          let hostIp = downloadURL.match(regexHostIp).toString();
-          if(hostIp) {
-            this.libgenDbService.updateHostIp(hostIp);
-          }
-        } catch(error) {
-          console.error('Error while trying to update host ip: ', error);
-        }
-    }
-
-  download(syncRequests: SyncRequest[]) {
+  private download(syncRequests: SyncRequest[]): void {
     syncRequests.forEach(syncRequest => {
       if (syncRequest.downloadUrl) {
         this.attemptToSendBook(syncRequest);
@@ -55,7 +58,7 @@ export class BookSyncService {
     });
   }
 
-  async attemptToSendBook(syncRequest: SyncRequest) {
+  async attemptToSendBook(syncRequest: SyncRequest): Promise<void> {
     let book = await BookService.downloadWithUrl(`http://${await this.HOST_IP}/${syncRequest.downloadUrl}`);
     if (book.file) {
       let filename = `${syncRequest.title}.${syncRequest.downloadUrl.split('.').pop()}`;
@@ -83,8 +86,8 @@ export class BookSyncService {
       }
       this.bookSyncDbService.updateSyncStatus(syncRequest, SyncStatus.SENT);
     } else {
-      this.bookSyncDbService.updateSyncStatus(syncRequest, SyncStatus.UPCOMING);
-      console.log('Error: failed to download syncRequest for: ', syncRequest.title);
+      this.bookSyncDbService.updateSyncStatus(syncRequest, SyncStatus.WAITING);
+      console.error('Error: failed to download syncRequest for: ', syncRequest.title);
     }
     
   }
@@ -98,17 +101,34 @@ export class BookSyncService {
     this.download(syncRequests.filter(syncRequest => syncRequest.status == SyncStatus.WAITING));
   }
 
-  async reSyncBooks(syncRequests: SyncRequest[]): Promise<void> {
-    for(const syncRequest of syncRequests) {
-      syncRequest.status = SyncStatus.WAITING;
-      await this.bookSyncDbService.createSyncRequest(syncRequest);
-    }
-    this.syncBooks(syncRequests);
-    /*this.updateUpcoming().then(() => {
-      this.bookSyncDbService.findSyncRequests(undefined, [], SyncStatus.WAITING).then((syncRequests) => {
-        this.syncBooks(syncRequests);
+  reSyncBooks(): void {
+    let tsgConnection = new TSGConnection();
+    let grConnection = new GoodreadsConnection();
+    let users: User[] = [];
+
+    for(const user of users) {
+      let grSync = new Promise<ServerResponse<SyncRequest[]>>((resolve) => resolve(new ServerResponse()));
+      let tsgSync = new Promise<ServerResponse<SyncRequest[]>>((resolve) => resolve(new ServerResponse()));
+      if (user.grUserId && user.grCookies) {
+        grSync = grConnection.getBooksToReadByUsername(user.username);
+      }
+      if (user.tsgUsername, user.tsgCookies) {
+        tsgSync = tsgConnection.getBooksToReadByUsername(user.username);
+      }
+      Promise.all([grSync, tsgSync]).then((results) => {
+        let syncRequests = results[0].data.concat(results[1].data.filter((syncRequest) => results[0].data.indexOf(syncRequest) < 0));
+        let creations: Promise<void>[] = [];
+        for(const syncRequest of syncRequests) {
+          syncRequest.status = SyncStatus.WAITING;
+          creations.push(this.bookSyncDbService.createSyncRequest(syncRequest));
+        }
+        Promise.all(creations).then(() => {
+          this.bookSyncDbService.findSyncRequests(user.username, [], SyncStatus.WAITING).then((syncRequests) => {
+            this.syncBooks(syncRequests);
+          });
+        });
       });
-    })*/
+    }
   }
 
   async updateUpcoming(): Promise<void> {

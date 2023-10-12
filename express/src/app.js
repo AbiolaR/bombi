@@ -37,14 +37,14 @@ app.use('/api/v1/users', users);
 app.use('/', express.static('./static'));
 app.use('/*', express.static('./static'));
 
-service = new BookSyncDbService();
+//service = new BookSyncDbService();
 
 /*new LibgenDbService().initDB().then((libgenDbService) => {
     new BookSyncService(libgenDbService).updateHostIp();
 });*/
 
 //console.log('start')
-new LibgenDbService();
+//new LibgenDbService();
 
 /*console.log(await (this.libgenDbService.getParam('host_ip')))
 //console.log(new BookSyncService().updateHostIp())

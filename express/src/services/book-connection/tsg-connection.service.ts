@@ -1,4 +1,3 @@
-import { raw } from "mysql2";
 import { SyncLanguage } from "../../models/sync-language.model";
 import { SyncRequest } from "../../models/sync-request.model";
 import { SyncStatus } from "../../models/sync-status.model";

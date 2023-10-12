@@ -16,7 +16,7 @@ if (ENV == 'Prod') {
 const CONNECTION_URL = `mongodb://${USERNAME}:${PASSWORD}@192.168.2.101:27017/bombi${ENV}DB?authMechanism=DEFAULT`
 
 mongoose.set('strictQuery', true);
-mongoose.connect(CONNECTION_URL);
+//mongoose.connect(CONNECTION_URL); TODO: REVERT
 const db = mongoose.connection;
 
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
@@ -49,7 +49,7 @@ const ContactSchema = mongoose.Schema({
     sharedBooks: [BookSchema]
 });
 
-const UserSchema = mongoose.Schema({
+module.exports = UserSchema = mongoose.Schema({
     username: { type: String, required: true },
     password: { type: String, required: true },
     email: { type: String, required: true },

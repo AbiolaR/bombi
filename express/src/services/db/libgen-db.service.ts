@@ -1,8 +1,7 @@
 import { Sequelize, Op, DataTypes } from "sequelize";
-//import { Book } from "../../models/db/book.model.init";
-import { LibgenParams } from "../../models/db/libgen-params.model";
-import { initBook } from "../../models/db/book.model.init";
-import { LibgenBook, LibgenBookColumn } from "../../models/db/libgen-book.model";
+import { LibgenParams } from "../../models/db/mysql/libgen-params.model";
+import { initBook } from "../../models/db/mysql/book.model.init";
+import { LibgenBook, LibgenBookColumn } from "../../models/db/mysql/libgen-book.model";
 const { DEC } = require('../secman');
 
 export class LibgenDbService {
