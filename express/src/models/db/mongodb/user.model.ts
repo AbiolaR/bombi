@@ -2,6 +2,7 @@ import { Contact } from "./contact.model";
 import { PushSubscription } from "./push-subscription.model";
 
 export interface User {
+    save(): any;
     username: string,
     password: string,
     email: string,

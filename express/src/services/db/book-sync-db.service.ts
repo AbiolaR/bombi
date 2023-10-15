@@ -3,29 +3,13 @@ import { DEC } from "../secman";
 import { SyncBook } from "../../models/db/mysql/sync-book.model";
 import { SyncUser } from "../../models/db/mysql/sync-user.model";
 import { SyncRequest } from "../../models/sync-request.model";
-import { ServerResponse } from "../../models/server-response";
 import { SyncStatus } from "../../models/sync-status.model";
+import { SocialReadingPlatform } from "../../models/social-reading-platform";
 
 export class BookSyncDbService {
-    private sequelize: Sequelize;
-    private syncBook;
-    private syncUser;
-    private dbName: string;
-    private dbUsername: string;
-    private dbPassword: string;
+    private static sequelize: Sequelize;
 
-    constructor() {
-        const ENV = process.env.STAGE == 'prod' ? 'Prod' : 'Test';
-        if (ENV == 'Prod') {
-            this.dbUsername = DEC('');
-            this.dbPassword = DEC('');
-        } else {
-            this.dbName = DEC('U2FsdGVkX1+lkXTvf4XJbnAZmv+O8eMkZ1mzDGaWoas=')
-            this.dbUsername = DEC('U2FsdGVkX19IHfihjXuIRi//Wbq7/GhIyMlsEZjuNq0=');
-            this.dbPassword = DEC('U2FsdGVkX1/gyYD3KK46HjAfLPXVovQlUgOH9NQqUu8=');
-        }
-        this.initDB();
-    }
+    constructor() {}
 
     async findSyncRequests(username: string, syncRequests: SyncRequest[], syncStatus: SyncStatus): Promise<SyncRequest[]> {
         let isbns = syncRequests.map((syncRequest) => syncRequest.isbn);
@@ -90,7 +74,7 @@ export class BookSyncDbService {
     }
 
     async createSyncRequest(syncRequest: SyncRequest): Promise<void> {
-        const transaction = await this.sequelize.transaction();
+        const transaction = await BookSyncDbService.sequelize.transaction();
         try {
             let book = await SyncBook.upsert({
                     isbn: syncRequest.isbn,
@@ -117,6 +101,19 @@ export class BookSyncDbService {
             await transaction.commit();                  
         } catch (error) {
             await transaction.rollback();     
+        }
+    }
+
+    deleteSyncRequests(username: string, platform: SocialReadingPlatform) {
+        try {
+            SyncUser.destroy({
+                where: {
+                    username: username,
+                    platform: platform
+                }
+            })
+        } catch(error) {
+            console.error(error);
         }
     }
 
@@ -196,11 +193,18 @@ export class BookSyncDbService {
     }
 
 
-    private initDB() {
+    public static async initDB() {
+        let dbName = DEC('U2FsdGVkX1+lkXTvf4XJbnAZmv+O8eMkZ1mzDGaWoas=');
+        let dbUsername = DEC('U2FsdGVkX19IHfihjXuIRi//Wbq7/GhIyMlsEZjuNq0=');
+        let dbPassword = DEC('U2FsdGVkX1/gyYD3KK46HjAfLPXVovQlUgOH9NQqUu8=');
+        if (process.env.STAGE == 'prod') {
+            dbUsername = DEC('');
+            dbPassword = DEC('');
+        } 
         this.sequelize = new Sequelize(
-            this.dbName,
-            this.dbUsername,
-            this.dbPassword,
+            dbName,
+            dbUsername,
+            dbPassword,
             {
                 host: DEC('U2FsdGVkX1+05Zg5oW8quqoZqd7gvSrRAt+EPn4DRpY='),
                 dialect: DEC('U2FsdGVkX1+owrCFwZIw+8WDF1hZTPAc1je+z9tlfnc='),
@@ -209,16 +213,13 @@ export class BookSyncDbService {
             },
             );
             
-        this.sequelize.authenticate().then(() => {
-            this.defineModels();
-            this.sequelize.sync({alter: true});
-        }).catch((error) => {
-            console.error('Unable to connect to the database: ', error);
-        });
+        await this.sequelize.authenticate();
+        this.defineModels();
+        await this.sequelize.sync({alter: true});
     }
 
-    private defineModels() {    
-        this.syncBook = SyncBook.init({
+    private static defineModels() {    
+        let syncBook = SyncBook.init({
             id: {
                 primaryKey: true,
                 type: DataTypes.INTEGER,
@@ -252,7 +253,7 @@ export class BookSyncDbService {
         }, 
         { sequelize: this.sequelize }
         );
-        this.syncUser = SyncUser.init({
+        let syncUser = SyncUser.init({
             username: { 
                 type: DataTypes.STRING,
                 primaryKey: true
@@ -267,8 +268,8 @@ export class BookSyncDbService {
         },
         { sequelize: this.sequelize }
         );
-        this.syncBook.hasMany(this.syncUser, { foreignKey: 'syncBookId', onDelete: 'RESTRICT' });
-        this.syncUser.belongsTo(this.syncBook,
-            { as: 'syncBook', foreignKey: {name: 'syncBookId', primaryKey: true}, onDelete: 'RESTRICT' });
+        syncBook.hasMany(syncUser, { foreignKey: 'syncBookId', onDelete: 'RESTRICT' });
+        syncUser.belongsTo(syncBook,
+            { as: 'syncBook', foreignKey: {name: 'syncBookId'}, onDelete: 'RESTRICT' });
     }
 }

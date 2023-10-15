@@ -16,7 +16,7 @@ if (ENV == 'Prod') {
 const CONNECTION_URL = `mongodb://${USERNAME}:${PASSWORD}@192.168.2.101:27017/bombi${ENV}DB?authMechanism=DEFAULT`
 
 mongoose.set('strictQuery', true);
-//mongoose.connect(CONNECTION_URL); TODO: REVERT
+mongoose.connect(CONNECTION_URL);
 const db = mongoose.connection;
 
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
@@ -71,6 +71,10 @@ module.exports = UserSchema = mongoose.Schema({
 });
 
 const User = mongoose.model('User', UserSchema);
+
+module.exports.findAllUsersAsync = async () => {
+    return await User.find();
+}
 
 module.exports.findUser = (username, callback) => {
     User.findOne({ username: username }, (err, user) => {

@@ -291,56 +291,11 @@ router.post('/srp-sync', async(req, res) => {
         bookSyncDbService.createSyncRequest(syncRequest);
     });
 
-    const bookSyncService = new BookSyncService(new LibgenDbService(), bookSyncDbService);
+    const bookSyncService = new BookSyncService();
 
     bookSyncService.syncBooks(syncRequests);
 
     res.status(200).send({ status: 0, message: 'Sync started', data: true });
-});
-
-router.post('/srp-resync', async(req, res) => {
-    //const bookSyncService = new BookSyncService(new LibgenDbService(), new BookSyncDbService());
-
-    //bookSyncService.reSyncBooks();
-
-    let connection;
-
-    switch(req.body.platform) {
-        case SocialReadingPlatform.GOODREADS:
-            connection = new GoodreadsConnection();
-            break;
-        case SocialReadingPlatform.THE_STORY_GRAPH:
-            connection = new TSGConnection();
-            break;
-        default:
-            res.status(200).send({status: 1, message: 'Unsupported Social Reading Platform'});
-            return;
-    }
-
-    try {
-        let value = await connection.getBooksToRead(req.body.username);
-        if (value.status == 0) {
-            
-            const bookSyncDbService = new BookSyncDbService();
-            const bookSyncService = new BookSyncService(new LibgenDbService(), bookSyncDbService);
-            bookSyncService.reSyncBooks(value.data);
-            /*let syncRequests = value.data;
-            syncRequests.forEach((syncRequest) => {
-                syncRequest.status == SyncStatus.WAITING
-                bookSyncDbService.createSyncRequest(syncRequest);
-            });
-        
-        
-            bookSyncService.syncBooks(syncRequests);*/
-        }
-        res.status(200).send(value)
-    } catch (error) {
-        console.error(error)
-        res.status(200).send({ status: 1, message: error });
-    } 
-
-
-    //res.status(200).send({status: 0, message: 'Resync started', data: true})
 });
 
 router.post('/srp-connection', async (req, res) => {
@@ -383,21 +338,7 @@ router.delete('/srp-connection', async (req, res) => {
         res.status(200).send({status: 1, message: 'user does not exist'});
         return;
     }
-    switch(platform) {
-        case SocialReadingPlatform.GOODREADS:
-            user.grUserId = undefined;
-            user.grCookies = undefined;
-            user.save()
-            break;
-        case SocialReadingPlatform.THE_STORY_GRAPH:
-            user.tsgUsername = undefined;
-            user. tsgCookies = undefined;
-            user.save();
-            break;
-        default:
-            console.error('Unsupported Social Reading Platform');
-            break;
-    }
+    new BookSyncService().deleteSrpConnection(user, platform);
     res.status(200).send({status: 0, message: `deleted ${platform} connection`});
 });
 

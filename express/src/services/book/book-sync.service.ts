@@ -2,7 +2,7 @@ import axios from "axios";
 import { LibgenDbService } from "../db/libgen-db.service";
 import { SyncRequest } from "../../models/sync-request.model";
 import { BookService } from "./book.service";
-import { findUserAsync } from "../dbman";
+import { findAllUsersAsync, findUserAsync } from "../dbman";
 import { BookSyncDbService } from "../db/book-sync-db.service";
 import { SyncStatus } from "../../models/sync-status.model";
 import { LibgenBook, LibgenBookColumn } from "../../models/db/mysql/libgen-book.model";
@@ -12,6 +12,7 @@ import { User } from "../../models/db/mongodb/user.model";
 import GoodreadsConnection from "../book-connection/goodreads-connection.service";
 import TSGConnection from "../book-connection/tsg-connection.service";
 import { ServerResponse } from "../../models/server-response";
+import { SocialReadingPlatform } from "../../models/social-reading-platform";
 
 export class BookSyncService {
 
@@ -21,7 +22,7 @@ export class BookSyncService {
   private HOST_IP: Promise<string>;
   private HOST_IP_KEY = 'host_ip';
 
-  constructor(private libgenDbService: LibgenDbService, private bookSyncDbService: BookSyncDbService) {
+  constructor(private libgenDbService = new LibgenDbService(), private bookSyncDbService = new BookSyncDbService()) {
     this.TEST_HASH = libgenDbService.getParam(this.TEST_HASH_KEY);
     this.HOST_IP = libgenDbService.getParam(this.HOST_IP_KEY);
   }
@@ -58,7 +59,7 @@ export class BookSyncService {
     });
   }
 
-  async attemptToSendBook(syncRequest: SyncRequest): Promise<void> {
+  private async attemptToSendBook(syncRequest: SyncRequest): Promise<void> {
     let book = await BookService.downloadWithUrl(`http://${await this.HOST_IP}/${syncRequest.downloadUrl}`);
     if (book.file) {
       let filename = `${syncRequest.title}.${syncRequest.downloadUrl.split('.').pop()}`;
@@ -101,18 +102,18 @@ export class BookSyncService {
     this.download(syncRequests.filter(syncRequest => syncRequest.status == SyncStatus.WAITING));
   }
 
-  reSyncBooks(): void {
+  async reSyncBooks(): Promise<void> {
     let tsgConnection = new TSGConnection();
     let grConnection = new GoodreadsConnection();
-    let users: User[] = [];
+    let users: User[] = await findAllUsersAsync();
 
     for(const user of users) {
-      let grSync = new Promise<ServerResponse<SyncRequest[]>>((resolve) => resolve(new ServerResponse()));
-      let tsgSync = new Promise<ServerResponse<SyncRequest[]>>((resolve) => resolve(new ServerResponse()));
+      let grSync = new Promise<ServerResponse<SyncRequest[]>>((resolve) => resolve(new ServerResponse([])));
+      let tsgSync = new Promise<ServerResponse<SyncRequest[]>>((resolve) => resolve(new ServerResponse([])));
       if (user.grUserId && user.grCookies) {
         grSync = grConnection.getBooksToReadByUsername(user.username);
       }
-      if (user.tsgUsername, user.tsgCookies) {
+      if (user.tsgUsername && user.tsgCookies) {
         tsgSync = tsgConnection.getBooksToReadByUsername(user.username);
       }
       Promise.all([grSync, tsgSync]).then((results) => {
@@ -135,6 +136,25 @@ export class BookSyncService {
     let upcomingRequests = (await this.bookSyncDbService.findSyncRequests(undefined, [], SyncStatus.UPCOMING));
     let shouldBeWaitingRequests = upcomingRequests.filter(syncRequest => syncRequest.pubDate <= new Date());
     await this.bookSyncDbService.bulkUpdateSyncStatus(shouldBeWaitingRequests, SyncStatus.WAITING);
+  }
+
+  deleteSrpConnection(user: User, platform: SocialReadingPlatform): void {
+    this.bookSyncDbService.deleteSyncRequests(user.username, platform);
+    switch(platform) {
+      case SocialReadingPlatform.GOODREADS:
+          user.grUserId = undefined;
+          user.grCookies = undefined;
+          user.save()
+          break;
+      case SocialReadingPlatform.THE_STORY_GRAPH:
+          user.tsgUsername = undefined;
+          user. tsgCookies = undefined;
+          user.save();
+          break;
+      default:
+          console.error('Unsupported Social Reading Platform');
+          break;
+    }
   }
 
   private async tryBasedOnProperty(syncRequests: SyncRequest[], property: SyncBookProperty, column: LibgenBookColumn): Promise<void> {

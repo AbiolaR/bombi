@@ -2,18 +2,16 @@ import { Sequelize, Op, DataTypes } from "sequelize";
 import { LibgenParams } from "../../models/db/mysql/libgen-params.model";
 import { initBook } from "../../models/db/mysql/book.model.init";
 import { LibgenBook, LibgenBookColumn } from "../../models/db/mysql/libgen-book.model";
-const { DEC } = require('../secman');
+import { DEC } from '../secman';
 
 export class LibgenDbService {
-    private sequelize: Sequelize;
+    private static sequelize: Sequelize;
     private HOST_IP = 'host_ip';
-    private permittedExtensions = ['epub']
+    private permittedExtensions = ['epub'];
 
-    constructor() {
-        this.initDB();
-    }
+    constructor() {}
 
-    private initDB() {
+    public static async initDB() {
         this.sequelize = new Sequelize(
             DEC('U2FsdGVkX19Rdz0oa5ZdqlLSp24hoiVyC7T5LHFAxH4='), // DB name
             DEC('U2FsdGVkX1+C3L9Ljwi4EbDVss0tzXyRMShvEiQASCk='), // username
@@ -26,15 +24,9 @@ export class LibgenDbService {
             }
         );
         
-        this.sequelize.authenticate().then(() => {
-            //this.book = Book(this.sequelize);
-            this.initModels();
-            this.sequelize.sync();
-        }).catch((error) => {
-            console.error('Unable to connect to the database: ', error);
-        });
-        
-            //return this;                
+        await this.sequelize.authenticate();
+        this.initModels();
+        await this.sequelize.sync();      
     }
       
     searchOneColumn(valueList: String[], columnName: LibgenBookColumn) {
@@ -81,7 +73,7 @@ export class LibgenDbService {
         LibgenParams.update({ value: hostIp }, { where: { name: this.HOST_IP } });
     }
     
-    private initModels() {
+    private static initModels() {
         LibgenParams.init({
             name: {
                 type: DataTypes.STRING,
