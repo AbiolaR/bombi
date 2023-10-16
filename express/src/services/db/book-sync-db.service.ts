@@ -70,7 +70,8 @@ export class BookSyncDbService {
 
         return result.map((syncUser) => new SyncRequest(syncUser.username, syncUser.syncBook.isbn, 
                 syncUser.syncBook.title, syncUser.syncBook.author, syncUser.syncBook.pubDate, 
-                syncUser.status, syncUser.platform, syncUser.syncBook.language, syncUser.syncBook.asin));
+                syncUser.status, syncUser.platform, syncUser.syncBook.language, syncUser.syncBook.asin,
+                syncUser.createdAt));
     }
 
     async createSyncRequest(syncRequest: SyncRequest): Promise<void> {

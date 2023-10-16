@@ -78,7 +78,6 @@ async function kindlegenConvertAsync(filePath) {
             await setEpubLanguage(filePath, ENGLISH);
             await kindlegenConvertAsync(filePath);
         } else {
-            console.log(exitCode)
             console.error('error while trying to convert: ', output);
             return false;
         }

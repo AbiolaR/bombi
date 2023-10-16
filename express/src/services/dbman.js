@@ -49,7 +49,7 @@ const ContactSchema = mongoose.Schema({
     sharedBooks: [BookSchema]
 });
 
-module.exports = UserSchema = mongoose.Schema({
+const UserSchema = mongoose.Schema({
     username: { type: String, required: true },
     password: { type: String, required: true },
     email: { type: String, required: true },
@@ -69,6 +69,8 @@ module.exports = UserSchema = mongoose.Schema({
     grUserId: String,
     grCookies: [String]
 });
+
+module.exports.UserSchema = UserSchema;
 
 const User = mongoose.model('User', UserSchema);
 

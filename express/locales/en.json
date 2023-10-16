@@ -1,0 +1,4 @@
+{
+	"book-available-title": "New book available",
+	"book-available-message": "{{title}} is now available and has been sent to your {{eReader}}"
+}

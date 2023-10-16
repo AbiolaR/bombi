@@ -87,7 +87,7 @@ export class SrpSyncDialogComponent {
             this.pollSyncStatus();
             break;
           default:
-            console.log('Error: ', response.message);
+            console.error('Error: ', response.message);
             break;
         }
       }
@@ -110,7 +110,7 @@ export class SrpSyncDialogComponent {
             }
             break;
           default:
-            console.log('Error: ', response.message);
+            console.error('Error: ', response.message);
             break;
         }
       }

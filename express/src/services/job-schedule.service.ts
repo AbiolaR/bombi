@@ -18,12 +18,8 @@ export class JobScheduler {
     private static dailyUpdateUpcoming() {
         try {
             let bookSyncService = new BookSyncService();
-            bookSyncService.updateHostIp().then(() => {
-                bookSyncService.updateUpcoming().then(() => {
-                    bookSyncService.reSyncBooks().catch(error => {
-                        console.error(error);
-                    });
-                }).catch(error => {
+            bookSyncService.updateUpcoming().then(() => {
+                bookSyncService.reSyncBooks().catch(error => {
                     console.error(error);
                 });
             }).catch(error => {

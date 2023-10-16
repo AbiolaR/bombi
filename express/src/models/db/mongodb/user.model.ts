@@ -16,7 +16,7 @@ export interface User {
     language: string,
     friendRequests: string[],
     contacts: Contact[],
-    pushSubscriptions: PushSubscription,
+    pushSubscriptions: PushSubscription[],
     tsgUsername: string,
     tsgCookies: string[],
     grUserId: string,

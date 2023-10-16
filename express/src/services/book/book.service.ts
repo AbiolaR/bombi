@@ -2,39 +2,42 @@ import axios from "axios";
 import { convertToMobiAsync, saveToDiskAsync } from "../tools";
 import { sendFileToKindle } from "../email";
 import { upload } from "../tolinoman";
+import { User } from "../../models/db/mongodb/user.model";
+import { BookBlob } from "../../models/book-blob.model";
+import { BookDownloadResponse as BookDownloadResponse } from "../../models/book-download-response.model";
+import { Readable } from "stream";
+import { CoverBlob } from "../../models/cover-blob.model";
 
 export class BookService {
 
-    static async downloadWithUrl(url: string, coverUrl: string = '') {
+    static async downloadWithUrl(url: string, coverUrl: string = ''): Promise<BookDownloadResponse> {
         try {
-          const request = await axios.get(url, {
+          const request = await axios.get<Readable>(url, {
             responseType: 'stream',
           });
-          let coverData: any;
-          let coverName: string;
+          let cover: CoverBlob;
           if (coverUrl) {
-          const coverRequest = await axios.get(coverUrl, { responseType: 'stream' });
-            coverData = await coverRequest.data;
-            coverName = request.config.url.split('/').pop();
+          const coverRequest = await axios.get<Readable>(coverUrl, { responseType: 'stream' });
+            cover = new CoverBlob(coverRequest.data, request.config.url.split('/').pop());
           }
-          return {file: await request.data, cover: { file: coverData, name: coverName} };
-        } catch (err) {
-          return {error: `book download failed using url: ${url} |=| ${err}`}
+          return new BookDownloadResponse(new BookBlob(request.data), cover);
+        } catch (error) {
+          console.error(error)
         }
     }
 
-    static async prepareAndSendFileToKindle(recipient: string, data: any, filename: string) {
-        const file = await convertToMobiAsync(data, filename);
+    static async prepareAndSendFileToKindle(recipient: string, book: BookBlob) {
+        const file = await convertToMobiAsync(book.data, book.filename);
         if (!file.path) return;
         return await sendFileToKindle(recipient, file.path, file.name);
     }
       
-    static async sendFileToTolino(book: any, filename: string, user: any) {
-        const filePath = await saveToDiskAsync(book.file, filename);
-      
+    static async sendFileToTolino(book: BookBlob, cover: CoverBlob, user: User) {
+        const filePath = await saveToDiskAsync(book.data, book.filename);      
         let coverPath: string;
-        if (book.cover && book.cover.file) {
-          coverPath = await saveToDiskAsync(book.cover.file, book.cover.name);
+
+        if (cover) {
+          coverPath = await saveToDiskAsync(cover.data, cover.filename);
         }
       
         const result = await upload(filePath, coverPath, user);

@@ -13,9 +13,13 @@ import GoodreadsConnection from "../book-connection/goodreads-connection.service
 import TSGConnection from "../book-connection/tsg-connection.service";
 import { ServerResponse } from "../../models/server-response";
 import { SocialReadingPlatform } from "../../models/social-reading-platform";
+import i18n from "../../i18n.config";
+import { sendPushNotifications } from "../notification.service";
+import { SyncRequestBookDownload } from "../../models/sync-request-book-download";
+import { BookBlob } from "../../models/book-blob.model";
+import { CoverBlob } from "../../models/cover-blob.model";
 
 export class BookSyncService {
-
   private readonly LIBGEN_FICTION = 'https://library.lol/fiction/';
   private readonly LIBGEN_FICTION_COVERS = 'https://library.lol/fictioncovers/';
   private TEST_HASH: Promise<string>;
@@ -28,86 +32,37 @@ export class BookSyncService {
     this.HOST_IP = libgenDbService.getParam(this.HOST_IP_KEY);
   }
 
-  async updateHostIp(): Promise<void> {
-    const regexDownloadURL = new RegExp(/(?<=href=")(.*)(?=">GET<)/g);
-    const regexHostIp = new RegExp(/(?<=\/\/)(.*?)(?=\/)/g);
-
-    var config = {
-        method: 'get',
-        url: `${this.LIBGEN_FICTION}${await this.TEST_HASH}`,
-      };
-    
-    var result = await axios(config);
-    const page = await result.data;
-
-    var downloadURL = '';
-    try {
-      downloadURL = page.match(regexDownloadURL).toString();
-      let hostIp = downloadURL.match(regexHostIp).toString();
-      if(hostIp) {
-        this.libgenDbService.updateHostIp(hostIp);
-      }
-    } catch(error) {
-      console.error('Error while trying to update host ip: ', error);
-    }
+  async updateUpcoming(): Promise<void> {
+    let upcomingRequests = (await this.bookSyncDbService.findSyncRequests(undefined, [], SyncStatus.UPCOMING));
+    let shouldBeWaitingRequests = upcomingRequests.filter(syncRequest => syncRequest.pubDate <= new Date());
+    await this.bookSyncDbService.bulkUpdateSyncStatus(shouldBeWaitingRequests, SyncStatus.WAITING);
   }
 
-  private download(syncRequests: SyncRequest[]): void {
-    for (const syncRequest of syncRequests) {
-      if (syncRequest.downloadUrl) {
-        this.attemptToSendBook(syncRequest);
-      }
-    }
-  }
-
-  private async attemptToSendBook(syncRequest: SyncRequest): Promise<void> {
-    const user: User = await findUserAsync(syncRequest.username);
-    if (!user) {
-      console.error('user does not exist when trying to send SyncRequest');
-      return;
-    }
-    let coverUrl = user.eReaderType == 'T' ? `${this.LIBGEN_FICTION_COVERS}${syncRequest.coverUrl}` : ''; 
-    let book = await BookService.downloadWithUrl(
-      `http://${await this.HOST_IP}/${syncRequest.downloadUrl}`, coverUrl);
-    if (book.file) {
-      let filename = `${syncRequest.title}.${syncRequest.downloadUrl.split('.').pop()}`;
-      var result = { status: 500, message: {} };
-      switch(user.eReaderType) {
-        case 'K': // Kindle
-          result = await BookService.prepareAndSendFileToKindle(user.eReaderEmail, book.file, filename);
+  deleteSrpConnection(user: User, platform: SocialReadingPlatform): void {
+    this.bookSyncDbService.deleteSyncRequests(user.username, platform);
+    switch(platform) {
+      case SocialReadingPlatform.GOODREADS:
+          user.grUserId = undefined;
+          user.grCookies = undefined;
+          user.save()
           break;
-        case 'T': // Tolino
-          result = await BookService.sendFileToTolino(book, filename, user);
+      case SocialReadingPlatform.THE_STORY_GRAPH:
+          user.tsgUsername = undefined;
+          user. tsgCookies = undefined;
+          user.save();
           break;
-        default:
-          result = { status: 501, message: `no eReader value set on user ${user.username}` };
-          break;  
-      }
-      if (result.status != 200) {
-        console.error(result.message);
-        return;
-      }
-      this.bookSyncDbService.updateSyncStatus(syncRequest, SyncStatus.SENT);
-    } else {
-      this.bookSyncDbService.updateSyncStatus(syncRequest, SyncStatus.WAITING);
-      console.error('Error: failed to download syncRequest for: ', syncRequest.title);
+      default:
+          console.error('Unsupported Social Reading Platform');
+          break;
     }
-    
-  }
-
-  async syncBooks(syncRequests: SyncRequest[]): Promise<void> {
-    await this.tryBasedOnProperty(syncRequests, 'isbn', 'Identifier');
-    await this.tryBasedOnProperty(syncRequests, 'asin', 'ASIN');
-    await this.tryBasedOnTitleAndAuthor(syncRequests);
-    syncRequests.filter(this.noDownloadData).forEach(syncRequest => syncRequest.status = SyncStatus.UPCOMING);
-    this.bookSyncDbService.updateDownloadData(syncRequests);
-    this.download(syncRequests.filter(syncRequest => syncRequest.status == SyncStatus.WAITING));
   }
 
   async reSyncBooks(): Promise<void> {
+    let hostIpUpdate = this.updateHostIp();
     let tsgConnection = new TSGConnection();
     let grConnection = new GoodreadsConnection();
     let users: User[] = await findAllUsersAsync();
+    await hostIpUpdate;
 
     for(const user of users) {
       let grSync = new Promise<ServerResponse<SyncRequest[]>>((resolve) => resolve(new ServerResponse([])));
@@ -134,28 +89,114 @@ export class BookSyncService {
     }
   }
 
-  async updateUpcoming(): Promise<void> {
-    let upcomingRequests = (await this.bookSyncDbService.findSyncRequests(undefined, [], SyncStatus.UPCOMING));
-    let shouldBeWaitingRequests = upcomingRequests.filter(syncRequest => syncRequest.pubDate <= new Date());
-    await this.bookSyncDbService.bulkUpdateSyncStatus(shouldBeWaitingRequests, SyncStatus.WAITING);
+  async syncBooks(syncRequests: SyncRequest[]): Promise<void> {
+    await this.tryBasedOnProperty(syncRequests, 'isbn', 'Identifier');
+    await this.tryBasedOnProperty(syncRequests, 'asin', 'ASIN');
+    await this.tryBasedOnTitleAndAuthor(syncRequests);
+    syncRequests.filter(this.noDownloadData).forEach(syncRequest => syncRequest.status = SyncStatus.UPCOMING);
+    this.bookSyncDbService.updateDownloadData(syncRequests);
+    this.downloadAll(syncRequests.filter(syncRequest => syncRequest.status == SyncStatus.WAITING));
   }
 
-  deleteSrpConnection(user: User, platform: SocialReadingPlatform): void {
-    this.bookSyncDbService.deleteSyncRequests(user.username, platform);
-    switch(platform) {
-      case SocialReadingPlatform.GOODREADS:
-          user.grUserId = undefined;
-          user.grCookies = undefined;
-          user.save()
+  private downloadAll(syncRequests: SyncRequest[]): void {
+    let downloads: Promise<SyncRequestBookDownload>[] = [];
+    for (const syncRequest of syncRequests) {
+      if (syncRequest.downloadUrl) {
+        downloads.push(this.attemptToDownloadBook(syncRequest));
+      }
+    }
+    Promise.all(downloads).then(async (downloads: SyncRequestBookDownload[]) => {
+      for (const download of downloads) {
+        await this.attemptToSendBook(download.syncRequest, download.downloadResponse.book, download.downloadResponse.cover);
+      }
+    });
+  }
+
+  private async attemptToDownloadBook(syncRequest: SyncRequest): Promise<SyncRequestBookDownload> {
+    const user: User = await findUserAsync(syncRequest.username);
+    if (!user) {
+      console.error('user does not exist when trying to send SyncRequest');
+      return;
+    }
+    let coverUrl = user.eReaderType == 'T' ? `${this.LIBGEN_FICTION_COVERS}${syncRequest.coverUrl}` : ''; 
+    let response = await BookService.downloadWithUrl(
+      `http://${await this.HOST_IP}/${syncRequest.downloadUrl}`, coverUrl);    
+    return new SyncRequestBookDownload(syncRequest, response);
+  }
+
+  private async attemptToSendBook(syncRequest: SyncRequest, book: BookBlob, cover: CoverBlob): Promise<void> {
+    if (book.data) {
+      const user: User = await findUserAsync(syncRequest.username);
+      if (!user) {
+        console.error('user does not exist when trying to send SyncRequest');
+        return;
+      }
+
+      book.filename = `${syncRequest.title}.${syncRequest.downloadUrl.split('.').pop()}`;
+      var result = { status: 500, message: {} };
+      switch(user.eReaderType) {
+        case 'K': // Kindle
+          result = await BookService.prepareAndSendFileToKindle(user.eReaderEmail, book);
           break;
-      case SocialReadingPlatform.THE_STORY_GRAPH:
-          user.tsgUsername = undefined;
-          user. tsgCookies = undefined;
-          user.save();
+        case 'T': // Tolino
+          result = await BookService.sendFileToTolino(book, cover, user);
           break;
-      default:
-          console.error('Unsupported Social Reading Platform');
-          break;
+        default:
+          result = { status: 501, message: `no eReader value set on user ${user.username}` };
+          break;  
+      }
+      if (result.status != 200) {
+        console.error(result.message);
+        return;
+      }
+
+      if (syncRequest.pubDate > syncRequest.creationDate) {
+        this.sendNotification((syncRequest));
+      }
+      this.bookSyncDbService.updateSyncStatus(syncRequest, SyncStatus.SENT);
+    } else {
+      this.bookSyncDbService.updateSyncStatus(syncRequest, SyncStatus.WAITING);
+      console.error('Error: failed to download syncRequest for: ', syncRequest.title);
+    }
+  }
+
+  private async sendNotification(syncRequest: SyncRequest): Promise<void> {
+    const user: User = await findUserAsync(syncRequest.username);
+    let eReader: string;
+    switch(user.eReaderType) {
+      case 'K':
+        eReader = 'Kindle';
+        break;
+      case 'T':
+        eReader = 'Tolino';
+    }
+    let title = i18n.__({ phrase: 'book-available-title', locale: user.language });
+    let message = i18n.__({ phrase: 'book-available-message', locale: user.language },
+      { title: syncRequest.title, eReader: eReader });
+    sendPushNotifications(user.pushSubscriptions, title, message)
+  }
+  
+  private async updateHostIp(): Promise<void> {
+    const regexDownloadURL = new RegExp(/(?<=href=")(.*)(?=">GET<)/g);
+    const regexHostIp = new RegExp(/(?<=\/\/)(.*?)(?=\/)/g);
+
+    var config = {
+        method: 'get',
+        url: `${this.LIBGEN_FICTION}${await this.TEST_HASH}`,
+      };
+    
+    var result = await axios(config);
+    const page = await result.data;
+
+    var downloadURL = '';
+    try {
+      downloadURL = page.match(regexDownloadURL).toString();
+      let hostIp = downloadURL.match(regexHostIp).toString();
+      if(hostIp) {
+        this.libgenDbService.updateHostIp(hostIp);
+      }
+    } catch(error) {
+      console.error('Error while trying to update host ip: ', error);
     }
   }
 
