@@ -119,7 +119,7 @@ export default abstract class GenericBookConnection implements BookConnection {
     
     async login(credentials: Credentials): Promise<ExternalLoginResult> {
         const headless = true;
-        const prod = false;
+        const prod = process.env.STAGE == 'prod';
         let driver;
         
         //To wait for browser to build and launch properly

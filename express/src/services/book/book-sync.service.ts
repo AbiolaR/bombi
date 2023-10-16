@@ -107,7 +107,7 @@ export class BookSyncService {
     }
     Promise.all(downloads).then(async (downloads: SyncRequestBookDownload[]) => {
       for (const download of downloads) {
-        await this.attemptToSendBook(download.syncRequest, download.downloadResponse.book, download.downloadResponse.cover);
+        await this.attemptToSendBook(download.syncRequest, download.downloadResponse?.book, download.downloadResponse?.cover);
       }
     });
   }
@@ -118,14 +118,17 @@ export class BookSyncService {
       console.error('user does not exist when trying to send SyncRequest');
       return;
     }
-    let coverUrl = user.eReaderType == 'T' ? `${this.LIBGEN_FICTION_COVERS}${syncRequest.coverUrl}` : ''; 
+    let coverUrl = user.eReaderType == 'T' ? `${this.LIBGEN_FICTION_COVERS}${syncRequest.coverUrl}` : '';
     let response = await BookService.downloadWithUrl(
-      `http://${await this.HOST_IP}/${syncRequest.downloadUrl}`, coverUrl);    
+      `http://${await this.HOST_IP}/${syncRequest.downloadUrl}`, coverUrl);
+    if (!response) {
+      response = await BookService.downloadWithMD5(syncRequest.md5Hash, coverUrl);
+    }
     return new SyncRequestBookDownload(syncRequest, response);
   }
 
   private async attemptToSendBook(syncRequest: SyncRequest, book: BookBlob, cover: CoverBlob): Promise<void> {
-    if (book.data) {
+    if (book?.data) {
       const user: User = await findUserAsync(syncRequest.username);
       if (!user) {
         console.error('user does not exist when trying to send SyncRequest');
@@ -155,7 +158,9 @@ export class BookSyncService {
       }
       this.bookSyncDbService.updateSyncStatus(syncRequest, SyncStatus.SENT);
     } else {
-      this.bookSyncDbService.updateSyncStatus(syncRequest, SyncStatus.WAITING);
+      syncRequest.downloadUrl = '';
+      syncRequest.status = SyncStatus.UPCOMING;
+      this.bookSyncDbService.updateDownloadData([syncRequest]);
       console.error('Error: failed to download syncRequest for: ', syncRequest.title);
     }
   }
@@ -215,13 +220,20 @@ export class BookSyncService {
 
   private async tryBasedOnTitleAndAuthor(syncRequests: SyncRequest[]): Promise<void> {
     let searchValues = syncRequests.filter(this.noDownloadData)
-      .map((syncRequest) => { return {title: syncRequest.title, author: syncRequest.author.split(' ').pop()} })
+      .map((syncRequest) => { 
+        let author = syncRequest.author.includes(',') ? syncRequest.author.split(',').shift() 
+          : syncRequest.author.split(' ').pop();
+        return {title: syncRequest.title, author: author} 
+      })
       .filter((searchObj) => !!searchObj.title?.trim() && !!searchObj.author?.trim());
     let libgenBooks = await this.libgenDbService.searchMultiColumn(searchValues, 'Title', 'Author');
     libgenBooks.forEach((libgenBook) => {
-      syncRequests.filter((syncRequest) => libgenBook.Title.toLowerCase().includes(syncRequest.title.toLowerCase()) 
-      && libgenBook.Author.toLowerCase().includes(syncRequest.author.split(' ').pop().toLowerCase()))
-      .forEach(syncRequest => this.setSyncBookDownloadData(syncRequest, libgenBook));
+      syncRequests.filter((syncRequest) => {
+        let author = syncRequest.author.includes(',') ? syncRequest.author.split(',').shift() 
+          : syncRequest.author.split(' ').pop();
+        return libgenBook.Title.toLowerCase().includes(syncRequest.title.toLowerCase()) 
+          && libgenBook.Author.toLowerCase().includes(author.toLowerCase())
+    }).forEach(syncRequest => this.setSyncBookDownloadData(syncRequest, libgenBook));
     });
   }
 
