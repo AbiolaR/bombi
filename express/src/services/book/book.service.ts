@@ -1,5 +1,4 @@
-import axios, { ResponseType } from "axios";
-import { SyncRequest } from "../../models/sync-request.model";
+import axios from "axios";
 import { convertToMobiAsync, saveToDiskAsync } from "../tools";
 import { sendFileToKindle } from "../email";
 import { upload } from "../tolinoman";
@@ -11,7 +10,14 @@ export class BookService {
           const request = await axios.get(url, {
             responseType: 'stream',
           });
-          return {file: await request.data, cover: {} };
+          let coverData: any;
+          let coverName: string;
+          if (coverUrl) {
+          const coverRequest = await axios.get(coverUrl, { responseType: 'stream' });
+            coverData = await coverRequest.data;
+            coverName = request.config.url.split('/').pop();
+          }
+          return {file: await request.data, cover: { file: coverData, name: coverName} };
         } catch (err) {
           return {error: `book download failed using url: ${url} |=| ${err}`}
         }

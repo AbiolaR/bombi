@@ -171,7 +171,6 @@ router.post('/share', async (req, res) => {
     const user = await dbman.findUserAsync(username);
     const sharedBook = { editionId: book.edition_id, title: book.title, md5: book.md5, author: book.author,
     language: book.language, coverUrl: book.cover_url, isbn: book.isbn, filename: book.filename };
-    console.log(sharedBook)
     
     if (user) {
         user.contacts.forEach(async contact => {
@@ -287,9 +286,9 @@ router.post('/srp-sync', async(req, res) => {
     const syncRequests = req.body.syncRequests;
     const bookSyncDbService = new BookSyncDbService();
 
-    syncRequests.forEach((syncRequest) => {
+    for (const syncRequest of syncRequests) {
         bookSyncDbService.createSyncRequest(syncRequest);
-    });
+    }
 
     const bookSyncService = new BookSyncService();
 

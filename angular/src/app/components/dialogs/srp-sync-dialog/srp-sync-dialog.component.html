@@ -6,11 +6,11 @@
     <div mat-dialog-content>
         <mat-form-field appearance="outline">
             <mat-label>E-Mail</mat-label>
-            <input matInput [(ngModel)]="credentials.username" (keydown)="submit($event)"/>
+            <input name="email" matInput [(ngModel)]="credentials.username" (keydown)="submit($event)"/>
         </mat-form-field>
         <mat-form-field appearance="outline">
             <mat-label>Password</mat-label>
-            <input matInput class="hide-text" [(ngModel)]="credentials.password" 
+            <input autocomplete="new-password" matInput class="hide-text" [(ngModel)]="credentials.password" 
             (keydown)="submit($event)"/>
         </mat-form-field>
         <p *ngIf="errorText" class="error-text">{{errorText}}</p>

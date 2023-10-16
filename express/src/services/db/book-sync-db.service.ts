@@ -1,4 +1,4 @@
-import { DataTypes, Op, Sequelize, where } from "sequelize";
+import { DataTypes, Op, Sequelize } from "sequelize";
 import { DEC } from "../secman";
 import { SyncBook } from "../../models/db/mysql/sync-book.model";
 import { SyncUser } from "../../models/db/mysql/sync-user.model";
@@ -70,11 +70,10 @@ export class BookSyncDbService {
 
         return result.map((syncUser) => new SyncRequest(syncUser.username, syncUser.syncBook.isbn, 
                 syncUser.syncBook.title, syncUser.syncBook.author, syncUser.syncBook.pubDate, 
-                syncUser.status, syncUser.platform, syncUser.syncBook.language));
+                syncUser.status, syncUser.platform, syncUser.syncBook.language, syncUser.syncBook.asin));
     }
 
     async createSyncRequest(syncRequest: SyncRequest): Promise<void> {
-        const transaction = await BookSyncDbService.sequelize.transaction();
         try {
             let book = await SyncBook.upsert({
                     isbn: syncRequest.isbn,
@@ -83,7 +82,7 @@ export class BookSyncDbService {
                     language: syncRequest.language,
                     asin: syncRequest.asin,
                     pubDate: syncRequest.pubDate
-                }, { transaction: transaction });
+                });
             await SyncUser.findOrCreate({
                 where: {
                     username: syncRequest.username,
@@ -96,11 +95,9 @@ export class BookSyncDbService {
                     syncBookId: book[0].dataValues.id,
                     platform: syncRequest.platform
                 }, 
-                transaction: transaction
             });
-            await transaction.commit();                  
         } catch (error) {
-            await transaction.rollback();     
+            console.error(error)
         }
     }
 

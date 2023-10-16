@@ -17,6 +17,7 @@ import { SocialReadingPlatform } from "../../models/social-reading-platform";
 export class BookSyncService {
 
   private readonly LIBGEN_FICTION = 'https://library.lol/fiction/';
+  private readonly LIBGEN_FICTION_COVERS = 'https://library.lol/fictioncovers/';
   private TEST_HASH: Promise<string>;
   private TEST_HASH_KEY = 'test_hash';
   private HOST_IP: Promise<string>;
@@ -52,23 +53,24 @@ export class BookSyncService {
   }
 
   private download(syncRequests: SyncRequest[]): void {
-    syncRequests.forEach(syncRequest => {
+    for (const syncRequest of syncRequests) {
       if (syncRequest.downloadUrl) {
         this.attemptToSendBook(syncRequest);
       }
-    });
+    }
   }
 
   private async attemptToSendBook(syncRequest: SyncRequest): Promise<void> {
-    let book = await BookService.downloadWithUrl(`http://${await this.HOST_IP}/${syncRequest.downloadUrl}`);
+    const user: User = await findUserAsync(syncRequest.username);
+    if (!user) {
+      console.error('user does not exist when trying to send SyncRequest');
+      return;
+    }
+    let coverUrl = user.eReaderType == 'T' ? `${this.LIBGEN_FICTION_COVERS}${syncRequest.coverUrl}` : ''; 
+    let book = await BookService.downloadWithUrl(
+      `http://${await this.HOST_IP}/${syncRequest.downloadUrl}`, coverUrl);
     if (book.file) {
       let filename = `${syncRequest.title}.${syncRequest.downloadUrl.split('.').pop()}`;
-      const user = await findUserAsync(syncRequest.username);
-      if (!user) {
-        console.error('user does not exist when trying to send SyncRequest');
-        return;
-      }
-
       var result = { status: 500, message: {} };
       switch(user.eReaderType) {
         case 'K': // Kindle
