@@ -19,6 +19,7 @@ import { UserService } from 'src/app/services/user.service';
 })
 export class SrpSyncDialogComponent {
   connecting = false;
+  isPasswordHidden = true;
   errorText = '';
   syncStarted = false;
   credentials: Credentials = new Credentials();
