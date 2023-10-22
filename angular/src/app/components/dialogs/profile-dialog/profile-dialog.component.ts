@@ -28,7 +28,7 @@ export class ProfileDialogComponent implements OnInit {
     private router: Router, private dialogRef: MatDialogRef<ProfileDialogComponent>, private dialog: MatDialog) { }
 
   ngOnInit(): void {
-    this.showNotificationButton = Notification && Notification.permission != 'granted';
+    this.showNotificationButton = window.Notification && Notification.permission != 'granted';
     this.userService.updateUserData().subscribe({
       next: (userData: UserData) => {
         this.userData = userData; 
