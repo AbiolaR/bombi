@@ -168,6 +168,12 @@ h3 {
         padding: 5px 24px;
         width: 100%;
         border-radius: 0;
+
+        button {
+            min-height: 36px;
+            height: fit-content;
+            line-height: 24px;
+        }
     }
 
     mat-expansion-panel {
@@ -177,6 +183,8 @@ h3 {
     }
 
     .mat-expansion-panel-header {
+        min-height: 48px;
+        height: fit-content;
         padding: 5px 24px;
 
         h4 {

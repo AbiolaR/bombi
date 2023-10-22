@@ -135,7 +135,7 @@ button {
         transform: translateX(-50%);
 
         ::ng-deep circle {
-            stroke: var(--muted-spinner-color) !important;
+            stroke: var(--main-background-color) !important;
         }
     }
 }

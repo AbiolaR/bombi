@@ -67,6 +67,11 @@
         </mat-card>
     </div>
     <div mat-dialog-actions>
-        <button mat-flat-button color="primary" (click)="close()">{{ 'close' | translate }}</button>
+        <button *ngIf="syncProgress() < 100" mat-stroked-button color="primary" (click)="close()">
+            {{ 'close' | translate }}
+        </button>
+        <button *ngIf="syncProgress() == 100" mat-flat-button color="primary" (click)="close()">
+            {{ 'close' | translate }}
+        </button>
     </div>
 </div>
