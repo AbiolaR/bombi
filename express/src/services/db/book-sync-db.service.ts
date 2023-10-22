@@ -196,8 +196,9 @@ export class BookSyncDbService {
         let dbUsername = DEC('U2FsdGVkX19IHfihjXuIRi//Wbq7/GhIyMlsEZjuNq0=');
         let dbPassword = DEC('U2FsdGVkX1/gyYD3KK46HjAfLPXVovQlUgOH9NQqUu8=');
         if (process.env.STAGE == 'prod') {
-            dbUsername = DEC('');
-            dbPassword = DEC('');
+            dbName = DEC('U2FsdGVkX1/xy0E+DJZlgJc4QfJHMSO2QpwHyK3HEEA=');
+            dbUsername = DEC('U2FsdGVkX1+pTlq+RwdEgpCFp5EWOnQOwyg2trqUz7I=');
+            dbPassword = DEC('U2FsdGVkX18SW/BKlz1r6BA7x/2t27AbXRDthvN6Rf89lL45QyXFhyC1p8ZT7WdT');
         } 
         this.sequelize = new Sequelize(
             dbName,
