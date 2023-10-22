@@ -1,7 +1,6 @@
-import { Component, EventEmitter, Inject, Output, ViewChild } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { Component, EventEmitter, Inject, Output } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { MatInput } from '@angular/material/input';
+import { TranslateService } from '@ngx-translate/core';
 import { EMPTY, delay, expand } from 'rxjs';
 import { Credentials } from 'src/app/models/credentials';
 import { ServerResponse } from 'src/app/models/server-response';
@@ -33,7 +32,7 @@ export class SrpSyncDialogComponent {
 
   constructor(@Inject(MAT_DIALOG_DATA) public platform: SocialReadingPlatform, 
     private dialogRef: MatDialogRef<SrpSyncDialogComponent>, userService: UserService,
-    private srpService: SocialReadingPlatformService) {
+    private srpService: SocialReadingPlatformService, private translate: TranslateService) {
       this.userData = userService.getLocalUserData();
   }
 
@@ -63,16 +62,16 @@ export class SrpSyncDialogComponent {
             this.foundBooksChange.emit(this.foundBooks);
             break;
           case 2:
-            this.errorText = 'Could not connect due to invalid credentials';  
+            this.errorText = this.translate.instant('could-not-connect-due-to-invalid-credentials');  
             break;  
           default:
-            this.errorText = 'An error occured, please try again or contact the Bombi owner';
+            this.errorText = this.translate.instant('an-error-occured-please-try-again-or-contact-the-bombi-owner');
             break;
         }
       },
       error: () => {
         this.connecting = false;
-        this.errorText = 'Could not reach server, please try again in a few minutes or contact the Bombi owner';
+        this.errorText = this.translate.instant('could-not-reach-server-please-try-again-in-a-few-minutes-or-contact-the-bombi-owner');
       }
     });    
   }

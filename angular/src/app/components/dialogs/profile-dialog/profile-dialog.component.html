@@ -47,7 +47,7 @@
             <div class="settings-panel-content">
                 <mat-card *ngIf="showNotificationButton">
                     <button mat-raised-button color="primary" (click)="requestNotificationPermission()">
-                        Allow Notifications
+                        {{ 'allow-notifications' | translate }}
                     </button>
                 </mat-card>
                 <mat-accordion>                
@@ -72,7 +72,7 @@
                     </mat-expansion-panel>
                     <mat-expansion-panel>
                         <mat-expansion-panel-header>
-                            <h4>Verbinde deine lieblings Social Reading Platformen</h4>
+                            <h4>{{ 'connect-social-reading-platforms' | translate }}</h4>
                         </mat-expansion-panel-header>
                         <app-social-reading-platform-config *ngIf="userData" [(userData)]="userData">
                         </app-social-reading-platform-config>
