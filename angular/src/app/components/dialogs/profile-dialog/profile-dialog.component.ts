@@ -8,6 +8,9 @@ import { UserService } from 'src/app/services/user.service';
 import { Contact } from 'src/app/models/contact';
 import { AddContactDialogComponent } from '../add-contact-dialog/add-contact-dialog.component';
 import { NotificationInfo } from 'src/app/models/notification-info';
+import { SwPush } from '@angular/service-worker';
+
+const PUBLIC_VAPID_KEY = 'BKoDZzDgSyM4qGa9wvX_u3udANeC-8Cn3JGmSfJKfUEp37edT0JFNXl85w_QfsK7ft7NjwJneG7Wz6HmTynRCuU';
 
 @Component({
   selector: 'app-profile-dialog',
@@ -19,11 +22,13 @@ export class ProfileDialogComponent implements OnInit {
   userData: UserData | undefined;
   Language = Language;
   selectedLanguage = '';
+  showNotificationButton = false;
 
-  constructor(public userService: UserService, private appService: AppService,
+  constructor(public userService: UserService, private appService: AppService, private swPush: SwPush,
     private router: Router, private dialogRef: MatDialogRef<ProfileDialogComponent>, private dialog: MatDialog) { }
 
   ngOnInit(): void {
+    this.showNotificationButton = Notification && Notification.permission != 'granted';
     this.userService.updateUserData().subscribe({
       next: (userData: UserData) => {
         this.userData = userData; 
@@ -101,7 +106,20 @@ export class ProfileDialogComponent implements OnInit {
     this.deleteFriendRequest(username);
   }
 
-
+  requestNotificationPermission() {
+    this.swPush.requestSubscription({serverPublicKey: PUBLIC_VAPID_KEY})
+    .then(subscription => {
+      this.userService.getUserData().subscribe({
+        next: (userData) => {            
+          userData.pushSubscriptions.push(subscription);
+          this.userService.saveUserDataProperty('pushSubscriptions', userData.pushSubscriptions).subscribe(() => {
+            this.showNotificationButton = false;
+          });
+        }
+      });
+    })
+    .catch();
+  }
 
   private deleteFriendRequest(username: string) {
     if (this.userData) {
