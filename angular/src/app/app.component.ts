@@ -15,7 +15,9 @@ export class AppComponent {
   
   ngOnInit(): void {
     this.appService.setLanguage();
-    this.userService.updateUserData().subscribe();
+    if (this.userService.isLoggedIn()) {
+      this.userService.updateUserData().subscribe();
+    }
     this.listenForUpdate();
   }
 

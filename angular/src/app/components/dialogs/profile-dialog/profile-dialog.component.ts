@@ -114,6 +114,11 @@ export class ProfileDialogComponent implements OnInit {
           userData.pushSubscriptions.push(subscription);
           this.userService.saveUserDataProperty('pushSubscriptions', userData.pushSubscriptions).subscribe(() => {
             this.showNotificationButton = false;
+            this.userService.updateUserData().subscribe({
+              next: (userData: UserData) => {
+                this.userData = userData;
+              }
+            })
           });
         }
       });
