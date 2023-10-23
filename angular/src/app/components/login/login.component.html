@@ -1,4 +1,4 @@
-<div (click)="$event.stopPropagation();">
+<div (click)="$event.stopPropagation()" (keydown.tab)="$event.stopPropagation()">
   <form name="loginForm" [formGroup]="loginForm" (ngSubmit)="onSubmit()" #lForm="ngForm" novalidate class="login-form">
     <mat-card-content>
       <mat-form-field appearance="outline">
