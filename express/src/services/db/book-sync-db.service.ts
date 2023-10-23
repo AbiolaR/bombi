@@ -1,37 +1,21 @@
-import { DataTypes, Op, Sequelize, where } from "sequelize";
+import { DataTypes, Op, Sequelize } from "sequelize";
 import { DEC } from "../secman";
-import { SyncBook } from "../../models/db/sync-book.model";
-import { SyncUser } from "../../models/db/sync-user.model";
+import { SyncBook } from "../../models/db/mysql/sync-book.model";
+import { SyncUser } from "../../models/db/mysql/sync-user.model";
 import { SyncRequest } from "../../models/sync-request.model";
-import { ServerResponse } from "../../models/server-response";
 import { SyncStatus } from "../../models/sync-status.model";
+import { SocialReadingPlatform } from "../../models/social-reading-platform";
 
 export class BookSyncDbService {
-    private sequelize: Sequelize;
-    private syncBook;
-    private syncUser;
-    private dbName: string;
-    private dbUsername: string;
-    private dbPassword: string;
+    private static sequelize: Sequelize;
 
-    constructor() {
-        const ENV = process.env.STAGE == 'prod' ? 'Prod' : 'Test';
-        if (ENV == 'Prod') {
-            this.dbUsername = DEC('');
-            this.dbPassword = DEC('');
-        } else {
-            this.dbName = DEC('U2FsdGVkX1+lkXTvf4XJbnAZmv+O8eMkZ1mzDGaWoas=')
-            this.dbUsername = DEC('U2FsdGVkX19IHfihjXuIRi//Wbq7/GhIyMlsEZjuNq0=');
-            this.dbPassword = DEC('U2FsdGVkX1/gyYD3KK46HjAfLPXVovQlUgOH9NQqUu8=');
-        }
-        this.initDB();
-    }
+    constructor() {}
 
-    async findSyncRequests(username: string, syncRequests: SyncRequest[], syncStatus: SyncStatus): Promise<ServerResponse<SyncRequest[]>> {
-        let data = [];
+    async findSyncRequests(username: string, syncRequests: SyncRequest[], syncStatus: SyncStatus): Promise<SyncRequest[]> {
         let isbns = syncRequests.map((syncRequest) => syncRequest.isbn);
         let titles = syncRequests.map((syncRequest) => syncRequest.title);
         let authors = syncRequests.map((syncRequest) => syncRequest.author);
+        let platforms = syncRequests.map(syncRequest => syncRequest.platform);
 
         let isbnSearchArray = [];
         isbns.forEach(isbn => {
@@ -62,12 +46,17 @@ export class BookSyncDbService {
                 { [Op.or]: authorSearchArray },                   
             ]
         }
+        let platformRestrict = {};
+        if(!!syncRequests.length) {
+            platformRestrict = { platform: platforms };
+        }
 
         let result = await SyncUser.findAll({
             where: {
                 [Op.and]: [
                     usernameRestrict,
-                    statusRestrict
+                    statusRestrict,
+                    platformRestrict
                 ]
             },
             include: [
@@ -79,42 +68,51 @@ export class BookSyncDbService {
             ]
         });
 
-        data = result.map((syncUser) => new SyncRequest(syncUser.username, syncUser.syncBook.isbn, 
+        return result.map((syncUser) => new SyncRequest(syncUser.username, syncUser.syncBook.isbn, 
                 syncUser.syncBook.title, syncUser.syncBook.author, syncUser.syncBook.pubDate, 
-                syncUser.status, syncUser.syncBook.language));
-        return new ServerResponse<SyncRequest[]>(data, 0, '');
+                syncUser.status, syncUser.platform, syncUser.syncBook.language, syncUser.syncBook.asin,
+                syncUser.createdAt));
     }
 
-    createSyncRequest(syncRequest: SyncRequest) {
-        this.sequelize.transaction().then((transaction) => {
+    async createSyncRequest(syncRequest: SyncRequest): Promise<void> {
         try {
-                SyncBook.upsert({
+            let book = await SyncBook.upsert({
                     isbn: syncRequest.isbn,
                     title: syncRequest.title,
                     author: syncRequest.author,
                     language: syncRequest.language,
                     asin: syncRequest.asin,
                     pubDate: syncRequest.pubDate
-                }, { transaction: transaction }).then((book) => {
-                    SyncUser.findOrCreate({
-                        where: {
-                            username: syncRequest.username,
-                            syncBookId: book[0].dataValues.id
-                        }, 
-                        defaults: {
-                            status: syncRequest.status,
-                            username: syncRequest.username,
-                            syncBookId: book[0].dataValues.id
-                        }, 
-                        transaction: transaction
-                    }).then(() => {
-                        transaction.commit();
-                    });
                 });
-            } catch (error) {
-                transaction.rollback();     
-            }
-        });
+            await SyncUser.findOrCreate({
+                where: {
+                    username: syncRequest.username,
+                    syncBookId: book[0].dataValues.id,
+                    platform: syncRequest.platform
+                }, 
+                defaults: {
+                    status: syncRequest.status,
+                    username: syncRequest.username,
+                    syncBookId: book[0].dataValues.id,
+                    platform: syncRequest.platform
+                }, 
+            });
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
+    deleteSyncRequests(username: string, platform: SocialReadingPlatform) {
+        try {
+            SyncUser.destroy({
+                where: {
+                    username: username,
+                    platform: platform
+                }
+            })
+        } catch(error) {
+            console.error(error);
+        }
     }
 
     updateSyncStatus(syncRequest: SyncRequest, syncStatus: SyncStatus) {
@@ -131,9 +129,40 @@ export class BookSyncDbService {
                 if (book?.id) {
                     SyncUser.update({
                         status: syncStatus
-                    }, { where: { username: syncRequest.username, syncBookId: book.id} });
+                    }, { where: { username: syncRequest.username, syncBookId: book.id, platform: syncRequest.platform } });
                 }
             });
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    async bulkUpdateSyncStatus(syncRequests: SyncRequest[], syncStatus: SyncStatus) {
+        let usernames = syncRequests.map(syncRequest => syncRequest.username);
+        let isbns = syncRequests.map(syncRequest => syncRequest.isbn);
+        let titles = syncRequests.map(syncRequest => syncRequest.title);
+        let authors = syncRequests.map(syncRequest => syncRequest.author);
+        let asins = syncRequests.map(syncRequest => syncRequest.asin);
+        let languages = syncRequests.map(syncRequest => syncRequest.language);
+        let platforms = syncRequests.map(syncRequest => syncRequest.platform);
+        
+        try {
+            let books = await SyncBook.findAll({
+                where: {
+                    isbn: isbns,
+                    title: titles,
+                    author: authors,
+                    asin: asins,
+                    language: languages
+                }
+            });
+            if (books) {
+                let bookIds = books.map(book => book.id);
+                await SyncUser.update({
+                    status: syncStatus
+                }, { where: { username: usernames, syncBookId: bookIds, platform: platforms } });
+            }
+
         } catch (error) {
             console.error(error);
         }
@@ -161,21 +190,20 @@ export class BookSyncDbService {
         }
     }
 
-    bulkUpdate(syncRequests: SyncRequest[]) {
-        let users = syncRequests.map(syncRequest => syncRequest.username);
-        let bookIds = syncRequests.map(syncRequest => syncRequest.);
-        try {
-            Syn
-        } catch (error) {
-            console.error(error);
-        }
-    }
 
-    private initDB() {
+    public static async initDB() {
+        let dbName = DEC('U2FsdGVkX1+lkXTvf4XJbnAZmv+O8eMkZ1mzDGaWoas=');
+        let dbUsername = DEC('U2FsdGVkX19IHfihjXuIRi//Wbq7/GhIyMlsEZjuNq0=');
+        let dbPassword = DEC('U2FsdGVkX1/gyYD3KK46HjAfLPXVovQlUgOH9NQqUu8=');
+        if (process.env.STAGE == 'prod') {
+            dbName = DEC('U2FsdGVkX1/xy0E+DJZlgJc4QfJHMSO2QpwHyK3HEEA=');
+            dbUsername = DEC('U2FsdGVkX1+pTlq+RwdEgpCFp5EWOnQOwyg2trqUz7I=');
+            dbPassword = DEC('U2FsdGVkX18SW/BKlz1r6BA7x/2t27AbXRDthvN6Rf89lL45QyXFhyC1p8ZT7WdT');
+        } 
         this.sequelize = new Sequelize(
-            this.dbName,
-            this.dbUsername,
-            this.dbPassword,
+            dbName,
+            dbUsername,
+            dbPassword,
             {
                 host: DEC('U2FsdGVkX1+05Zg5oW8quqoZqd7gvSrRAt+EPn4DRpY='),
                 dialect: DEC('U2FsdGVkX1+owrCFwZIw+8WDF1hZTPAc1je+z9tlfnc='),
@@ -184,16 +212,13 @@ export class BookSyncDbService {
             },
             );
             
-        this.sequelize.authenticate().then(() => {
-            this.defineModels();
-            this.sequelize.sync({alter: true});
-        }).catch((error) => {
-            console.error('Unable to connect to the database: ', error);
-        });
+        await this.sequelize.authenticate();
+        this.defineModels();
+        await this.sequelize.sync({alter: true});
     }
 
-    private defineModels() {    
-        this.syncBook = SyncBook.init({
+    private static defineModels() {    
+        let syncBook = SyncBook.init({
             id: {
                 primaryKey: true,
                 type: DataTypes.INTEGER,
@@ -227,19 +252,23 @@ export class BookSyncDbService {
         }, 
         { sequelize: this.sequelize }
         );
-        this.syncUser = SyncUser.init({
+        let syncUser = SyncUser.init({
             username: { 
                 type: DataTypes.STRING,
                 primaryKey: true
-            },            
+            },
+            platform: {
+                type: DataTypes.STRING,
+                primaryKey: true
+            },
             status: DataTypes.STRING,
             createdAt: DataTypes.DATE,
             updatedAt: DataTypes.DATE,
         },
         { sequelize: this.sequelize }
         );
-        this.syncBook.hasMany(this.syncUser, { foreignKey: 'syncBookId', onDelete: 'RESTRICT' });
-        this.syncUser.belongsTo(this.syncBook,
-            { as: 'syncBook', foreignKey: {name: 'syncBookId', primaryKey: true}, onDelete: 'RESTRICT' });
+        syncBook.hasMany(syncUser, { foreignKey: 'syncBookId', onDelete: 'RESTRICT' });
+        syncUser.belongsTo(syncBook,
+            { as: 'syncBook', foreignKey: {name: 'syncBookId'}, onDelete: 'RESTRICT' });
     }
 }

@@ -1,5 +1,7 @@
-const webpush = require('web-push');
-const { DEC } = require('./secman');
+import { Book } from "../models/db/mongodb/book.model";
+import { PushSubscription } from "../models/db/mongodb/push-subscription.model";
+import webpush from 'web-push';
+import { DEC } from './secman';
 
 const PUBLIC_VAPID_KEY = DEC('U2FsdGVkX1+JGRexJOYxmSCR54O3ARSYwDLCJAA4j1xxhteugnRKVQz4htJuD5tWdROeNwgrrTmPjNAsS4rA8wRZKxoBUhiE4K6+Fe/ochmT2mcrNt8NpgTby6d0apsfrlMSb4hrRnWXve73TkDifg==');
 const PRIVATE_VAPID_KEY = DEC('U2FsdGVkX1/YXXXxc3E6Nyo2diirNzQm4WJWeRO+vN682t021lVw/1eohYh4KfnefLFdSDDnS6mA1MjdWB937Q==');
@@ -7,14 +9,16 @@ const SERVER_URL = 'https://bombi.tinym.de';
 
 webpush.setVapidDetails('https://bombi.tinym.de', PUBLIC_VAPID_KEY, PRIVATE_VAPID_KEY);
 
-module.exports.sendPushNotifications = async (subscriptions, title, message, actions = [], book) => {
+export async function sendPushNotifications(subscriptions: PushSubscription[], title: string, 
+message: string, actions: any = [], book: Book = undefined) {
     subscriptions.forEach(async subscription => {
-        await this.sendPushNotification(subscription, title, message, actions, book);
+        await sendPushNotification(subscription, title, message, actions, book);
     });
 }
 
-module.exports.sendPushNotification = async (subscription, title, message, actions = [], book) => {
-    let data = { type: 'BOMBI_NOTIFICATION', url: SERVER_URL };
+export async function sendPushNotification(subscription: PushSubscription, title: string, 
+message: string, actions: any = [], book: Book) {
+    let data = { type: 'BOMBI_NOTIFICATION', url: SERVER_URL, filename: undefined, md5: undefined };
     if (book) {
         data.url = `${SERVER_URL}/shared`;
         data.filename = book.filename;

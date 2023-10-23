@@ -1,5 +1,5 @@
 import { Model, InferAttributes, InferCreationAttributes, CreationOptional } from 'sequelize';
-import { SyncLanguage } from '../sync-language.model';
+import { SyncLanguage } from '../../sync-language.model';
 
 export class SyncBook extends Model<InferAttributes<SyncBook>, InferCreationAttributes<SyncBook>> {
     declare isbn: string;

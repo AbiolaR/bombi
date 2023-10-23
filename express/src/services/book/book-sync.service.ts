@@ -2,75 +2,147 @@ import axios from "axios";
 import { LibgenDbService } from "../db/libgen-db.service";
 import { SyncRequest } from "../../models/sync-request.model";
 import { BookService } from "./book.service";
-import { findUserAsync } from "../dbman";
+import { findAllUsersAsync, findUserAsync } from "../dbman";
 import { BookSyncDbService } from "../db/book-sync-db.service";
 import { SyncStatus } from "../../models/sync-status.model";
-import { LibgenBook, LibgenBookColumn } from "../../models/db/libgen-book.model";
+import { LibgenBook, LibgenBookColumn } from "../../models/db/mysql/libgen-book.model";
 import { SyncLanguage } from "../../models/sync-language.model";
-import { SyncBookProperty } from "../../models/db/sync-book.model";
+import { SyncBookProperty } from "../../models/db/mysql/sync-book.model";
+import { User } from "../../models/db/mongodb/user.model";
+import GoodreadsConnection from "../book-connection/goodreads-connection.service";
+import TSGConnection from "../book-connection/tsg-connection.service";
+import { ServerResponse } from "../../models/server-response";
+import { SocialReadingPlatform } from "../../models/social-reading-platform";
+import i18n from "../../i18n.config";
+import { sendPushNotifications } from "../notification.service";
+import { SyncRequestBookDownload } from "../../models/sync-request-book-download";
+import { BookBlob } from "../../models/book-blob.model";
+import { CoverBlob } from "../../models/cover-blob.model";
 
 export class BookSyncService {
+  private readonly LIBGEN_FICTION = 'https://library.lol/fiction/';
+  private readonly LIBGEN_FICTION_COVERS = 'https://library.lol/fictioncovers/';
+  private TEST_HASH: Promise<string>;
+  private TEST_HASH_KEY = 'test_hash';
+  private HOST_IP: Promise<string>;
+  private HOST_IP_KEY = 'host_ip';
 
-    private readonly LIBGEN_FICTION = 'https://library.lol/fiction/';
-    private TEST_HASH: Promise<string>;
-    private TEST_HASH_KEY = 'test_hash';
-    private HOST_IP: Promise<string>;
-    private HOST_IP_KEY = 'host_ip';
+  constructor(private libgenDbService = new LibgenDbService(), private bookSyncDbService = new BookSyncDbService()) {
+    this.TEST_HASH = libgenDbService.getParam(this.TEST_HASH_KEY);
+    this.HOST_IP = libgenDbService.getParam(this.HOST_IP_KEY);
+  }
 
-    constructor(private libgenDbService: LibgenDbService, private bookSyncDbService: BookSyncDbService) {
-      this.TEST_HASH = libgenDbService.getParam(this.TEST_HASH_KEY);
-      this.HOST_IP = libgenDbService.getParam(this.HOST_IP_KEY);
+  async updateUpcoming(): Promise<void> {
+    let upcomingRequests = (await this.bookSyncDbService.findSyncRequests(undefined, [], SyncStatus.UPCOMING));
+    let shouldBeWaitingRequests = upcomingRequests.filter(syncRequest => syncRequest.pubDate <= new Date());
+    await this.bookSyncDbService.bulkUpdateSyncStatus(shouldBeWaitingRequests, SyncStatus.WAITING);
+  }
+
+  deleteSrpConnection(user: User, platform: SocialReadingPlatform): void {
+    this.bookSyncDbService.deleteSyncRequests(user.username, platform);
+    switch(platform) {
+      case SocialReadingPlatform.GOODREADS:
+          user.grUserId = undefined;
+          user.grCookies = undefined;
+          user.save()
+          break;
+      case SocialReadingPlatform.THE_STORY_GRAPH:
+          user.tsgUsername = undefined;
+          user. tsgCookies = undefined;
+          user.save();
+          break;
+      default:
+          console.error('Unsupported Social Reading Platform');
+          break;
     }
+  }
 
-    async updateHostIp() {
-        const regexDownloadURL = new RegExp(/(?<=href=")(.*)(?=">GET<)/g);
-        const regexHostIp = new RegExp(/(?<=\/\/)(.*?)(?=\/)/g);
+  async reSyncBooks(): Promise<void> {
+    let hostIpUpdate = this.updateHostIp();
+    let tsgConnection = new TSGConnection();
+    let grConnection = new GoodreadsConnection();
+    let users: User[] = await findAllUsersAsync();
+    await hostIpUpdate;
 
-        var config = {
-            method: 'get',
-            url: `${this.LIBGEN_FICTION}${await this.TEST_HASH}`,
-          };
-        
-          var result = await axios(config);
-          const page = await result.data;
-
-        var downloadURL = '';
-        try {
-          downloadURL = page.match(regexDownloadURL).toString();
-          let hostIp = downloadURL.match(regexHostIp).toString();
-          if(hostIp) {
-            this.libgenDbService.updateHostIp(hostIp);
-          }
-        } catch(error) {
-          console.error('Error while trying to update host ip: ', error);
+    for(const user of users) {
+      let grSync = new Promise<ServerResponse<SyncRequest[]>>((resolve) => resolve(new ServerResponse([])));
+      let tsgSync = new Promise<ServerResponse<SyncRequest[]>>((resolve) => resolve(new ServerResponse([])));
+      if (user.grUserId && user.grCookies) {
+        grSync = grConnection.getBooksToReadByUsername(user.username);
+      }
+      if (user.tsgUsername && user.tsgCookies) {
+        tsgSync = tsgConnection.getBooksToReadByUsername(user.username);
+      }
+      Promise.all([grSync, tsgSync]).then((results) => {
+        let syncRequests = results[0].data.concat(results[1].data.filter((syncRequest) => results[0].data.indexOf(syncRequest) < 0));
+        let creations: Promise<void>[] = [];
+        for(const syncRequest of syncRequests) {
+          syncRequest.status = SyncStatus.WAITING;
+          creations.push(this.bookSyncDbService.createSyncRequest(syncRequest));
         }
+        Promise.all(creations).then(() => {
+          this.bookSyncDbService.findSyncRequests(user.username, [], SyncStatus.WAITING).then((syncRequests) => {
+            this.syncBooks(syncRequests);
+          });
+        });
+      });
     }
+  }
 
-  download(syncRequests: SyncRequest[]) {
-    syncRequests.forEach(syncRequest => {
+  async syncBooks(syncRequests: SyncRequest[]): Promise<void> {
+    await this.tryBasedOnProperty(syncRequests, 'isbn', 'Identifier');
+    await this.tryBasedOnProperty(syncRequests, 'asin', 'ASIN');
+    await this.tryBasedOnTitleAndAuthor(syncRequests);
+    syncRequests.filter(this.noDownloadData).forEach(syncRequest => syncRequest.status = SyncStatus.UPCOMING);
+    this.bookSyncDbService.updateDownloadData(syncRequests);
+    this.downloadAll(syncRequests.filter(syncRequest => syncRequest.status == SyncStatus.WAITING));
+  }
+
+  private downloadAll(syncRequests: SyncRequest[]): void {
+    let downloads: Promise<SyncRequestBookDownload>[] = [];
+    for (const syncRequest of syncRequests) {
       if (syncRequest.downloadUrl) {
-        this.attemptToSendBook(syncRequest);
+        downloads.push(this.attemptToDownloadBook(syncRequest));
+      }
+    }
+    Promise.all(downloads).then(async (downloads: SyncRequestBookDownload[]) => {
+      for (const download of downloads) {
+        await this.attemptToSendBook(download.syncRequest, download.downloadResponse?.book, download.downloadResponse?.cover);
       }
     });
   }
 
-  async attemptToSendBook(syncRequest: SyncRequest) {
-    let book = await BookService.downloadWithUrl(`http://${await this.HOST_IP}/${syncRequest.downloadUrl}`);
-    if (book.file) {
-      let filename = `${syncRequest.title}.${syncRequest.downloadUrl.split('.').pop()}`;
-      const user = await findUserAsync(syncRequest.username);
+  private async attemptToDownloadBook(syncRequest: SyncRequest): Promise<SyncRequestBookDownload> {
+    const user: User = await findUserAsync(syncRequest.username);
+    if (!user) {
+      console.error('user does not exist when trying to send SyncRequest');
+      return;
+    }
+    let coverUrl = user.eReaderType == 'T' ? `${this.LIBGEN_FICTION_COVERS}${syncRequest.coverUrl}` : '';
+    let response = await BookService.downloadWithUrl(
+      `http://${await this.HOST_IP}/${syncRequest.downloadUrl}`, coverUrl);
+    if (!response) {
+      response = await BookService.downloadWithMD5(syncRequest.md5Hash, coverUrl);
+    }
+    return new SyncRequestBookDownload(syncRequest, response);
+  }
+
+  private async attemptToSendBook(syncRequest: SyncRequest, book: BookBlob, cover: CoverBlob): Promise<void> {
+    if (book?.data) {
+      const user: User = await findUserAsync(syncRequest.username);
       if (!user) {
         console.error('user does not exist when trying to send SyncRequest');
         return;
       }
 
+      book.filename = `${syncRequest.title}.${syncRequest.downloadUrl.split('.').pop()}`;
       var result = { status: 500, message: {} };
       switch(user.eReaderType) {
         case 'K': // Kindle
-          result = await BookService.prepareAndSendFileToKindle(user.eReaderEmail, book.file, filename);
+          result = await BookService.prepareAndSendFileToKindle(user.eReaderEmail, book);
           break;
         case 'T': // Tolino
-          result = await BookService.sendFileToTolino(book, filename, user);
+          result = await BookService.sendFileToTolino(book, cover, user);
           break;
         default:
           result = { status: 501, message: `no eReader value set on user ${user.username}` };
@@ -80,24 +152,60 @@ export class BookSyncService {
         console.error(result.message);
         return;
       }
+
+      if (syncRequest.pubDate > syncRequest.creationDate) {
+        this.sendNotification((syncRequest));
+      }
       this.bookSyncDbService.updateSyncStatus(syncRequest, SyncStatus.SENT);
     } else {
-      this.bookSyncDbService.updateSyncStatus(syncRequest, SyncStatus.UPCOMING);
-      console.log('Error: failed to download syncRequest for: ', syncRequest.title);
+      syncRequest.downloadUrl = '';
+      syncRequest.status = SyncStatus.UPCOMING;
+      this.bookSyncDbService.updateDownloadData([syncRequest]);
+      console.error('Error: failed to download syncRequest for: ', syncRequest.title);
     }
+  }
+
+  private async sendNotification(syncRequest: SyncRequest): Promise<void> {
+    const user: User = await findUserAsync(syncRequest.username);
+    let eReader: string;
+    switch(user.eReaderType) {
+      case 'K':
+        eReader = 'Kindle';
+        break;
+      case 'T':
+        eReader = 'Tolino';
+    }
+    let title = i18n.__({ phrase: 'book-available-title', locale: user.language });
+    let message = i18n.__({ phrase: 'book-available-message', locale: user.language },
+      { title: syncRequest.title, eReader: eReader });
+    sendPushNotifications(user.pushSubscriptions, title, message)
+  }
+  
+  private async updateHostIp(): Promise<void> {
+    const regexDownloadURL = new RegExp(/(?<=href=")(.*)(?=">GET<)/g);
+    const regexHostIp = new RegExp(/(?<=\/\/)(.*?)(?=\/)/g);
+
+    var config = {
+        method: 'get',
+        url: `${this.LIBGEN_FICTION}${await this.TEST_HASH}`,
+      };
     
+    var result = await axios(config);
+    const page = await result.data;
+
+    var downloadURL = '';
+    try {
+      downloadURL = page.match(regexDownloadURL).toString();
+      let hostIp = downloadURL.match(regexHostIp).toString();
+      if(hostIp) {
+        this.libgenDbService.updateHostIp(hostIp);
+      }
+    } catch(error) {
+      console.error('Error while trying to update host ip: ', error);
+    }
   }
 
-  async syncBooks(syncRequests: SyncRequest[]) {
-    await this.tryBasedOnProperty(syncRequests, 'isbn', 'Identifier');
-    await this.tryBasedOnProperty(syncRequests, 'asin', 'ASIN');
-    await this.tryBasedOnTitleAndAuthor(syncRequests);
-    syncRequests.filter(this.noDownloadData).forEach(syncRequest => syncRequest.status = SyncStatus.UPCOMING);
-    this.bookSyncDbService.updateDownloadData(syncRequests);
-    this.download(syncRequests.filter(syncRequest => syncRequest.status == SyncStatus.WAITING));
-  }
-
-  async tryBasedOnProperty(syncRequests: SyncRequest[], property: SyncBookProperty, column: LibgenBookColumn): Promise<void> {
+  private async tryBasedOnProperty(syncRequests: SyncRequest[], property: SyncBookProperty, column: LibgenBookColumn): Promise<void> {
     let values = syncRequests.filter(this.noDownloadData)
       .map((syncRequest) => syncRequest[property]).filter((prop) => !!prop?.trim());
     let libgenBooks = await this.libgenDbService.searchOneColumn(values, column);
@@ -110,23 +218,26 @@ export class BookSyncService {
     });
   }
 
-  async tryBasedOnTitleAndAuthor(syncRequests: SyncRequest[]) {
+  private async tryBasedOnTitleAndAuthor(syncRequests: SyncRequest[]): Promise<void> {
     let searchValues = syncRequests.filter(this.noDownloadData)
-      .map((syncRequest) => { return {title: syncRequest.title, author: syncRequest.author.split(' ').pop()} })
+      .map((syncRequest) => { 
+        let author = syncRequest.author.includes(',') ? syncRequest.author.split(',').shift() 
+          : syncRequest.author.split(' ').pop();
+        return {title: syncRequest.title, author: author} 
+      })
       .filter((searchObj) => !!searchObj.title?.trim() && !!searchObj.author?.trim());
     let libgenBooks = await this.libgenDbService.searchMultiColumn(searchValues, 'Title', 'Author');
     libgenBooks.forEach((libgenBook) => {
-      syncRequests.filter((syncRequest) => libgenBook.Title.toLowerCase().includes(syncRequest.title.toLowerCase()) 
-      && libgenBook.Author.toLowerCase().includes(syncRequest.author.split(' ').pop().toLowerCase()))
-      .forEach(syncRequest => this.setSyncBookDownloadData(syncRequest, libgenBook));
+      syncRequests.filter((syncRequest) => {
+        let author = syncRequest.author.includes(',') ? syncRequest.author.split(',').shift() 
+          : syncRequest.author.split(' ').pop();
+        return libgenBook.Title.toLowerCase().includes(syncRequest.title.toLowerCase()) 
+          && libgenBook.Author.toLowerCase().includes(author.toLowerCase())
+    }).forEach(syncRequest => this.setSyncBookDownloadData(syncRequest, libgenBook));
     });
   }
 
-  async updateUpcoming(): Promise<void> {
-    console.log(await this.bookSyncDbService.findSyncRequests(undefined, [], SyncStatus.UPCOMING));
-  }
-
-  setSyncBookDownloadData(syncRequest: SyncRequest, libgenBook: LibgenBook): void {
+  private setSyncBookDownloadData(syncRequest: SyncRequest, libgenBook: LibgenBook): void {
     if ((syncRequest.language || SyncLanguage.ENGLISH) == libgenBook.Language) {
       syncRequest.md5Hash = libgenBook.MD5;
       syncRequest.coverUrl = libgenBook.Coverurl;
@@ -134,7 +245,7 @@ export class BookSyncService {
     }
   }
 
-  parseDownloadUrl(libgenBook: LibgenBook): string {
+  private parseDownloadUrl(libgenBook: LibgenBook): string {
     let series = '';
     if (libgenBook.Series) {
       series = `(${libgenBook.Series})`

@@ -35,6 +35,7 @@ export default abstract class GenericBookConnection implements BookConnection {
     BROWSER: string = 'chrome';
     HEADLESS_ARGUMENT: string = '--headless=new';
     NO_SANDBOX_ARGUMENT: string = '--no-sandbox';
+    ENABLE_LOGGING_SWITCH: string = 'enable-logging';
     CHROME_BINARY_PATH: string = '/usr/bin/chromium-browser';
 
     async getBooksToRead(): Promise<ServerResponse<SyncRequest[]>> {
@@ -118,13 +119,14 @@ export default abstract class GenericBookConnection implements BookConnection {
     
     async login(credentials: Credentials): Promise<ExternalLoginResult> {
         const headless = true;
-        const prod = false;
+        const prod = process.env.STAGE == 'prod';
         let driver;
         
         //To wait for browser to build and launch properly
         let options = new Options();
         if (headless) {
             options.addArguments(this.HEADLESS_ARGUMENT, this.NO_SANDBOX_ARGUMENT);
+            options.excludeSwitches(this.ENABLE_LOGGING_SWITCH);
             if (prod) {
                 options.setChromeBinaryPath(this.CHROME_BINARY_PATH);
             }

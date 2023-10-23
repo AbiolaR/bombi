@@ -70,7 +70,13 @@ const UserSchema = mongoose.Schema({
     grCookies: [String]
 });
 
+module.exports.UserSchema = UserSchema;
+
 const User = mongoose.model('User', UserSchema);
+
+module.exports.findAllUsersAsync = async () => {
+    return await User.find();
+}
 
 module.exports.findUser = (username, callback) => {
     User.findOne({ username: username }, (err, user) => {

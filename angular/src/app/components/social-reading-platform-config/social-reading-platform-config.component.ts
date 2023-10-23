@@ -24,6 +24,7 @@ export class SocialReadingPlatformConfigComponent {
   selectedSRP: SocialReadingPlatform = SocialReadingPlatform.GOODREADS;
   
   private foundBooks: SyncRequest[] = [];
+  disconnecting = false;
 
   constructor(private socialReadingPlatformService: SocialReadingPlatformService, 
     private dialog: MatDialog, private userService: UserService, 
@@ -65,9 +66,11 @@ export class SocialReadingPlatformConfigComponent {
   }
 
   disconnect() {
+    this.disconnecting = true;
     this.socialReadingPlatformService.disconnect(this.selectedSRP).subscribe({
       next: () => {
         this.updateUserData();
+        this.disconnecting = false;
       }
     });
   }

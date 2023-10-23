@@ -135,7 +135,7 @@ button {
         transform: translateX(-50%);
 
         ::ng-deep circle {
-            stroke: var(--muted-spinner-color) !important;
+            stroke: var(--main-background-color) !important;
         }
     }
 }
@@ -148,4 +148,8 @@ button {
 
 mat-progress-bar {
     margin-bottom: 1.5em;
+}
+
+.password-visibility {
+    cursor: pointer;
 }

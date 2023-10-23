@@ -171,7 +171,6 @@ router.post('/share', async (req, res) => {
     const user = await dbman.findUserAsync(username);
     const sharedBook = { editionId: book.edition_id, title: book.title, md5: book.md5, author: book.author,
     language: book.language, coverUrl: book.cover_url, isbn: book.isbn, filename: book.filename };
-    console.log(sharedBook)
     
     if (user) {
         user.contacts.forEach(async contact => {
@@ -277,50 +276,30 @@ router.post('/friend-request/accept', async (req, res) => {
 router.post('/srp-sync/status', async(req, res) => {
     const username = req.body.username;
     const syncRequests = req.body.syncRequests;
-    const bookSyncService = new BookSyncDbService();
+    const bookSyncDbService = new BookSyncDbService();
 
-    let response = await bookSyncService.findSyncRequests(username, syncRequests);
-    res.status(200).send(response);
+    let data = await bookSyncDbService.findSyncRequests(username, syncRequests);
+    res.status(200).send({ status: 0, message: '', data: data });
 });
 
 router.post('/srp-sync', async(req, res) => {
     const syncRequests = req.body.syncRequests;
     const bookSyncDbService = new BookSyncDbService();
 
-    syncRequests.forEach((syncRequest) => {
+    for (const syncRequest of syncRequests) {
         bookSyncDbService.createSyncRequest(syncRequest);
-    });
+    }
 
-    const bookSyncService = new BookSyncService(new LibgenDbService(), bookSyncDbService);
+    const bookSyncService = new BookSyncService();
 
     bookSyncService.syncBooks(syncRequests);
 
     res.status(200).send({ status: 0, message: 'Sync started', data: true });
 });
 
-router.post('/srp-resync', async(req, res) => {
-    const bookSyncService = new BookSyncService(new LibgenDbService(), new BookSyncDbService());
-
-    bookSyncService.updateUpcoming();
-
-    res.status(200).send({status: 0, message: 'Resync started', data: true})
-});
-
 router.post('/srp-connection', async (req, res) => {
     const credentials = req.body.credentials;
     let connection;
-
-    //const bookSyncService = new BookSyncService(new LibgenDbService());
-
-    //bookSyncService.updateHostIp();
-
-    //res.status(200).send('updateHostIp')
-
-    //await new Promise(resolve => setTimeout(resolve, 5000));
-    //res.status(200).send({ "data": [ { "username": "test", "isbn": "", "title": "The Ballad of Songbirds and Snakes", "author": "Suzanne", "pubDate": "2020-05-18T22:00:00.000Z", "status": "IGNORE" }, { "username": "test", "isbn": "9781649374172", "title": "Iron Flame", "author": "Rebecca", "pubDate": "2023-11-06T23:00:00.000Z", "status": "IGNORE" } ], "status": 0, "message": "" });
-    
-    //res.status(200).send({ "data": [ { "username": "test", "isbn": "", "title": "The Ballad of Songbirds and Snakes", "author": "Suzanne", "pubDate": "2020-05-18T22:00:00.000Z", "status": "IGNORE" }, { "username": "test", "isbn": "9781649374172", "title": "Iron Flame", "author": "Rebecca", "pubDate": "2023-11-06T23:00:00.000Z", "status": "IGNORE" }, { "username": "test", "isbn": "", "title": "The Ballad of Songbirds and Snakes", "author": "Suzanne", "pubDate": "2020-05-18T22:00:00.000Z", "status": "IGNORE" }, { "username": "test", "isbn": "9781649374172", "title": "Iron Flame", "author": "Rebecca", "pubDate": "2023-11-06T23:00:00.000Z", "status": "IGNORE" }, { "username": "test", "isbn": "", "title": "The Ballad of Songbirds and Snakes", "author": "Suzanne", "pubDate": "2020-05-18T22:00:00.000Z", "status": "IGNORE" }, { "username": "test", "isbn": "9781649374172", "title": "Iron Flame", "author": "Rebecca", "pubDate": "2023-11-06T23:00:00.000Z", "status": "IGNORE" }, { "username": "test", "isbn": "", "title": "The Ballad of Songbirds and Snakes", "author": "Suzanne", "pubDate": "2020-05-18T22:00:00.000Z", "status": "IGNORE" }, { "username": "test", "isbn": "9781649374172", "title": "Iron Flame", "author": "Rebecca", "pubDate": "2023-11-06T23:00:00.000Z", "status": "IGNORE" }, { "username": "test", "isbn": "", "title": "The Ballad of Songbirds and Snakes", "author": "Suzanne", "pubDate": "2020-05-18T22:00:00.000Z", "status": "IGNORE" }, { "username": "test", "isbn": "9781649374172", "title": "Iron Flame", "author": "Rebecca", "pubDate": "2023-11-06T23:00:00.000Z", "status": "IGNORE" }, { "username": "test", "isbn": "", "title": "The Ballad of Songbirds and Snakes", "author": "Suzanne", "pubDate": "2020-05-18T22:00:00.000Z", "status": "IGNORE" }, { "username": "test", "isbn": "9781649374172", "title": "Iron Flame", "author": "Rebecca", "pubDate": "2023-11-06T23:00:00.000Z", "status": "IGNORE" }, { "username": "test", "isbn": "", "title": "The Ballad of Songbirds and Snakes", "author": "Suzanne", "pubDate": "2020-05-18T22:00:00.000Z", "status": "IGNORE" }, { "username": "test", "isbn": "9781649374172", "title": "Iron Flame", "author": "Rebecca", "pubDate": "2023-11-06T23:00:00.000Z", "status": "IGNORE" }, { "username": "test", "isbn": "", "title": "The Ballad of Songbirds and Snakes", "author": "Suzanne", "pubDate": "2020-05-18T22:00:00.000Z", "status": "IGNORE" }, { "username": "test", "isbn": "9781649374172", "title": "Iron Flame", "author": "Rebecca", "pubDate": "2023-11-06T23:00:00.000Z", "status": "IGNORE" }, { "username": "test", "isbn": "", "title": "The Ballad of Songbirds and Snakes", "author": "Suzanne", "pubDate": "2020-05-18T22:00:00.000Z", "status": "IGNORE" }, { "username": "test", "isbn": "9781649374172", "title": "Iron Flame", "author": "Rebecca", "pubDate": "2023-11-06T23:00:00.000Z", "status": "IGNORE" }, { "username": "test", "isbn": "", "title": "The Ballad of Songbirds and Snakes", "author": "Suzanne", "pubDate": "2020-05-18T22:00:00.000Z", "status": "IGNORE" }, { "username": "test", "isbn": "9781649374172", "title": "Iron Flame", "author": "Rebecca", "pubDate": "2023-11-06T23:00:00.000Z", "status": "IGNORE" }, { "username": "test", "isbn": "", "title": "The Ballad of Songbirds and Snakes", "author": "Suzanne", "pubDate": "2020-05-18T22:00:00.000Z", "status": "IGNORE" }, { "username": "test", "isbn": "9781649374172", "title": "Iron Flame", "author": "Rebecca", "pubDate": "2023-11-06T23:00:00.000Z", "status": "IGNORE" }, { "username": "test", "isbn": "", "title": "The Ballad of Songbirds and Snakes", "author": "Suzanne", "pubDate": "2020-05-18T22:00:00.000Z", "status": "IGNORE" }, { "username": "test", "isbn": "9781649374172", "title": "Iron Flame", "author": "Rebecca", "pubDate": "2023-11-06T23:00:00.000Z", "status": "IGNORE" } ], "status": 0, "message": "" });    
-    //return;
 
     switch(req.body.platform) {
         case SocialReadingPlatform.GOODREADS:
@@ -358,21 +337,7 @@ router.delete('/srp-connection', async (req, res) => {
         res.status(200).send({status: 1, message: 'user does not exist'});
         return;
     }
-    switch(platform) {
-        case SocialReadingPlatform.GOODREADS:
-            user.grUserId = undefined;
-            user.grCookies = undefined;
-            user.save()
-            break;
-        case SocialReadingPlatform.THE_STORY_GRAPH:
-            user.tsgUsername = undefined;
-            user. tsgCookies = undefined;
-            user.save();
-            break;
-        default:
-            console.error('Unsupported Social Reading Platform');
-            break;
-    }
+    new BookSyncService().deleteSrpConnection(user, platform);
     res.status(200).send({status: 0, message: `deleted ${platform} connection`});
 });
 

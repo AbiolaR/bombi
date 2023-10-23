@@ -107,9 +107,9 @@ export class DownloadClusterComponent {
   private showResult(button: any, result: String) {
     button.classList.remove('loading');
         button.classList.add(result);
-        setTimeout(() => {
+        /*setTimeout(() => {
           button.classList.remove(result);
-        }, this.stateDuration);
+        }, this.stateDuration);*/
   }
 
   currentEReader() {

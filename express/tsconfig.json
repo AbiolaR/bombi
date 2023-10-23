@@ -3,9 +3,12 @@
       "outDir": "./built",
       "allowJs": true,
       "target": "ES6",
-      "module": "CommonJS"
+      "module": "CommonJS",
+      "esModuleInterop": true
     },
     "include": ["./src/**/*"],
     "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "strict": true,
+    "strictNullChecks": true
 }

@@ -34,7 +34,7 @@ async function executeScript(command, commandArgs, user) {
 }
 
 class TolinoResult {
-    SUCCESS = 'SUCCESS\n';
+    SUCCESS = 'SUCCESS';
 
     constructor(result, user) { 
         this.result = result;
@@ -54,6 +54,6 @@ class TolinoResult {
             console.error('no refresh token for user: ', this.user.username);
         }
 
-        return { command: this.result.endsWith(this.SUCCESS), refresh_token: token };
+        return { command: this.result.includes(this.SUCCESS), refresh_token: token };
     }
 }

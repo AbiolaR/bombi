@@ -1,3 +1,4 @@
+import { SocialReadingPlatform } from "../../models/social-reading-platform";
 import { SyncLanguage } from "../../models/sync-language.model";
 import { SyncRequest } from "../../models/sync-request.model";
 import { SyncStatus } from "../../models/sync-status.model";
@@ -14,7 +15,7 @@ export default class GoodreadsConnection extends GenericBookConnection {
     REMEMBER_ME_QUERY = '#authportal-main-section > div:nth-child(2) > div > div > form > div > div > div > div.a-section.a-spacing-extra-large > div:nth-child(5) > div > label > div > label > input[type=checkbox]';
     USER_IDENT_QUERY = '#bodycontainer > div > div.siteHeader > div > header > div.siteHeader__topLine.gr-box.gr-box--withShadow > div > div.siteHeader__personal > ul > li:nth-child(5) > div > a';
 
-    COOKIE_NAMES = ['_session_id2', 'sess-at-main', 'session-id', 'session-id-time', 'session-token'];
+    COOKIE_NAMES = ['_session_id2', 'sess-at-main', 'session-id', 'session-id-time', 'session-token', 'at-main', 'ubid-main'];
     TO_READ_URL = 'https://www.goodreads.com/review/list/{0}?shelf=to-read&per_page=100&page={1}'
     BOOK_AMOUNT_QUERY = '#header > h1 > span > span';
     ALL_BOOKS_QUERY = '#booksBody > tr';
@@ -23,8 +24,8 @@ export default class GoodreadsConnection extends GenericBookConnection {
     AUTHOR_QUERY = 'td.field.author > div > a';
     PUB_DATE_QUERY = 'td.field.date_pub > div';
     FORMAT_QUERY = 'td.field.format > div';
-    LANGUAGE_QUERY: 'td.field.shelves > div > span > span > a';
-    ASIN_QUERY: 'td.field.asin > div';
+    LANGUAGE_QUERY = 'td.field.shelves > div > span > span > a';
+    ASIN_QUERY = 'td.field.asin > div';
 
     BOOKS_PER_PAGE = 100;
     FIRST_PAGE = 1;
@@ -55,7 +56,8 @@ export default class GoodreadsConnection extends GenericBookConnection {
             });
 
             books.push(
-                new SyncRequest(username, isbn, title, author, pubDate, SyncStatus.IGNORE, language, asin)
+                new SyncRequest(username, isbn, title, author, pubDate, SyncStatus.IGNORE, 
+                    SocialReadingPlatform.GOODREADS, language, asin)
             );
         });
     }

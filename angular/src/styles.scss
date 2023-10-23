@@ -141,7 +141,7 @@ $dark-theme: map_merge($dark-theme, (background: $dark-background));
         --accent-color: mat.get-color-from-palette($accent, 200);
     }
 
-    mat-dialog-content,mat-dialog-actions {
+    mat-dialog-content,mat-dialog-actions,mat-expansion-panel-header,.mat-expansion-panel-body {
         background-color: #fffcf3;
     }
     

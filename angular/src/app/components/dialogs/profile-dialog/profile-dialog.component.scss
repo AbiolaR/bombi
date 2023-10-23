@@ -68,12 +68,16 @@ h3 {
 }
 
 .language {
+    display: flex;
+    justify-content: center;
+
     img {
         padding: 0;
         height: 70px;
         width: 70px;
         border-radius: 100%;
         margin: 15px;
+        cursor: pointer;
     }
 
     .selected {
@@ -150,7 +154,50 @@ h3 {
 }
 
 .settings-panel {
+    ::ng-deep.mat-expansion-panel-body {
+        padding: 0;
+    }
+}
+
+.settings-panel-content {
     display: flex;
     flex-direction: column;
     align-items: center;
+
+    mat-card {
+        padding: 5px 24px;
+        width: 100%;
+        border-radius: 0;
+
+        button {
+            min-height: 36px;
+            height: fit-content;
+            line-height: 24px;
+        }
+    }
+
+    mat-expansion-panel {
+        width: 100%;
+        margin-bottom: unset;
+        border-radius: unset !important;
+    }
+
+    .mat-expansion-panel-header {
+        min-height: 48px;
+        height: fit-content;
+        padding: 5px 24px;
+
+        h4 {
+            width: 100%;
+        }
+    }
+
+    ::ng-deep.mat-expansion-panel-content {
+        align-items: center;
+    }
+
+    ::ng-deep.mat-expansion-panel-body {
+        width: calc(100% - 48px);
+        padding-bottom: 16px;
+    }
 }

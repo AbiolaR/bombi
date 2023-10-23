@@ -40,23 +40,44 @@
                     <span *ngFor="let contact of userData?.contacts">{{contact.name}}</span>
                 </mat-card>
         </mat-expansion-panel>
-        <mat-expansion-panel>
+        <mat-expansion-panel class="settings-panel">
             <mat-expansion-panel-header>
                 {{ 'settings' | translate }}
             </mat-expansion-panel-header>
-            <div class="settings-panel">
-                <h4>{{ 'select-your-language' | translate }}</h4>
-                <div class="language">
-                    <img [ngClass]="{'selected' : userData?.language == Language.EN}"
-                        (click)="setLanguage(Language.EN)"
-                        src="/assets/images/language-flags/en.svg">
-                    <img [ngClass]="{'selected' : userData?.language == Language.DE}"
-                        (click)="setLanguage(Language.DE)"
-                        src="/assets/images/language-flags/de.svg">
-                </div>                
-                <app-ereader-config *ngIf="userData" [userRelatedData]="userData"></app-ereader-config>
-                <app-social-reading-platform-config *ngIf="userData" [(userData)]="userData">
-                </app-social-reading-platform-config>
+            <div class="settings-panel-content">
+                <mat-card *ngIf="showNotificationButton">
+                    <button mat-raised-button color="primary" (click)="requestNotificationPermission()">
+                        {{ 'allow-notifications' | translate }}
+                    </button>
+                </mat-card>
+                <mat-accordion>                
+                    <mat-expansion-panel>
+                        <mat-expansion-panel-header>
+                            <h4>{{ 'select-your-language' | translate }}</h4>
+                        </mat-expansion-panel-header>
+                        <div class="language">
+                            <img [ngClass]="{'selected' : userData?.language == Language.EN}"
+                            (click)="setLanguage(Language.EN)"
+                            src="/assets/images/language-flags/en.svg">
+                            <img [ngClass]="{'selected' : userData?.language == Language.DE}"
+                            (click)="setLanguage(Language.DE)"
+                            src="/assets/images/language-flags/de.svg">
+                        </div>                
+                    </mat-expansion-panel>
+                    <mat-expansion-panel>
+                        <mat-expansion-panel-header>
+                            <h4>{{ 'configure-your-ebook-reader' | translate }}</h4>
+                        </mat-expansion-panel-header>
+                        <app-ereader-config *ngIf="userData" [userRelatedData]="userData"></app-ereader-config>
+                    </mat-expansion-panel>
+                    <mat-expansion-panel>
+                        <mat-expansion-panel-header>
+                            <h4>{{ 'connect-social-reading-platforms' | translate }}</h4>
+                        </mat-expansion-panel-header>
+                        <app-social-reading-platform-config *ngIf="userData" [(userData)]="userData">
+                        </app-social-reading-platform-config>
+                    </mat-expansion-panel>
+                </mat-accordion>
             </div>
         </mat-expansion-panel>
     </mat-accordion>
