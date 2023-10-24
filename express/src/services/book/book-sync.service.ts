@@ -42,13 +42,17 @@ export class BookSyncService {
     this.bookSyncDbService.deleteSyncRequests(user.username, platform);
     switch(platform) {
       case SocialReadingPlatform.GOODREADS:
+          user.grPreferedLanguage = undefined;
+          user.grRigidLanguage = undefined;
           user.grUserId = undefined;
           user.grCookies = undefined;
           user.save()
           break;
       case SocialReadingPlatform.THE_STORY_GRAPH:
+          user.tsgPreferedLanguage = undefined;
+          user.tsgRigidLanguage = undefined;
           user.tsgUsername = undefined;
-          user. tsgCookies = undefined;
+          user.tsgCookies = undefined;
           user.save();
           break;
       default:

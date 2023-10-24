@@ -65,5 +65,12 @@
   "syncing-your-books": "Syncing your books",
   "done-syncing-your-books": "Done syncing your books",
   "close": "Close",
-  "the-credentials-you-enter-are-never-saved-by-bombi": "The credentials you enter are never saved by Bombi"
+  "the-credentials-you-enter-are-never-saved-by-bombi": "The credentials you enter are never saved by Bombi",
+  "English": "English",
+  "German": "German",
+  "choose-your-language-preferences": "Choose your language preferences",
+  "language-to-use-when-no-language-is-found-in-the-book-information": "Language to use when no language is found in the book information",
+  "prefered-language": "Prefered Language",
+  "always-download-books-in": "Always download books in {{arg}}",
+  "continue": "Continue"
 }

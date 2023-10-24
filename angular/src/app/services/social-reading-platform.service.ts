@@ -7,6 +7,7 @@ import { HttpClient } from '@angular/common/http';
 import { Credentials } from '../models/credentials';
 import { SyncRequest } from '../models/sync-request.model';
 import { UserService } from './user.service';
+import { SyncLanguage } from '../models/sync-language.model';
 
 @Injectable({
   providedIn: 'root'
@@ -17,10 +18,10 @@ export class SocialReadingPlatformService {
 
   constructor(private http: HttpClient, private userService: UserService) { }
 
-  public connect(platform: SocialReadingPlatform, credentials: Credentials): Observable<ServerResponse<SyncRequest[]>> {
+  public connect(platform: SocialReadingPlatform, credentials: Credentials, preferedLanguage: SyncLanguage, rigidLanguage: boolean): Observable<ServerResponse<SyncRequest[]>> {
     const headers = { 'Authorization': `Bearer ${this.userService.getLocalUserData()?.access_token}`};
     return this.http.post<ServerResponse<SyncRequest[]>>(`${this.apiUrl}/srp-connection`,
-      {platform: platform, credentials: credentials},
+      {platform: platform, credentials: credentials, preferedLanguage: preferedLanguage, rigidLanguage: rigidLanguage},
       { headers });
   }
 

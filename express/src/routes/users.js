@@ -299,6 +299,8 @@ router.post('/srp-sync', async(req, res) => {
 
 router.post('/srp-connection', async (req, res) => {
     const credentials = req.body.credentials;
+    const preferedLanguage = req.body.preferedLanguage;
+    const rigidLanguage = req.body.rigidLanguage || false;
     let connection;
 
     switch(req.body.platform) {
@@ -315,11 +317,11 @@ router.post('/srp-connection', async (req, res) => {
 
     try {
         let value;
-        if (!credentials || !credentials.username || !credentials.password) {            
-            res.status(200).send({ status: 1, message: 'missing credentials'});
+        if (!credentials || !credentials.username || !credentials.password || !preferedLanguage) {
+            res.status(200).send({ status: 1, message: 'missing credentials or prefered language'});
             return;
         }
-        value = await connection.getBooksToRead(req.body.username, credentials);
+        value = await connection.getBooksToRead(req.body.username, credentials, preferedLanguage, rigidLanguage);
         if (value.status == 0) {
             
         }

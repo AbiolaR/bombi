@@ -6,6 +6,8 @@ import { SocialReadingPlatform } from "../../models/social-reading-platform";
 
 export default class TSGConnection extends GenericBookConnection {
 
+    PREFERED_LANGUAGE_PROPERTY = 'tsgPreferedLanguage';
+    RIGID_LANGUAGE_PROPERTY = 'tsgRigidLanguage';
     USER_IDENT_PROPERTY = 'tsgUsername';
     USER_COOKIES_PROPERTY = 'tsgCookies';
 
@@ -33,7 +35,8 @@ export default class TSGConnection extends GenericBookConnection {
     GEN_SEPERATOR = ': ';
     ISBN_SEPERATOR = 'ISBN/UID:  ';
 
-    populateBooks(username: string, rawBooks: any, books: SyncRequest[]) {
+    populateBooks(username: string, preferedLanguage: SyncLanguage, rigidLanguage: boolean, rawBooks: any, 
+    books: SyncRequest[]) {
         rawBooks.forEach(rawBook => {
             this.addPrototype(rawBook);
 
@@ -47,14 +50,16 @@ export default class TSGConnection extends GenericBookConnection {
             let pubDate = rawBook.getElementText(this.PUB_DATE_QUERY).split(this.GEN_SEPERATOR)[1];
             pubDate = new Date(pubDate);
             let languageText = rawBook.getElementText(this.LANGUAGE_QUERY).split(this.GEN_SEPERATOR)[1];
-            let language: SyncLanguage;
-            switch (languageText) {
-                case 'German':
-                    language = SyncLanguage.GERMAN
-                    break;
-                default:
-                    language = SyncLanguage.ENGLISH
-                    break;
+            let language: SyncLanguage = preferedLanguage || SyncLanguage.ENGLISH;
+            if (!rigidLanguage) {
+                switch (languageText) {
+                    case 'German':
+                        language = SyncLanguage.GERMAN;
+                        break;
+                    case 'English':
+                        language = SyncLanguage.ENGLISH;
+                        break;
+                }
             }
 
             books.push(new SyncRequest(username, isbn, title, author, pubDate, SyncStatus.IGNORE, 

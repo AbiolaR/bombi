@@ -6,6 +6,8 @@ import GenericBookConnection from "./generic-book-connection";
 
 export default class GoodreadsConnection extends GenericBookConnection {
 
+    PREFERED_LANGUAGE_PROPERTY = 'grPreferedLanguage';
+    RIGID_LANGUAGE_PROPERTY = 'grRigidLanguage';
     USER_IDENT_PROPERTY = 'grUserId';
     USER_COOKIES_PROPERTY = 'grCookies';
 
@@ -32,8 +34,10 @@ export default class GoodreadsConnection extends GenericBookConnection {
     SECOND_PAGE = 2;
     AUDIO_FORMAT = 'Audio';
     GERMAN_LANG = 'de';
+    ENGLISH_LANG = 'en';
 
-    populateBooks(username: string, rawBooks: any, books: SyncRequest[]) {
+    populateBooks(username: string, preferedLanguage: SyncLanguage, rigidLanguage: boolean, rawBooks: any, 
+    books: SyncRequest[]) {
         rawBooks.forEach(rawBook => {
             this.addPrototype(rawBook);
             
@@ -47,13 +51,20 @@ export default class GoodreadsConnection extends GenericBookConnection {
             let pubDate = new Date(rawBook.getElementText(this.PUB_DATE_QUERY));
             let asin = rawBook.getElementText(this.ASIN_QUERY);
             let shelfList = Array.from(rawBook.querySelectorAll(this.LANGUAGE_QUERY));
-            let language = SyncLanguage.ENGLISH;
-            shelfList.forEach((shelf: HTMLElement) => {
-                let shelfName = shelf.textContent.trim();
-                if (shelfName.toLowerCase() == this.GERMAN_LANG) {
-                    language = SyncLanguage.GERMAN;
-                }
-            });
+            let language: SyncLanguage = preferedLanguage || SyncLanguage.ENGLISH;
+            if (!rigidLanguage) {
+                shelfList.forEach((shelf: HTMLElement) => {
+                    let shelfName = shelf.textContent.trim().toLowerCase();
+                    switch (shelfName) {
+                        case this.GERMAN_LANG:
+                            language = SyncLanguage.GERMAN
+                            break;                    
+                        case this.ENGLISH_LANG:
+                            language = SyncLanguage.ENGLISH
+                            break;
+                    }
+                });
+            }
 
             books.push(
                 new SyncRequest(username, isbn, title, author, pubDate, SyncStatus.IGNORE, 

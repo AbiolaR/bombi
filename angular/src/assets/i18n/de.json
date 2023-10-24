@@ -65,5 +65,12 @@
   "social-reading-platform": "Social-Reading-Plattform",
   "sync": "Synchronisiere",
   "syncing-your-books": "Deine Bücher werden synchronisiert",
-  "the-credentials-you-enter-are-never-saved-by-bombi": "Die von dir eingegebenen Anmeldeinformationen werden von Bombi niemals gespeichert"
+  "the-credentials-you-enter-are-never-saved-by-bombi": "Die von dir eingegebenen Anmeldeinformationen werden von Bombi niemals gespeichert",
+  "English": "Englisch",
+  "German": "Deutsch",
+  "always-download-books-in": "Bücher immer auf {{arg}} herunterladen",
+  "choose-your-language-preferences": "Wähle deine Spracheinstellungen",
+  "continue": "Weiter",
+  "language-to-use-when-no-language-is-found-in-the-book-information": "Zu verwendende Sprache, wenn in den Buchinformationen keine Sprache gefunden wird",
+  "prefered-language": "Bevorzugte Sprache"
 }

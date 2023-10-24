@@ -5,6 +5,7 @@ import { EMPTY, delay, expand } from 'rxjs';
 import { Credentials } from 'src/app/models/credentials';
 import { ServerResponse } from 'src/app/models/server-response';
 import { SocialReadingPlatform } from 'src/app/models/social-reading-platform';
+import { SyncLanguage, SyncLanguageUtil } from 'src/app/models/sync-language.model';
 import { SyncRequest } from 'src/app/models/sync-request.model';
 import { SyncStatus } from 'src/app/models/sync-status.model';
 import { UserData } from 'src/app/models/user-data';
@@ -17,6 +18,10 @@ import { UserService } from 'src/app/services/user.service';
   styleUrls: ['./srp-sync-dialog.component.scss']
 })
 export class SrpSyncDialogComponent {
+  SyncLanguage = SyncLanguage;
+  setPreferedLanguage = false;
+  preferedLanguage: SyncLanguage = SyncLanguage.ENGLISH;
+  rigidLanguage = false;
   connecting = false;
   isPasswordHidden = true;
   errorText = '';
@@ -33,6 +38,7 @@ export class SrpSyncDialogComponent {
   constructor(@Inject(MAT_DIALOG_DATA) public platform: SocialReadingPlatform, 
     private dialogRef: MatDialogRef<SrpSyncDialogComponent>, userService: UserService,
     private srpService: SocialReadingPlatformService, private translate: TranslateService) {
+      this.preferedLanguage = SyncLanguageUtil.map(translate.currentLang);
       this.userData = userService.getLocalUserData();
   }
 
@@ -53,7 +59,7 @@ export class SrpSyncDialogComponent {
   connect() {
     this.connecting = true;
     this.errorText = '';
-    this.srpService.connect(this.platform, this.credentials).subscribe({        
+    this.srpService.connect(this.platform, this.credentials, this.preferedLanguage, this.rigidLanguage).subscribe({        
       next: (response: ServerResponse<SyncRequest[]>) => {
         this.connecting = false;
         switch (response.status) {

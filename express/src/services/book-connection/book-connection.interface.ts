@@ -1,6 +1,7 @@
 import { Credentials } from "../../models/credentials";
 import { ExternalLoginResult } from "../../models/external-login-result";
 import { ServerResponse } from "../../models/server-response";
+import { SyncLanguage } from "../../models/sync-language.model";
 import { SyncRequest } from "../../models/sync-request.model";
 
 export interface BookConnection {
@@ -10,6 +11,8 @@ export interface BookConnection {
     readonly ENABLE_LOGGING_SWITCH: string;
     readonly CHROME_BINARY_PATH: string;
 
+    readonly PREFERED_LANGUAGE_PROPERTY: string;
+    readonly RIGID_LANGUAGE_PROPERTY: string;
     readonly USER_IDENT_PROPERTY: string;
     readonly USER_COOKIES_PROPERTY: string;
 
@@ -38,14 +41,14 @@ export interface BookConnection {
 
     getBooksToRead(): Promise<ServerResponse<SyncRequest[]>>;
     getBooksToReadByUsername(username: string): Promise<ServerResponse<SyncRequest[]>>;
-    getBooksToReadByLogin(username: string, credentials: Credentials): Promise<ServerResponse<SyncRequest[]>>;
+    getBooksToReadByLogin(username: string, credentials: Credentials, preferedLanguage: SyncLanguage, rigidLanguage: boolean): Promise<ServerResponse<SyncRequest[]>>;
 
     getToReadPage(userIdent: string, cookies: string[]): Promise<Document>;
-    getBooks(username: string, userIdent: string, cookies: string[], doc: Document): Promise<SyncRequest[]>;
+    getBooks(username: string, userIdent: string, cookies: string[], preferedLanguage: SyncLanguage, rigidLanguage: boolean, doc: Document): Promise<SyncRequest[]>;
     
     login(credentials: Credentials): Promise<ExternalLoginResult>;
     addPrototype(obj: any): void;
     
     getBookCount(doc: Document): number;
-    populateBooks(username: string, rawBooks: Element[], books: SyncRequest[]): void;
+    populateBooks(username: string, preferedLanguage: SyncLanguage, rigidLanguage: boolean, rawBooks: Element[], books: SyncRequest[]): void;
 }

@@ -8,8 +8,11 @@ import { SyncRequest } from "../../models/sync-request.model";
 import { BookConnection } from "./book-connection.interface";
 import { findUserAsync, updateUserAsync } from "../dbman";
 import { Credentials } from "../../models/credentials";
+import { SyncLanguage } from "../../models/sync-language.model";
 
 export default abstract class GenericBookConnection implements BookConnection {
+    PREFERED_LANGUAGE_PROPERTY: string;
+    RIGID_LANGUAGE_PROPERTY: string;
     USER_IDENT_PROPERTY: string;
     USER_COOKIES_PROPERTY: string;
     SIGN_IN_URL: string;
@@ -42,8 +45,8 @@ export default abstract class GenericBookConnection implements BookConnection {
         switch (arguments.length) {
             case 1:
                 return await this.getBooksToReadByUsername(arguments[0]);
-            case 2:
-                return await this.getBooksToReadByLogin(arguments[0], arguments[1]);
+            case 4:
+                return await this.getBooksToReadByLogin(arguments[0], arguments[1], arguments[2], arguments[3]);
             default:
                 throw new Error('Invalid number of arguments!');
         }
@@ -60,17 +63,21 @@ export default abstract class GenericBookConnection implements BookConnection {
         this.addPrototype(doc);
 
         let syncRequests = await this.getBooks(username, user[this.USER_IDENT_PROPERTY], 
-            user[this.USER_COOKIES_PROPERTY], doc);
+            user[this.USER_COOKIES_PROPERTY], user[this.PREFERED_LANGUAGE_PROPERTY], 
+            user[this.RIGID_LANGUAGE_PROPERTY], doc);
 
         return new ServerResponse(syncRequests);
     }
 
-    async getBooksToReadByLogin(username: string, credentials: Credentials): Promise<ServerResponse<SyncRequest[]>> {
+    async getBooksToReadByLogin(username: string, credentials: Credentials, preferedLanguage: SyncLanguage, rigidLanguage: boolean): Promise<ServerResponse<SyncRequest[]>> {
         let loginResult = await this.login(credentials);
         if (loginResult.userIdent && loginResult.cookies) {            
             await updateUserAsync({username: username, 
+                [this.PREFERED_LANGUAGE_PROPERTY]: preferedLanguage,
+                [this.RIGID_LANGUAGE_PROPERTY]: rigidLanguage,
                 [this.USER_IDENT_PROPERTY]: loginResult.userIdent, 
-                [this.USER_COOKIES_PROPERTY]: loginResult.cookies});            
+                [this.USER_COOKIES_PROPERTY]: loginResult.cookies
+            });            
             return await this.getBooksToReadByUsername(username);
         }
         return new ServerResponse([], 2, 'error while attempting to log in');
@@ -88,11 +95,12 @@ export default abstract class GenericBookConnection implements BookConnection {
         return new JSDOM(page).window.document;
     }    
     
-    async getBooks(username: string, userIdent: string, cookies: string[], doc: Document): Promise<SyncRequest[]> {
+    async getBooks(username: string, userIdent: string, cookies: string[], preferedLanguage: SyncLanguage, 
+    rigidLanguage: boolean, doc: Document): Promise<SyncRequest[]> {
         let books = [];        
 
         let rawBooks = Array.from(doc.querySelectorAll(this.ALL_BOOKS_QUERY));        
-        this.populateBooks(username, rawBooks, books);        
+        this.populateBooks(username, preferedLanguage, rigidLanguage, rawBooks, books);        
 
         const bookAmount = this.getBookCount(doc);
         if (bookAmount > this.BOOKS_PER_PAGE) {
@@ -109,7 +117,7 @@ export default abstract class GenericBookConnection implements BookConnection {
                 let page = await (await axios(config)).data;
                 let tempDoc = new JSDOM(page).window.document;
                 rawBooks = Array.from(tempDoc.querySelectorAll(this.ALL_BOOKS_QUERY));
-                this.populateBooks(username, rawBooks, books);
+                this.populateBooks(username, preferedLanguage, rigidLanguage, rawBooks, books);
             }
         }
         
@@ -169,7 +177,7 @@ export default abstract class GenericBookConnection implements BookConnection {
     }
     
     abstract getBookCount(doc: Document): number
-    abstract populateBooks(username: string, rawBooks: Element[], books: SyncRequest[]): void
+    abstract populateBooks(username: string, preferedLanguage: SyncLanguage, rigidLanguage: boolean, rawBooks: Element[], books: SyncRequest[]): void
 }
 
 

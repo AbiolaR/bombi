@@ -1,4 +1,26 @@
-<div *ngIf="foundBooks.length == 0">
+<div *ngIf="!setPreferedLanguage">
+    <h1 mat-dialog-title>{{ 'choose-your-language-preferences' | translate }}</h1>
+    <div mat-dialog-content>
+        <mat-label>{{ 'language-to-use-when-no-language-is-found-in-the-book-information' | translate }}</mat-label>
+        <mat-form-field appearance="outline">
+            <mat-label>{{ 'prefered-language' | translate }}</mat-label>
+            <mat-select [(ngModel)]="preferedLanguage">
+                <mat-option *ngFor="let language of SyncLanguage | keyvalue" [value]="language.value">
+                    {{ language.value | translate }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+        <mat-checkbox *ngIf="preferedLanguage" color="primary" (change)="rigidLanguage = $event.checked">
+            {{ 'always-download-books-in' | translate: { arg:  preferedLanguage | translate } }}
+        </mat-checkbox>
+        <div mat-dialog-actions>
+            <button mat-flat-button color="primary" (click)="setPreferedLanguage = true">
+                {{ 'continue' | translate }}
+            </button>
+        </div>
+    </div>
+</div>
+<div *ngIf="foundBooks.length == 0 && setPreferedLanguage">
     <mat-icon fontIcon="help_outline" class="help_tooltip" (click)="tooltip.show()" 
         #tooltip="matTooltip" matTooltipPosition="above"
         [matTooltip]="'the-credentials-you-enter-are-never-saved-by-bombi' | translate"></mat-icon>

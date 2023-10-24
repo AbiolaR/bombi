@@ -64,8 +64,12 @@ const UserSchema = mongoose.Schema({
     friendRequests: [String],
     contacts: [ContactSchema],
     pushSubscriptions: [PushSubscriptionSchema],
+    tsgPreferedLanguage: String,
+    tsgRigidLanguage: Boolean,
     tsgUsername: String,
     tsgCookies: [String],
+    grPreferedLanguage: String,
+    grRigidLanguage: Boolean,
     grUserId: String,
     grCookies: [String]
 });
