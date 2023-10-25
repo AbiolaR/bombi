@@ -13,10 +13,6 @@ mat-form-field {
     margin-top: 0.5em;
 }
 
-.test-button {
-    margin-top: 0.5em;
-}
-
 .e-reader-config {
     display: flex;
     flex-direction: column;
@@ -27,58 +23,52 @@ h4 {
     margin: 0;
 }
 
-button.loading {
-    mat-spinner {
-        display: inline;
-    }
-    .text {
-        display: none;
-    }
-}
-
-button.success {
-    mat-icon.success {
-        display: inline;
-        color: var(--success-icon-color);
-    }
-    .text {
-        display: none;
-    }
-}
-
-button.failure {
-    mat-icon.failure {
-        display: inline;
-        color: var(--failure-icon-color);
-    }
-    .text {
-        display: none;
-    }
-}
-
-
 button {
-    width: 6em;
+    min-width: 12em;
+    width: fit-content;
     height: 2.5em;
-    margin-top: -10px;
 
     mat-spinner {
         position: absolute;
         inset: 0;
         margin: auto;
-        display: none;
-    
+        transform: translateX(-50%);
+
         ::ng-deep circle {
-            stroke: var(--muted-spinner-color) !important;
+            stroke: var(--main-background-color) !important;
         }
     }
 
     mat-icon {
         vertical-align: middle;
-        display: none;
     }
 
     ::ng-deep span {
         pointer-events: none;
     }
+}
+
+.tolino-config {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    button {
+        margin-top: 1em;
+    }
+}
+
+.error-text {
+    margin: 1em 0 -0.5em 0;
+    color: #f44336;
+    text-align: center;
+}
+
+.hide-text {
+    -webkit-text-security: disc;
+}
+
+.password-visibility {
+    cursor: pointer;
 }

@@ -1,6 +1,10 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+import { Credentials } from 'src/app/models/credentials';
+import { UserData } from 'src/app/models/user-data';
 import { UserRelatedData } from 'src/app/models/user-related-data';
 import { BookService } from 'src/app/services/book.service';
+import { UserService } from 'src/app/services/user.service';
 
 @Component({
   selector: 'app-ereader-config',
@@ -11,11 +15,17 @@ export class EReaderConfigComponent implements OnInit {
 
   @Input()
   userRelatedData: UserRelatedData = new UserRelatedData();
+  @Output()
+  userRelatedDataChange: EventEmitter<UserData> = new EventEmitter<UserData>();
 
   activeEReader: number = 0;
-  stateDuration = 1500;
+  credentials = new Credentials();
+  executingRequest = false;
+  isPasswordHidden = true;
+  errorText = '';
 
-  constructor(private bookService: BookService) { }
+  constructor(private bookService: BookService, private translate: TranslateService,
+    private userService: UserService) { }
 
   ngOnInit(): void {
     switch (this.userRelatedData.eReaderType) {
@@ -42,38 +52,58 @@ export class EReaderConfigComponent implements OnInit {
     }
   }
 
-  testAuth(button: any) {
-    button.classList.add('loading');
-    this.bookService.testTolinoAuth(this.buildJsonObject()).subscribe({
-      next: (data) => {
-        this.showResult(button, 'success');
-        if (!this.userRelatedData.eReaderRefreshToken.startsWith('*****')) {
-          this.userRelatedData.eReaderRefreshToken = data.refresh_token;
+  public submit(event: any) {
+    if (event?.key == 'Enter' && this.credentials.valid()) {
+      this.connectTolino();
+    }
+  }
+
+  connectTolino() {
+    if (this.executingRequest) return;
+    this.executingRequest = true;
+    this.bookService.connectTolino(this.credentials).subscribe({
+      next: (response) => {
+        this.executingRequest = false;
+        switch (response.status) {
+          case 0:
+            this.errorText = '';
+            this.credentials = new Credentials();
+            this.updateUserData();
+            break;
+          case 2:
+            this.errorText = this.translate.instant('could-not-connect-due-to-invalid-credentials');
+            break;
+          default:
+            this.errorText = this.translate.instant('an-error-occured-please-try-again-or-contact-the-bombi-owner');
+            break;
         }
       },
-      error: (msg) => {
-        this.showResult(button, 'failure');
-        console.warn('errrr', msg);
+      error: () => {
+        this.executingRequest = false;
+        this.errorText = this.translate.instant('could-not-reach-server-please-try-again-in-a-few-minutes-or-contact-the-bombi-owner');
       }
     })
   }
 
-  private showResult(button: any, result: String) {
-    button.classList.remove('loading');
-        button.classList.add(result);
-        setTimeout(() => {
-          button.classList.remove(result);
-        }, this.stateDuration);
+  disconnectTolino() {
+    if (this.executingRequest) return;
+    this.executingRequest = true;
+    this.bookService.disconnectTolino().subscribe({
+      next: (response) => {
+        if (response.status == 0) {
+          this.executingRequest = false;
+          this.updateUserData();
+        }
+      }
+    });
   }
 
-  private buildJsonObject(): Object {
-    if (this.userRelatedData.eReaderDeviceId.startsWith('*****')
-    && this.userRelatedData.eReaderRefreshToken.startsWith('*****')) {
-
-      return { username: this.userRelatedData.username };  
-    }
-    return { eReaderDeviceId: this.userRelatedData.eReaderDeviceId, 
-      eReaderRefreshToken: this.userRelatedData.eReaderRefreshToken }
+  private updateUserData() {
+    this.userService.updateUserData().subscribe({
+      next: (userData: UserData) => {
+        this.userRelatedData = userData;
+        this.userRelatedDataChange.emit(userData);
+      }
+    });
   }
-
 }

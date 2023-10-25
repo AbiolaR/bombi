@@ -5,12 +5,6 @@ import { SyncLanguage } from "../../models/sync-language.model";
 import { SyncRequest } from "../../models/sync-request.model";
 
 export interface BookConnection {
-    readonly BROWSER: string;
-    readonly HEADLESS_ARGUMENT: string;
-    readonly NO_SANDBOX_ARGUMENT: string;
-    readonly ENABLE_LOGGING_SWITCH: string;
-    readonly CHROME_BINARY_PATH: string;
-
     readonly PREFERED_LANGUAGE_PROPERTY: string;
     readonly RIGID_LANGUAGE_PROPERTY: string;
     readonly USER_IDENT_PROPERTY: string;

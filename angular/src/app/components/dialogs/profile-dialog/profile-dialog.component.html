@@ -68,7 +68,7 @@
                         <mat-expansion-panel-header>
                             <h4>{{ 'configure-your-ebook-reader' | translate }}</h4>
                         </mat-expansion-panel-header>
-                        <app-ereader-config *ngIf="userData" [userRelatedData]="userData"></app-ereader-config>
+                        <app-ereader-config *ngIf="userData" [(userRelatedData)]="userData"></app-ereader-config>
                     </mat-expansion-panel>
                     <mat-expansion-panel>
                         <mat-expansion-panel-header>

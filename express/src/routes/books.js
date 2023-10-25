@@ -7,6 +7,7 @@ const jsdom = require('jsdom');
 const { saveToDiskAsync, convertToMobiAsync, getSpellingCorrection } = require('../services/tools');
 const { setupCache } = require('axios-cache-interceptor');
 const { default: Axios } = require('axios');
+const { TolinoService } = require('../services/e-readers/tolino.service');
 
 const LIBGEN_MIRROR = process.env.LIBGEN_MIRROR || 'https://libgen.rocks';
 const DAY_IN_MS = 1000 * 60 * 60 * 24;
@@ -121,32 +122,22 @@ router.post('/send', async(req, res) => {
   res.status(result.status).send(result.message);
 });
 
-router.post('/tolino/test', async(req, res) => {
-  var eReaderDeviceId = req.body.eReaderDeviceId;
-  var eReaderRefreshToken = req.body.eReaderRefreshToken;
-  var username = req.body.username;
+router.post('/tolino/connect', async(req, res) => {
+  let credentials = req.body.credentials;
 
-  if (username) {
-    var user = await findUserAsync(req.body.username);
-
-    if (!user) {
-      res.status(404).send('no user could be found');
-    }
-
-    eReaderDeviceId = user.eReaderDeviceId;
-    eReaderRefreshToken = user.eReaderRefreshToken;
+  if (!credentials?.username || !credentials?.password) {
+    res.send({ status: 1, message: 'missing credentials' });
+    return;
   }
+  let tolinoService = new TolinoService();
+  let result = await tolinoService.connect(req.body.username, credentials);
+  res.send(result)
+});
 
-  var user = { username: username, eReaderDeviceId: eReaderDeviceId, 
-    eReaderRefreshToken: eReaderRefreshToken }
-
-  var result = await testAuth(user);
-  if (result.command && result.refresh_token) {
-    res.send({ refresh_token: result.refresh_token });
-  } else {
-    res.status(401).send();
-  }
-  
+router.delete('/tolino/disconnect', async(req, res) => {
+  let tolinoService = new TolinoService();
+  await tolinoService.disconnect(req.body.username);
+  res.send({ status: 0, message: 'disconnected from tolino account' });
 });
 
 async function sendFileToKindle(recipient, data, filename) {

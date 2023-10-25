@@ -14,6 +14,8 @@ const { BookSyncDbService } = require('../services/db/book-sync-db.service');
 const { BookSyncService } = require('../services/book/book-sync.service');
 const { LibgenDbService } = require('../services/db/libgen-db.service');
 const { SyncStatus } = require('../models/sync-status.model');
+const { default: SeleniumAutomationService } = require('../services/selenium-automation.service');
+const { TolinoService } = require('../services/e-readers/tolino.service');
 
 const ONE_YEAR = '8760h';
 

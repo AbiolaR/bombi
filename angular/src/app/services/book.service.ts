@@ -6,6 +6,8 @@ import { DownloadMode } from '../models/download-mode';
 import { UserService } from './user.service';
 import { SearchResult } from '../models/search-result';
 import { DeviceDetectorService } from 'ngx-device-detector';
+import { ServerResponse } from '../models/server-response';
+import { Credentials } from '../models/credentials';
 
 const HALF_A_DAY_IN_MS = 1000 * 60 * 60 * 12;
 
@@ -69,8 +71,15 @@ export class BookService {
       { headers });
   }
 
-  public testTolinoAuth(json: Object): Observable<any> {
-    return this.http.post<String>(`${this.apiUrl}tolino/test`,
-    json);
+  public connectTolino(credentials: Credentials): Observable<ServerResponse<void>> {
+    const headers = { 'Authorization': `Bearer ${this.userService.getLocalUserData()?.access_token}`};
+    return this.http.post<ServerResponse<void>>(`${this.apiUrl}tolino/connect`,
+    { credentials },
+    { headers });
+  }
+
+  public disconnectTolino(): Observable<ServerResponse<void>> {
+    const headers = { 'Authorization': `Bearer ${this.userService.getLocalUserData()?.access_token}`};
+    return this.http.delete<ServerResponse<void>>(`${this.apiUrl}tolino/disconnect`, { headers });
   }
 }

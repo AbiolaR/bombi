@@ -24,6 +24,8 @@ app.use(cors({
 }));
 
 app.use('/api/v1/books/send', authorization);
+app.use('/api/v1/books/tolino/connect', authorization);
+app.use('/api/v1/books/tolino/disconnect', authorization);
 app.use('/api/v1/users/save', authorization);
 app.use('/api/v1/users/data', authorization);
 app.use('/api/v1/users/share', authorization);

@@ -8,6 +8,7 @@ import { SyncRequest } from "../../models/sync-request.model";
 import { BookConnection } from "./book-connection.interface";
 import { findUserAsync, updateUserAsync } from "../dbman";
 import { Credentials } from "../../models/credentials";
+import SeleniumAutomationService from "../selenium-automation.service";
 import { SyncLanguage } from "../../models/sync-language.model";
 
 export default abstract class GenericBookConnection implements BookConnection {
@@ -35,11 +36,6 @@ export default abstract class GenericBookConnection implements BookConnection {
     FIRST_PAGE: number;
     SECOND_PAGE: number;
     AUDIO_FORMAT: string;
-    BROWSER: string = 'chrome';
-    HEADLESS_ARGUMENT: string = '--headless=new';
-    NO_SANDBOX_ARGUMENT: string = '--no-sandbox';
-    ENABLE_LOGGING_SWITCH: string = 'enable-logging';
-    CHROME_BINARY_PATH: string = '/usr/bin/chromium-browser';
 
     async getBooksToRead(): Promise<ServerResponse<SyncRequest[]>> {
         switch (arguments.length) {
@@ -126,20 +122,7 @@ export default abstract class GenericBookConnection implements BookConnection {
     
     
     async login(credentials: Credentials): Promise<ExternalLoginResult> {
-        const headless = true;
-        const prod = process.env.STAGE == 'prod';
-        let driver;
-        
-        //To wait for browser to build and launch properly
-        let options = new Options();
-        if (headless) {
-            options.addArguments(this.HEADLESS_ARGUMENT, this.NO_SANDBOX_ARGUMENT);
-            options.excludeSwitches(this.ENABLE_LOGGING_SWITCH);
-            if (prod) {
-                options.setChromeBinaryPath(this.CHROME_BINARY_PATH);
-            }
-        } 
-        driver = await new Builder().forBrowser(this.BROWSER).setChromeOptions(options).build();     
+        let driver = await SeleniumAutomationService.buildDriver();     
         
         await driver.get(this.SIGN_IN_URL);
         
@@ -185,9 +168,6 @@ declare global {
     interface String {
         format(...args: string[]): string;
     }
-    /*interface Element {
-        getElementText(query: string): string;
-    }*/
 }
 
 if (!String.prototype.format) {
@@ -201,9 +181,3 @@ if (!String.prototype.format) {
       });
     };
 }
-
-/*if (!Element.prototype.getElementText) {
-    Element.prototype.getElementText = function(query: string) {
-        return this.querySelector(query).textContent.trim();
-    }
-}*/

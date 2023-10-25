@@ -8,19 +8,30 @@
             </mat-form-field>
         </mat-tab>
         <mat-tab label="Tolino">
-            <mat-form-field appearance="outline">
-                <mat-label>{{ 'device-id' | translate }}</mat-label>
-                <input matInput [(ngModel)]="userRelatedData.eReaderDeviceId"/>
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-                <mat-label>{{ 'refresh-token' | translate }}</mat-label>
-                <input matInput [(ngModel)]="userRelatedData.eReaderRefreshToken"/>
-            </mat-form-field>
-            <button mat-stroked-button (click)="testAuth($event.target)" class="test-button">
-                <span class="text">{{ 'test' | translate }}</span>
-                <mat-spinner [diameter]="30"></mat-spinner>
-                <mat-icon class="success">check_circle_outline</mat-icon>
-                <mat-icon class="failure">highlight_off</mat-icon>
+            <div class="tolino-config" *ngIf="!userRelatedData.eReaderDeviceId">
+                <mat-form-field appearance="outline">
+                    <mat-label>{{ 'e-mail' | translate }}</mat-label>
+                    <input name="email" matInput [(ngModel)]="credentials.username" (keydown)="submit($event)"/>
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                    <mat-label>{{ 'password' | translate }}</mat-label>
+                    <input autocomplete="new-password" matInput [(ngModel)]="credentials.password"
+                    (keydown)="submit($event)" [ngClass]="{'hide-text' : isPasswordHidden}"/>
+                    <mat-icon matSuffix *ngIf="isPasswordHidden" (click)="isPasswordHidden = false"
+                    class="password-visibility">visibility</mat-icon>
+                    <mat-icon matSuffix *ngIf="!isPasswordHidden" (click)="isPasswordHidden = true"
+                    class="password-visibility">visibility_off</mat-icon>
+                </mat-form-field>
+                <p *ngIf="errorText" class="error-text">{{errorText}}</p>
+                <button mat-flat-button color="primary" (click)="connectTolino()" [disabled]="!credentials.valid()">
+                    <span *ngIf="!executingRequest">Connect Account</span>
+                    <mat-spinner *ngIf="executingRequest" [diameter]="30"></mat-spinner>
+                </button>
+            </div>
+            <button mat-flat-button color="primary" *ngIf="userRelatedData.eReaderDeviceId"
+            (click)="disconnectTolino()">
+                <span *ngIf="!executingRequest">Disconnect Account</span>
+                <mat-spinner *ngIf="executingRequest" [diameter]="30"></mat-spinner>
             </button>
         </mat-tab>
     </mat-tab-group>
