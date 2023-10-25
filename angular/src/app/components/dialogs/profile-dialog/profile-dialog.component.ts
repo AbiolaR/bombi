@@ -23,6 +23,7 @@ export class ProfileDialogComponent implements OnInit {
   Language = Language;
   selectedLanguage = '';
   showNotificationButton = false;
+  eReaderEmailSaved = false;
 
   constructor(public userService: UserService, private appService: AppService, private swPush: SwPush,
     private router: Router, private dialogRef: MatDialogRef<ProfileDialogComponent>, private dialog: MatDialog) { }
@@ -33,6 +34,7 @@ export class ProfileDialogComponent implements OnInit {
       next: (userData: UserData) => {
         this.userData = userData; 
         this.selectedLanguage = userData.language;
+        this.eReaderEmailSaved = !!userData.eReaderEmail;
       }
     });
   }
@@ -50,6 +52,7 @@ export class ProfileDialogComponent implements OnInit {
             if (this.userData) {
               this.userData.sanitize();
               this.userService.setUserData(this.userData.removeEmpty());
+              this.eReaderEmailSaved = !!this.userData.eReaderEmail;
             }
             this.close();
           } else {
