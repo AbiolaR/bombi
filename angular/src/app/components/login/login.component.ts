@@ -21,6 +21,7 @@ export class LoginComponent implements OnInit {
 
   usernameError: String = '';
   passwordError: String = '';
+  isPasswordHidden = true;
 
   constructor(private userService: UserService, private dialog: MatDialog, 
     private eventService: EventService, private appService: AppService) { }

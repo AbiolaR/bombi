@@ -10,7 +10,11 @@
       </mat-form-field>
       <mat-form-field appearance="outline">
         <mat-label>{{ 'password' | translate }}</mat-label>
-        <input matInput type="password" formControlName="password" name="password">
+        <input matInput [type]="isPasswordHidden ? 'password': 'text'" formControlName="password" name="password"/>
+        <mat-icon matSuffix *ngIf="isPasswordHidden" (click)="isPasswordHidden = false"
+        class="password-visibility">visibility</mat-icon>
+        <mat-icon matSuffix *ngIf="!isPasswordHidden" (click)="isPasswordHidden = true"
+        class="password-visibility">visibility_off</mat-icon>
         <mat-error *ngIf="loginForm.get('password')?.errors?.['unauthenticated']">
           {{passwordError}}
         </mat-error>
