@@ -1,16 +1,18 @@
 var express = require('express');
 var router = express.Router();
-var axios = require('axios');
 var mailservice = require('../services/email');
 const { findUserAsync } = require('../services/dbman');
 const { upload, testAuth } = require('../services/tolinoman');
 const jsdom = require('jsdom');
 const { saveToDiskAsync, convertToMobiAsync, getSpellingCorrection } = require('../services/tools');
+const { setupCache } = require('axios-cache-interceptor');
+const { default: Axios } = require('axios');
 
 const LIBGEN_MIRROR = process.env.LIBGEN_MIRROR || 'https://libgen.rocks';
+const DAY_IN_MS = 1000 * 60 * 60 * 24;
 
+const axios = setupCache(Axios, { ttl: DAY_IN_MS, headerInterpreter: () => {return 'not enough headers'} });
 
-/* GET users listing. */
 router.get('/search', async(req, res, next) => {
 
   var searchString = req.query.q;
