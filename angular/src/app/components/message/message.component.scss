@@ -26,6 +26,14 @@
     -webkit-box-orient: vertical;
 }
 
+.message {
+    border: var(--main-text-color) solid 1px;
+    border-radius: 15px 15px 15px 2px;
+    padding: 0.5em 1.5em;
+    margin: 0.5em;
+    background-color: var(--primary-opaque-color);
+}
+
 .mat-expanded {
     .shrink {
         font-size: 12px;

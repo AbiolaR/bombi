@@ -87,6 +87,26 @@ app-download-cluster {
     display: none;
 }
 
+.contact-menu {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+
+    .contact {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        padding: 0 1em;
+        margin: auto;
+    }
+
+    .add-message {
+        cursor: pointer;
+        margin-left: 0.5em;
+    }
+}
+
 @media screen and (max-width: 1250px) {
     .title {
         width: 48vw;
@@ -158,16 +178,6 @@ app-download-cluster {
     .share {
         border: 1px mat-color($accent) dashed;
         border-radius: 100%;
-    }
-
-    .contact-menu {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-
-        button {
-            width: 85%;
-        }
     }
     
 }

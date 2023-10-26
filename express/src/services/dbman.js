@@ -40,7 +40,8 @@ const BookSchema = mongoose.Schema({
     author: String,
     language: String,
     coverUrl: String,
-    isbn: Number
+    isbn: Number,
+    message: String
 });
 
 const ContactSchema = mongoose.Schema({

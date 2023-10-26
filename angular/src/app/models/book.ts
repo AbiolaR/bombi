@@ -9,7 +9,7 @@ export interface Book {
     filesize: number,
     extension: string,
     filename: string,
-    cover_url: string,
+    coverUrl: string,
     message: string,
     year: number
 }

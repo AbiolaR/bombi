@@ -5,12 +5,13 @@
             src="/assets/images/covers/loading-cover.png"/>
             <img (load)="isImgLoaded = true" loading="lazy" [class.hidden]="!isImgLoaded" 
             class="cover" aria-label="Book Cover" 
-            src="{{message.cover_url == 'img/blank.png' ? '/assets/images/covers/blank.png' 
-            : 'https://libgen.li/' + message.cover_url}}"/>
+            src="{{message.coverUrl == 'img/blank.png' ? '/assets/images/covers/blank.png' 
+            : 'https://libgen.li/' + message.coverUrl}}"/>
 
             <span #title class="title">{{message.title}}</span>
         </mat-expansion-panel-header>
         <ng-template matExpansionPanelContent>
+            <div class="message" *ngIf="message.message" [innerHtml]="message.message"></div>
             <div class="more-info">
                 <img class="lang" src="/assets/images/flags/{{message.language}}.svg" aria-label="Book Language"/>
                 <span class="author">{{message.author || "author unknown"}}</span>

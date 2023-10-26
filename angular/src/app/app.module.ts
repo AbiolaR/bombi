@@ -49,6 +49,7 @@ import { SrpSyncDialogComponent } from './components/dialogs/srp-sync-dialog/srp
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { AddMessageDialogComponent } from './components/dialogs/add-message-dialog/add-message-dialog.component';
 
 export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http);
@@ -77,6 +78,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     AddContactDialogComponent,
     SocialReadingPlatformConfigComponent,
     SrpSyncDialogComponent,
+    AddMessageDialogComponent,
   ],
   imports: [
     BrowserModule,

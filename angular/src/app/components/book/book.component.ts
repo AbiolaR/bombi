@@ -12,6 +12,8 @@ import { UserData } from 'src/app/models/user-data';
 import { NotificationInfo } from 'src/app/models/notification-info';
 import { Action } from 'src/app/models/action';
 import { firstValueFrom } from 'rxjs';
+import { AddContactDialogComponent } from '../dialogs/add-contact-dialog/add-contact-dialog.component';
+import { AddMessageDialogComponent } from '../dialogs/add-message-dialog/add-message-dialog.component';
 
 @Component({
   selector: 'app-book',
@@ -37,7 +39,7 @@ export class BookComponent {
       return;
     }
     if (this.book) {
-      const url = this.book.cover_url == 'img/blank.png' ? '/assets/images/covers/blank.png' : 'https://libgen.li/' + this.book.cover_url.replace('_small', '');
+      const url = this.book.coverUrl == 'img/blank.png' ? '/assets/images/covers/blank.png' : 'https://libgen.li/' + this.book.coverUrl.replace('_small', '');
       this.dialog.open(ImageDialogComponent, 
         {panelClass: 'image-dialog', 
         data: {url: url}});
@@ -81,6 +83,18 @@ export class BookComponent {
             console.warn('username does not exist');
             break;
         }
+      }
+    });
+  }
+
+  public openAddMessageDialog(contact: string) {
+    const dialogRef = this.dialog.open(AddMessageDialogComponent, {
+      width: '500px'
+    });
+    dialogRef.afterClosed().subscribe(message => {
+      if (message && this.book) {
+        this.book.message = message;
+        this.shareBook(contact);
       }
     });
   }

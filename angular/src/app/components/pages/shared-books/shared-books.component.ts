@@ -31,6 +31,9 @@ export class SharedBooksComponent implements OnInit {
     this.userService.getChats().subscribe({
       next: (response: ServerResponse<Contact[]>) => {
         this.chats = response.data;
+        if (this.chats.length > 0) {
+          this.selectedContact = this.chats[0];
+        }
       }
     });
   }

@@ -72,5 +72,9 @@
   "language-to-use-when-no-language-is-found-in-the-book-information": "Language to use when no language is found in the book information",
   "prefered-language": "Prefered Language",
   "always-download-books-in": "Always download books in {{arg}}",
-  "continue": "Continue"
+  "continue": "Continue",
+  "send-book-to": "Send book to",
+  "add-message": "Add message",
+  "message": "Message",
+  "send-with-message": "Send with message"
 }

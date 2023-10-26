@@ -7,7 +7,7 @@ import { Book } from 'src/app/models/book';
   templateUrl: './message.component.html',
   styleUrls: ['./message.component.scss']
 })
-export class MessageComponent {
+export class MessageComponent implements OnInit {
 
   @Input()
   message: Book | undefined;
@@ -15,6 +15,11 @@ export class MessageComponent {
   isImgLoaded = false;
 
   constructor(private router: Router) { }
+  ngOnInit(): void {
+    if (this.message) {
+      this.message.message = this.message.message?.replaceAll('\n', '<br/>');
+    }
+  }
   
   toggleShrink(element: HTMLSpanElement) {
     if (element.scrollHeight - element.offsetHeight > 1) {

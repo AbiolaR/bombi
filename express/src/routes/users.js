@@ -172,7 +172,8 @@ router.post('/share', async (req, res) => {
     const notificationData = req.body.notificationData;
     const user = await dbman.findUserAsync(username);
     const sharedBook = { editionId: book.edition_id, title: book.title, md5: book.md5, author: book.author,
-    language: book.language, coverUrl: book.cover_url, isbn: book.isbn, filename: book.filename };
+        language: book.language, coverUrl: book.coverUrl, isbn: book.isbn, filename: book.filename, 
+        message: book.message };
     
     if (user) {
         user.contacts.forEach(async contact => {

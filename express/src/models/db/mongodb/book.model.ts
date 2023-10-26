@@ -6,5 +6,6 @@ export interface Book {
     author: string,
     language: string,
     coverUrl: string,
-    isbn: number
+    isbn: number,
+    message: string
 }

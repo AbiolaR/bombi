@@ -72,5 +72,9 @@
   "choose-your-language-preferences": "Wähle deine Spracheinstellungen",
   "continue": "Weiter",
   "language-to-use-when-no-language-is-found-in-the-book-information": "Zu verwendende Sprache, wenn in den Buchinformationen keine Sprache gefunden wird",
-  "prefered-language": "Bevorzugte Sprache"
+  "prefered-language": "Bevorzugte Sprache",
+  "add-message": "Nachricht hinzufügen",
+  "message": "Nachricht",
+  "send-book-to": "Buch senden an",
+  "send-with-message": "Mit Nachricht senden"
 }
