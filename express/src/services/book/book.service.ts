@@ -1,5 +1,5 @@
 import axios from "axios";
-import { convertToMobiAsync, saveToDiskAsync } from "../tools";
+import { saveToDiskAsync } from "../tools";
 import { sendFileToKindle } from "../email";
 import { upload } from "../tolinoman";
 import { User } from "../../models/db/mongodb/user.model";
@@ -51,9 +51,8 @@ export class BookService {
   }
 
   static async prepareAndSendFileToKindle(recipient: string, book: BookBlob) {
-      const file = await convertToMobiAsync(book.data, book.filename);
-      if (!file.path) return;
-      return await sendFileToKindle(recipient, file.path, file.name);
+      const filePath = await saveToDiskAsync(book.data, book.filename)
+      return await sendFileToKindle(recipient, filePath, book.filename);
   }
     
   static async sendFileToTolino(book: BookBlob, cover: CoverBlob, user: User) {
