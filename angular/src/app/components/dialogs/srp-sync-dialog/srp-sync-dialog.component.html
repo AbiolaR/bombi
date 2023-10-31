@@ -20,7 +20,7 @@
         </div>
     </div>
 </div>
-<div *ngIf="foundBooks.length == 0 && setPreferedLanguage">
+<div *ngIf="!loginSuccess && setPreferedLanguage">
     <mat-icon fontIcon="help_outline" class="help_tooltip" (click)="tooltip.show()" 
         #tooltip="matTooltip" matTooltipPosition="above"
         [matTooltip]="'the-credentials-you-enter-are-never-saved-by-bombi' | translate"></mat-icon>
@@ -48,7 +48,7 @@
         </button>
     </div>
 </div>
-<div *ngIf="foundBooks.length > 0 && !syncStarted" class="books-to-sync">
+<div *ngIf="loginSuccess && !syncStarted" class="books-to-sync">
     <h1 mat-dialog-title>{{ 'select-the-books-you-would-like-to-sync-to-your-ereader' | translate: { arg: getEReader() } }}</h1>
     <div mat-dialog-content>
         <mat-card *ngFor="let book of foundBooks" class="sync-book">

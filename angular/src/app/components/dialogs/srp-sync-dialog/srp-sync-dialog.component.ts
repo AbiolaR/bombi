@@ -27,6 +27,7 @@ export class SrpSyncDialogComponent {
   errorText = '';
   syncStarted = false;
   credentials: Credentials = new Credentials();
+  loginSuccess = false;
   foundBooks: SyncRequest[] = [];
   booksToSync: SyncRequest[] = [];
   syncStatus: typeof SyncStatus = SyncStatus;
@@ -64,6 +65,7 @@ export class SrpSyncDialogComponent {
         this.connecting = false;
         switch (response.status) {
           case 0:
+            this.loginSuccess = true;
             this.foundBooks = response.data;
             this.foundBooksChange.emit(this.foundBooks);
             break;
