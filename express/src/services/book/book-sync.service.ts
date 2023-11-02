@@ -44,6 +44,7 @@ export class BookSyncService {
       case SocialReadingPlatform.GOODREADS:
           user.grPreferedLanguage = undefined;
           user.grRigidLanguage = undefined;
+          user.grUseSyncTag = undefined;
           user.grUserId = undefined;
           user.grCookies = undefined;
           user.save()
@@ -51,6 +52,7 @@ export class BookSyncService {
       case SocialReadingPlatform.THE_STORY_GRAPH:
           user.tsgPreferedLanguage = undefined;
           user.tsgRigidLanguage = undefined;
+          user.tsgUseSyncTag = undefined;
           user.tsgUsername = undefined;
           user.tsgCookies = undefined;
           user.save();

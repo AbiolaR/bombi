@@ -8,6 +8,7 @@ export default class TSGConnection extends GenericBookConnection {
 
     PREFERED_LANGUAGE_PROPERTY = 'tsgPreferedLanguage';
     RIGID_LANGUAGE_PROPERTY = 'tsgRigidLanguage';
+    USE_SYNC_TAG_PROPRTY = 'tsgUseSyncTag';
     USER_IDENT_PROPERTY = 'tsgUsername';
     USER_COOKIES_PROPERTY = 'tsgCookies';
 
@@ -26,6 +27,7 @@ export default class TSGConnection extends GenericBookConnection {
     PUB_DATE_QUERY = 'div.edition-info.mt-3 > p:nth-child(5)';
     FORMAT_QUERY = 'div.edition-info.mt-3 > p:nth-child(2)';
     LANGUAGE_QUERY = 'div.edition-info.mt-3 > p:nth-child(3)';
+    TAGS_QUERY = 'div.book-pane-tag-section div:last-child > div.custom-user-tags > a > div';
 
     AUDIO_FORMAT = 'Audio';
     BOOKS_PER_PAGE = 10;
@@ -35,10 +37,14 @@ export default class TSGConnection extends GenericBookConnection {
     GEN_SEPERATOR = ': ';
     ISBN_SEPERATOR = 'ISBN/UID:  ';
 
-    populateBooks(username: string, preferedLanguage: SyncLanguage, rigidLanguage: boolean, rawBooks: any, 
-    books: SyncRequest[]) {
+    populateBooks(username: string, preferedLanguage: SyncLanguage, rigidLanguage: boolean, useSyncTag: boolean,
+    rawBooks: any, books: SyncRequest[]) {
         rawBooks.forEach(rawBook => {
             this.addPrototype(rawBook);
+
+            if (this.shouldSkip(rawBook, useSyncTag)) {
+                return;
+            }
 
             let format = rawBook.getElementText(this.FORMAT_QUERY).split(this.GEN_SEPERATOR)[1];
             if (format == this.AUDIO_FORMAT) {
@@ -69,6 +75,21 @@ export default class TSGConnection extends GenericBookConnection {
 
     getBookCount(doc: any) {        
         return doc.getElementText(this.BOOK_AMOUNT_QUERY).split(' ')[0];
+    }
+
+    private shouldSkip(rawBook: any, useSyncTag: boolean): boolean {
+        let tagList = Array.from(rawBook.querySelectorAll(this.TAGS_QUERY));
+        let skip = useSyncTag;
+
+        tagList.forEach((tagElement: HTMLElement) => {
+            let tag = tagElement.textContent.trim().toLowerCase();
+            if (useSyncTag && tag == this.SYNC_TAG) {
+                skip = false;
+                return false;
+            }
+        });
+
+        return true;
     }
     
 }

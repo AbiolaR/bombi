@@ -76,5 +76,6 @@
   "send-book-to": "Send book to",
   "add-message": "Add message",
   "message": "Message",
-  "send-with-message": "Send with message"
+  "send-with-message": "Send with message",
+  "only-sync-books-when-tagged-with-tag": "Only sync books when tagged with \"Bombi"
 }

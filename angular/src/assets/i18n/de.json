@@ -76,5 +76,6 @@
   "add-message": "Nachricht hinzufügen",
   "message": "Nachricht",
   "send-book-to": "Buch senden an",
-  "send-with-message": "Mit Nachricht senden"
+  "send-with-message": "Mit Nachricht senden",
+  "only-sync-books-when-tagged-with-tag": "Bücher nur Synchronisieren, wenn sie mit „Bombi“ getaggt sind"
 }

@@ -6,7 +6,6 @@ export default class SeleniumAutomationService {
     private static BROWSER: string = 'chrome';
     private static HEADLESS_ARGUMENT: string = '--headless=new';
     private static NO_SANDBOX_ARGUMENT: string = '--no-sandbox';
-    private static DISABLE_DEV_SHM_ARGUMENT: string = '--disable-dev-shm-usage';
     private static ENABLE_LOGGING_SWITCH: string = 'enable-logging';
     private static CHROME_BINARY_PATH: string = '/usr/bin/chromium-browser';
 
@@ -19,7 +18,7 @@ export default class SeleniumAutomationService {
         loggingPrefs.setLevel(Type.PERFORMANCE, Level.ALL);
         options.setLoggingPrefs(loggingPrefs);
         if (headless) {
-            options.addArguments(this.HEADLESS_ARGUMENT, this.NO_SANDBOX_ARGUMENT, this.DISABLE_DEV_SHM_ARGUMENT)
+            options.addArguments(this.HEADLESS_ARGUMENT, this.NO_SANDBOX_ARGUMENT);
             options.excludeSwitches(this.ENABLE_LOGGING_SWITCH);
 
             if (prod) {

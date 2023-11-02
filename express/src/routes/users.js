@@ -304,6 +304,7 @@ router.post('/srp-connection', async (req, res) => {
     const credentials = req.body.credentials;
     const preferedLanguage = req.body.preferedLanguage;
     const rigidLanguage = req.body.rigidLanguage || false;
+    const useSyncTag = req.body.useSyncTag || false;
     let connection;
 
     switch(req.body.platform) {
@@ -324,7 +325,7 @@ router.post('/srp-connection', async (req, res) => {
             res.status(200).send({ status: 1, message: 'missing credentials or prefered language'});
             return;
         }
-        value = await connection.getBooksToRead(req.body.username, credentials, preferedLanguage, rigidLanguage);
+        value = await connection.getBooksToRead(req.body.username, credentials, preferedLanguage, rigidLanguage, useSyncTag);
         if (value.status == 0) {
             
         }

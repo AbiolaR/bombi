@@ -8,6 +8,7 @@ export default class GoodreadsConnection extends GenericBookConnection {
 
     PREFERED_LANGUAGE_PROPERTY = 'grPreferedLanguage';
     RIGID_LANGUAGE_PROPERTY = 'grRigidLanguage';
+    USE_SYNC_TAG_PROPRTY = 'grUseSyncTag';
     USER_IDENT_PROPERTY = 'grUserId';
     USER_COOKIES_PROPERTY = 'grCookies';
 
@@ -36,10 +37,42 @@ export default class GoodreadsConnection extends GenericBookConnection {
     GERMAN_LANG = 'de';
     ENGLISH_LANG = 'en';
 
-    populateBooks(username: string, preferedLanguage: SyncLanguage, rigidLanguage: boolean, rawBooks: any, 
-    books: SyncRequest[]) {
+    populateBooks(username: string, preferedLanguage: SyncLanguage, rigidLanguage: boolean, useSyncTag: boolean,
+    rawBooks: any, books: SyncRequest[]) {
         rawBooks.forEach(rawBook => {
             this.addPrototype(rawBook);
+
+            let shelfList = Array.from(rawBook.querySelectorAll(this.LANGUAGE_QUERY));
+            let language: SyncLanguage = preferedLanguage || SyncLanguage.ENGLISH;
+
+            let skip = useSyncTag;
+
+            shelfList.forEach((shelf: HTMLElement) => {
+                let shelfName = shelf.textContent.trim().toLowerCase();
+                switch (shelfName) {
+                    case this.SYNC_TAG:
+                        if (useSyncTag) {
+                            skip = false;
+                        } else {
+                            return;
+                        }
+                        break;
+                    case this.GERMAN_LANG:
+                        if (!rigidLanguage) {
+                            language = SyncLanguage.GERMAN
+                        }
+                        break;
+                    case this.ENGLISH_LANG:
+                        if (!rigidLanguage) {
+                            language = SyncLanguage.ENGLISH
+                        }
+                        break;
+                }
+            });
+
+            if (skip) {
+                return;
+            }
             
             let format = rawBook.getElementText(this.FORMAT_QUERY);
             if (format.includes(this.AUDIO_FORMAT)) {
@@ -50,21 +83,6 @@ export default class GoodreadsConnection extends GenericBookConnection {
             let author = rawBook.getElementText(this.AUTHOR_QUERY);
             let pubDate = new Date(rawBook.getElementText(this.PUB_DATE_QUERY));
             let asin = rawBook.getElementText(this.ASIN_QUERY);
-            let shelfList = Array.from(rawBook.querySelectorAll(this.LANGUAGE_QUERY));
-            let language: SyncLanguage = preferedLanguage || SyncLanguage.ENGLISH;
-            if (!rigidLanguage) {
-                shelfList.forEach((shelf: HTMLElement) => {
-                    let shelfName = shelf.textContent.trim().toLowerCase();
-                    switch (shelfName) {
-                        case this.GERMAN_LANG:
-                            language = SyncLanguage.GERMAN
-                            break;                    
-                        case this.ENGLISH_LANG:
-                            language = SyncLanguage.ENGLISH
-                            break;
-                    }
-                });
-            }
 
             books.push(
                 new SyncRequest(username, isbn, title, author, pubDate, SyncStatus.IGNORE, 

@@ -19,10 +19,12 @@ export interface User {
     pushSubscriptions: PushSubscription[],
     tsgPreferedLanguage: string,
     tsgRigidLanguage: boolean,
+    tsgUseSyncTag: boolean,
     tsgUsername: string,
     tsgCookies: string[],
     grPreferedLanguage: string,
     grRigidLanguage: boolean,
+    grUseSyncTag: boolean,
     grUserId: string,
     grCookies: string[]
 }

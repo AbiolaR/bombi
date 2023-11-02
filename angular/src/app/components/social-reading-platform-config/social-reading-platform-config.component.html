@@ -8,8 +8,10 @@
             </mat-select>
         </mat-form-field>
         <div class="action">
-            <button mat-flat-button color="primary" *ngIf="!isConnected()" (click)="connect()">{{ 'connect' | translate }}</button>
-            <button mat-flat-button color="primary" *ngIf="isConnected()" (click)="disconnect()">
+            <button mat-flat-button color="primary" *ngIf="!isConnected()" (click)="connect()" id="srp-action-btn">
+                {{ 'connect' | translate }}
+            </button>
+            <button mat-flat-button color="primary" *ngIf="isConnected()" (click)="disconnect()" id="srp-action-btn">
                 <span *ngIf="!disconnecting">{{ 'disconnect' | translate }}</span>
                 <mat-spinner [diameter]="30" *ngIf="disconnecting"></mat-spinner>
             </button>

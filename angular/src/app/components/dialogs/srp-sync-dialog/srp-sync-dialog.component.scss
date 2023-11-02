@@ -72,6 +72,12 @@
 
 }
 
+.srp-settings {
+    mat-checkbox {
+        margin: 0.5em 0;
+    }
+}
+
 .sync-book-status {
     display: flex;
     align-items: center;

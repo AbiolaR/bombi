@@ -18,10 +18,12 @@ export class SocialReadingPlatformService {
 
   constructor(private http: HttpClient, private userService: UserService) { }
 
-  public connect(platform: SocialReadingPlatform, credentials: Credentials, preferedLanguage: SyncLanguage, rigidLanguage: boolean): Observable<ServerResponse<SyncRequest[]>> {
+  public connect(platform: SocialReadingPlatform, credentials: Credentials, preferedLanguage: SyncLanguage,
+  rigidLanguage: boolean, useSyncTag: boolean): Observable<ServerResponse<SyncRequest[]>> {
     const headers = { 'Authorization': `Bearer ${this.userService.getLocalUserData()?.access_token}`};
     return this.http.post<ServerResponse<SyncRequest[]>>(`${this.apiUrl}/srp-connection`,
-      {platform: platform, credentials: credentials, preferedLanguage: preferedLanguage, rigidLanguage: rigidLanguage},
+      { platform: platform, credentials: credentials, preferedLanguage: preferedLanguage,
+        rigidLanguage: rigidLanguage, useSyncTag: useSyncTag },
       { headers });
   }
 

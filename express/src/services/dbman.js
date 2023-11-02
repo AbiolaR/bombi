@@ -67,10 +67,12 @@ const UserSchema = mongoose.Schema({
     pushSubscriptions: [PushSubscriptionSchema],
     tsgPreferedLanguage: String,
     tsgRigidLanguage: Boolean,
+    tsgUseSyncTag: Boolean,
     tsgUsername: String,
     tsgCookies: [String],
     grPreferedLanguage: String,
     grRigidLanguage: Boolean,
+    grUseSyncTag: Boolean,
     grUserId: String,
     grCookies: [String]
 });

@@ -22,6 +22,7 @@ export class SrpSyncDialogComponent {
   setPreferedLanguage = false;
   preferedLanguage: SyncLanguage = SyncLanguage.ENGLISH;
   rigidLanguage = false;
+  useSyncTag = false;
   connecting = false;
   isPasswordHidden = true;
   errorText = '';
@@ -60,7 +61,8 @@ export class SrpSyncDialogComponent {
   connect() {
     this.connecting = true;
     this.errorText = '';
-    this.srpService.connect(this.platform, this.credentials, this.preferedLanguage, this.rigidLanguage).subscribe({        
+    this.srpService.connect(this.platform, this.credentials, this.preferedLanguage, this.rigidLanguage
+    , this.useSyncTag).subscribe({
       next: (response: ServerResponse<SyncRequest[]>) => {
         this.connecting = false;
         switch (response.status) {
