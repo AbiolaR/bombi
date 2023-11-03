@@ -9,7 +9,6 @@ import { UserService } from 'src/app/services/user.service';
 import { CustomUrlDialogComponent } from '../../dialogs/custom-url-dialog/custom-url-dialog.component';
 import { ProfileDialogComponent } from '../../dialogs/profile-dialog/profile-dialog.component';
 import { MatSelect } from '@angular/material/select';
-import { SearchResult } from 'src/app/models/search-result';
 import { LanguageMap } from 'src/app/models/language-map';
 import { AppService } from 'src/app/services/app.service';
 

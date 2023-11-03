@@ -3,11 +3,13 @@ import { LibgenParams } from "../../models/db/mysql/libgen-params.model";
 import { initBook } from "../../models/db/mysql/book.model.init";
 import { LibgenBook, LibgenBookColumn } from "../../models/db/mysql/libgen-book.model";
 import { DEC } from '../secman';
+import { Book } from "../../models/db/book.model";
 
 export class LibgenDbService {
     private static sequelize: Sequelize;
-    private HOST_IP = 'host_ip';
-    private permittedExtensions = ['epub'];
+    private readonly SEARCH_LIMIT = 100;
+    private readonly HOST_IP = 'host_ip';
+    private readonly permittedExtensions = ['epub'];
 
     constructor() {}
 
@@ -27,6 +29,27 @@ export class LibgenDbService {
         await this.sequelize.authenticate();
         this.initModels();
         await this.sequelize.sync();      
+    }
+
+    async indexedSearch(searchString: string, page: number): Promise<Book[]> {
+        searchString = searchString.split(' ').map(word => `+${word}`).join(' ');
+        
+        let booksByText = LibgenBook.findAll({
+            where: Sequelize.literal(`MATCH (title, author, series) AGAINST('${searchString}' IN BOOLEAN MODE) 
+            AND Visible <> 'no' AND Extension = 'epub'`),
+            limit: this.SEARCH_LIMIT,
+            offset: (page - 1) * 100
+        });
+
+        let booksByIsbn = LibgenBook.findAll({
+            where: Sequelize.literal(`MATCH (identifier) AGAINST('${searchString}') 
+            AND Visible <> 'no' AND Extension = 'epub'`),
+            limit: this.SEARCH_LIMIT,
+            offset: (page - 1) * 100
+        });
+        let books = (await Promise.all([booksByText, booksByIsbn])).flat();
+        return books.map(book => new Book(book.MD5, book.Title, book.Author, book.Identifier.split(',')[0],
+            book.Language, book.Year, `${book.Title}.${book.Extension}`, book.Coverurl));
     }
       
     searchOneColumn(valueList: String[], columnName: LibgenBookColumn) {

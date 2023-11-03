@@ -1,4 +1,4 @@
-import { Book } from "../models/db/mongodb/book.model";
+import { Book } from "../models/db/book.model";
 import { PushSubscription } from "../models/db/mongodb/push-subscription.model";
 import webpush from 'web-push';
 import { DEC } from './secman';

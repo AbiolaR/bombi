@@ -5,11 +5,10 @@ import { environment } from 'src/environments/environment';
 import { DownloadMode } from '../models/download-mode';
 import { UserService } from './user.service';
 import { SearchResult } from '../models/search-result';
-import { DeviceDetectorService } from 'ngx-device-detector';
 import { ServerResponse } from '../models/server-response';
 import { Credentials } from '../models/credentials';
 
-const HALF_A_DAY_IN_MS = 1000 * 60 * 60 * 12;
+const FIFTEEN_MINUTES_IN_MS = 1000 * 60 * 15;
 
 @Injectable({
   providedIn: 'root'
@@ -19,26 +18,26 @@ export class BookService {
   private apiUrl: string = `${environment.apiServerUrl}/v1/books/`;
   private cachedSearches = new Map<string, { searchResult: Observable<SearchResult>, ttl: number }>();
 
-  constructor(private http: HttpClient, private userService: UserService, private deviceDetectorService: DeviceDetectorService) { }
+  constructor(private http: HttpClient, private userService: UserService) { }
 
   public search(searchString: string, pageNumber: number): Observable<SearchResult> {
-    let query = `q=${searchString}&p=${pageNumber}&m=${!this.deviceDetectorService.isDesktop()}`;
+    let query = `q=${searchString}&p=${pageNumber}`;
     let cachedSearch = this.cachedSearches.get(query);
 
     if (!cachedSearch || cachedSearch.ttl < Date.now()) {
       cachedSearch = {
-        searchResult: this.getSearchResults(searchString, pageNumber, !this.deviceDetectorService.isDesktop())
+        searchResult: this.getSearchResults(searchString, pageNumber)
         .pipe(shareReplay(1)),
-        ttl: Date.now() + HALF_A_DAY_IN_MS
+        ttl: Date.now() + FIFTEEN_MINUTES_IN_MS
       };
       this.cachedSearches.set(query, cachedSearch);
     }
     return cachedSearch.searchResult;
   }
 
-  private getSearchResults(searchString: String, pageNumber: number, mobileDevice: boolean): Observable<SearchResult> {
+  private getSearchResults(searchString: String, pageNumber: number): Observable<SearchResult> {
     return this.http.get<SearchResult>
-    (`${this.apiUrl}search?q=${searchString}&p=${pageNumber}&m=${mobileDevice}`);
+    (`${this.apiUrl}search?q=${searchString}&p=${pageNumber}`);
   }
 
   public download(downloadVar: String, mode: DownloadMode): Observable<Blob> {

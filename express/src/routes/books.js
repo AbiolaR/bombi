@@ -2,23 +2,24 @@ var express = require('express');
 var router = express.Router();
 var mailservice = require('../services/email');
 const { findUserAsync } = require('../services/dbman');
-const { upload, testAuth } = require('../services/tolinoman');
+const { upload } = require('../services/tolinoman');
 const jsdom = require('jsdom');
-const { saveToDiskAsync, convertToMobiAsync, getSpellingCorrection } = require('../services/tools');
+const { saveToDiskAsync, getSpellingCorrection } = require('../services/tools');
 const { setupCache } = require('axios-cache-interceptor');
 const { default: Axios } = require('axios');
 const { TolinoService } = require('../services/e-readers/tolino.service');
+const { LibgenDbService } = require('../services/db/libgen-db.service');
 
 const LIBGEN_MIRROR = process.env.LIBGEN_MIRROR || 'https://libgen.rocks';
 const DAY_IN_MS = 1000 * 60 * 60 * 24;
 
 const axios = setupCache(Axios, { ttl: DAY_IN_MS, headerInterpreter: () => {return 'not enough headers'} });
 
-router.get('/search', async(req, res, next) => {
+router.get('/search', async(req, res) => {
+  let libgenDbService = new LibgenDbService();
 
   var searchString = req.query.q;
   var pageNumber = req.query.p;
-  var mobile = req.query.m;
 
   if(!searchString) {
     res.json({error: "No search query given"});
@@ -29,7 +30,7 @@ router.get('/search', async(req, res, next) => {
   
   try {
     if (process.env.STAGE == 'prod' || process.env.STAGE == 'staging') {
-      bookData.books = await search(searchString, pageNumber, mobile);
+      bookData.books = await libgenDbService.indexedSearch(searchString, pageNumber)
       if (bookData.books.length == 0) {
         try {
           bookData.suggestion = await getSpellingCorrection(searchString);
@@ -49,6 +50,17 @@ router.get('/search', async(req, res, next) => {
     console.error(error);
   }
   res.json(bookData);
+});
+
+router.get('/fictioncovers/*', (req, res) => {
+
+  if (!req.url.replace('/fictioncovers/', '')) {
+    res.status(404).send('incorrect cover url');
+    return;
+  }
+  axios.get('https://library.lol' + req.url, {responseType: 'stream', cache: false}).then(async (response) => {
+    response.data.pipe(res)
+  }).catch(() => {});
 });
 
 router.get('/download', async(req, res, next) => {

@@ -1,6 +1,6 @@
 <div *ngIf="book" class="book">
     <img *ngIf="!isImgLoaded" class="cover" aria-label="Book Cover Placeholder" src="/assets/images/covers/loading-cover.png"/>
-    <img (load)="isImgLoaded = true" loading="lazy" [class.hidden]="!isImgLoaded" class="cover" aria-label="Book Cover" src="{{book.coverUrl == 'img/blank.png' ? '/assets/images/covers/blank.png' : 'https://libgen.li/' + book.coverUrl}}"
+    <img (load)="isImgLoaded = true" loading="lazy" [class.hidden]="!isImgLoaded" class="cover" aria-label="Book Cover" src="{{book.coverUrl == '' ? '/assets/images/covers/blank.png' : environment.apiServerUrl + '/v1/books/fictioncovers/' + book.coverUrl}}"
     (click)="enlarge()"/>
     <div class="book-details">
         <div>
@@ -27,15 +27,17 @@
 <hr>
 
 <mat-menu #contactMenu yPosition="above">
-    <div class="contact-menu">
-        <h3 *ngIf="userData.contacts.length < 1">{{ 'no-friends-yet' | translate }}</h3>
-        <h3 *ngIf="userData.contacts.length > 0">{{ 'send-book-to' | translate }}</h3>
-        <div *ngFor="let contact of userData.contacts" class="contact">
-            <button mat-flat-button color="primary" (click)="shareBook(contact.name)">
-                {{contact.name}}
-                <mat-icon>send</mat-icon>
-            </button>
-            <mat-icon color="accent" class="add-message" (click)="openAddMessageDialog(contact.name)">note_add</mat-icon>
+    <ng-template matMenuContent>
+        <div class="contact-menu">
+            <h3 *ngIf="userData.contacts.length < 1">{{ 'no-friends-yet' | translate }}</h3>
+            <h3 *ngIf="userData.contacts.length > 0">{{ 'send-book-to' | translate }}</h3>
+            <div *ngFor="let contact of userData.contacts" class="contact">
+                <button mat-flat-button color="primary" (click)="shareBook(contact.name)">
+                    {{contact.name}}
+                    <mat-icon>send</mat-icon>
+                </button>
+                <mat-icon color="accent" class="add-message" (click)="openAddMessageDialog(contact.name)">note_add</mat-icon>
+            </div>
         </div>
-    </div>
+    </ng-template>
 </mat-menu>

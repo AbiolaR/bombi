@@ -70,7 +70,9 @@
             (click)="resetLangAndSearch()" aria-label="Remove language filter">{{ 'remove-language-filter' | translate }}</button>
         </div>
     </div>
-    <app-book *ngFor="let book of books" [book]="book" [userData]="userService.getLocalUserData()"></app-book>
+    <ng-template ngFor let-book [ngForOf]="books">
+        <app-book [book]="book" [userData]="userService.getLocalUserData()"></app-book>
+    </ng-template>
     <mat-spinner *ngIf="!books || isLoading"></mat-spinner>
 </div>
 <button mat-mini-fab color="primary" *ngIf="showScrollToTop" (click)="scrollToTop()" aria-label="Scroll to the top">

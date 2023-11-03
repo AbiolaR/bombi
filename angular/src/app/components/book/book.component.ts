@@ -12,8 +12,8 @@ import { UserData } from 'src/app/models/user-data';
 import { NotificationInfo } from 'src/app/models/notification-info';
 import { Action } from 'src/app/models/action';
 import { firstValueFrom } from 'rxjs';
-import { AddContactDialogComponent } from '../dialogs/add-contact-dialog/add-contact-dialog.component';
 import { AddMessageDialogComponent } from '../dialogs/add-message-dialog/add-message-dialog.component';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-book',
@@ -29,6 +29,7 @@ export class BookComponent {
   book: Book | undefined;
   @Input()
   userData: UserData = new UserData();
+  environment = environment;
 
   isImgLoaded = false;
   BOOK = DownloadMode.BOOK;
