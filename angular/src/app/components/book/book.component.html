@@ -14,8 +14,7 @@
                 </button>
             </div>
             <span class="author">{{book.author || "author unknown"}}</span>
-            <span class="delimiter" *ngIf="book.year"> | </span>
-            <span class="year" *ngIf="book.year">{{book.year}}</span>
+            <span class="year" *ngIf="book.year && book.year != 0">{{book.year}}</span>
         </div>
         <app-download-cluster [book]="book" class="mobile" [mode]="BOOK">            
         </app-download-cluster>
