@@ -5,15 +5,15 @@ const { findUserAsync } = require('../services/dbman');
 const { upload } = require('../services/tolinoman');
 const jsdom = require('jsdom');
 const { saveToDiskAsync, getSpellingCorrection } = require('../services/tools');
-const { setupCache } = require('axios-cache-interceptor');
-const { default: Axios } = require('axios');
+const axios = require('axios');
 const { TolinoService } = require('../services/e-readers/tolino.service');
 const { LibgenDbService } = require('../services/db/libgen-db.service');
+const { BookService } = require('../services/book/book.service');
 
 const LIBGEN_MIRROR = process.env.LIBGEN_MIRROR || 'https://libgen.rocks';
 const DAY_IN_MS = 1000 * 60 * 60 * 24;
 
-const axios = setupCache(Axios, { ttl: DAY_IN_MS, headerInterpreter: () => {return 'not enough headers'} });
+//const axios = setupCache(Axios, { ttl: DAY_IN_MS, headerInterpreter: () => {return 'not enough headers'} });
 
 router.get('/search', async(req, res) => {
   let libgenDbService = new LibgenDbService();
@@ -64,73 +64,64 @@ router.get('/fictioncovers/*', (req, res) => {
 });
 
 router.get('/download', async(req, res, next) => {
-  var md5Hash = req.query.md5;
-  var url = req.query.url;
+  let bookData = JSON.parse(req.query.bookData);
 
-  if (!md5Hash && !url) {
-    res.json({error: "No md5 hash or url given"});
+  if (!bookData) {
+    res.status(404).send({error: "No book data given"});
     return;
   }
-
-  var book = { error: 'book init' };
-  
-  if (md5Hash) {
-    book = await downloadWithMD5(md5Hash);
-  } else {
-    book = await downloadWithUrl(url);
-  }
+  bookData.coverUrl = '';
+  let response = await BookService.download(bookData);
   
   try {
-    book.file.pipe(res);
+    response.book.data.pipe(res);
     res.set('Content-disposition', 'attachment; filename=book.epub');
     res.set('Content-Type', 'application/octet-stream');
   } catch(error) {
     console.error(error);
-    console.error(book.error);
-    res.json(book.error);
+    res.status(500).send({error: 'error while trying to download book'});
   }
 });
 
 router.post('/send', async(req, res) => {
-  var md5Hash = req.body.md5;
-  var url = req.body.url;
-  var filename = req.body.filename;
+  let bookData = req.body.bookData;
 
-  if (!md5Hash && !url) {
-    res.json({error: "No md5 hash or url given"});
+  if (!bookData) {
+    res.status(404).send({error: "No book data given"});
     return;
-  }
-  if (!filename) {
-    res.json({error: "No filename given"});
-    return;
-  }
-
-  var book;
-  if (md5Hash) {
-    book = await downloadWithMD5(md5Hash);
-  } else {
-    book = await downloadWithUrl(url);
   }
 
   const user = await findUserAsync(req.body.username);
-
   if (!user) {
-    res.status(404).send('no user could be found');
+    res.status(401).send('no user could be found');
+  }
+
+  if (user.eReaderType != 'T') {
+    bookData.coverUrl = '';
+  }
+
+  let downloadResponse;
+  try {
+    downloadResponse = await BookService.download(bookData);
+  } catch(error) {}
+
+  if (!downloadResponse) {
+    res.status(501).send({error: 'error while trying to download book'});
+    return;
   }
 
   var result = {};
   switch(user.eReaderType) {
     case 'K': // Kindle
-      result = await sendFileToKindle(user.eReaderEmail, book.file, filename);
+      result = await BookService.sendFileToKindle(user.eReaderEmail, downloadResponse.book);
       break;
     case 'T': // Tolino
-      result = await sendFileToTolino(book, filename, user);
+      result = await  BookService.sendFileToTolino(downloadResponse.book, downloadResponse.cover, user);
       break;
     default:
       result = { status: 501, error: `no eReader value set on user ${user.username}` };
       break;  
   }
-
   res.status(result.status).send(result.message);
 });
 
@@ -152,7 +143,7 @@ router.delete('/tolino/disconnect', async(req, res) => {
   res.send({ status: 0, message: 'disconnected from tolino account' });
 });
 
-async function sendFileToKindle(recipient, data, filename) {
+/*async function sendFileToKindle(recipient, data, filename) {
   const filePath = await saveToDiskAsync(data, filename);
   if (!filePath) return;
   return await mailservice.sendFileToKindle(recipient, filePath, filename);
@@ -250,7 +241,7 @@ async function downloadWithMD5(md5Hash) {
   book.cover.name = coverName;
 
   return book;
-}
+}*/
 
 async function search(searchString, pageNumber, mobile) {
   const rawBookData = await getRawBooks(searchString, pageNumber);

@@ -65,8 +65,9 @@ export class LibgenDbService {
         });
         
         let books = (await Promise.all([booksByText, booksByIsbn])).flat();
-        return books.map(book => new Book(book.MD5, book.Title, book.Author, book.Identifier.split(',')[0],
-            book.Language, book.Year, `${book.Title}.${book.Extension}`, book.Coverurl));
+        return books.map(book => new Book(book.ID, book.MD5, book.Title, book.Author, book.Series,
+            book.Identifier.split(',')[0], book.Language, book.Year, book.Extension,
+            `${book.Title}.${book.Extension}`, book.Coverurl));
     }
       
     searchOneColumn(valueList: String[], columnName: LibgenBookColumn) {

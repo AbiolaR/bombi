@@ -125,10 +125,11 @@ export class BookSyncService {
       return;
     }
     let coverUrl = user.eReaderType == 'T' ? `${this.LIBGEN_FICTION_COVERS}${syncRequest.coverUrl}` : '';
+    let filename = `${syncRequest.title}.${syncRequest.downloadUrl.split('.').pop()}`;
     let response = await BookService.downloadWithUrl(
-      `http://${await this.HOST_IP}/${syncRequest.downloadUrl}`, coverUrl);
+      `http://${await this.HOST_IP}/${syncRequest.downloadUrl}`, coverUrl, filename);
     if (!response) {
-      response = await BookService.downloadWithMD5(syncRequest.md5Hash, coverUrl);
+      response = await BookService.downloadWithMD5(syncRequest.md5Hash, coverUrl, filename);
     }
     return new SyncRequestBookDownload(syncRequest, response);
   }
@@ -141,11 +142,10 @@ export class BookSyncService {
         return;
       }
 
-      book.filename = `${syncRequest.title}.${syncRequest.downloadUrl.split('.').pop()}`;
       var result = { status: 500, message: {} };
       switch(user.eReaderType) {
         case 'K': // Kindle
-          result = await BookService.prepareAndSendFileToKindle(user.eReaderEmail, book);
+          result = await BookService.sendFileToKindle(user.eReaderEmail, book);
           break;
         case 'T': // Tolino
           result = await BookService.sendFileToTolino(book, cover, user);

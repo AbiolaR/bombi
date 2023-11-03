@@ -2,28 +2,31 @@ button.loading {
     mat-spinner {
         display: inline;
     }
+
     .text {
-        display: none;
+        visibility: hidden;
     }
 }
 
 button.success {
     mat-icon.success {
         display: inline;
+        position: absolute;
         color: var(--success-icon-color);
     }
     .text {
-        display: none;
+        visibility: hidden;
     }
 }
 
 button.failure {
     mat-icon.failure {
         display: inline;
+        position: absolute;
         color: var(--failure-icon-color);
     }
     .text {
-        display: none;
+        visibility: hidden;
     }
 }
 
@@ -42,7 +45,6 @@ button {
         position: absolute;
         inset: 0;
         margin: auto;
-        transform: translateX(-50%);
         display: none;
     
         ::ng-deep circle {

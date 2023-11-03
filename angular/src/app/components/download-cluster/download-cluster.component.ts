@@ -17,8 +17,8 @@ export class DownloadClusterComponent {
 
   constructor(private bookService: BookService, private userService: UserService, private eventService: EventService) {}
 
-  @Input()
-  book: Book | undefined;
+  @Input({ required: true })
+  book!: Book;
 
   @Input()
   customBook: CustomBook | undefined;
@@ -32,6 +32,8 @@ export class DownloadClusterComponent {
   stateDuration = 10000;
 
   public download(button: any) {
+    button.classList.remove('success');
+    button.classList.remove('failure');
     button.classList.add('loading');
     var filename = '';
     var downloadVar = '';
@@ -48,9 +50,18 @@ export class DownloadClusterComponent {
         break;  
     }
 
-    this.bookService.download(downloadVar, this.mode).subscribe({
+    this.bookService.download(this.book).subscribe({
       next: (file) => {
         this.handleDownload(button, filename, file);
+      },
+      error: (error) =>  {
+        this.showResult(button, 'failure');
+        if (error.status == HttpStatusCode.Unauthorized) {
+          this.eventService.openLoginMenu();
+          console.warn('user is not authorized, please login again');
+        } else {
+          console.warn('error while sending book');
+        }
       }
     });
     
@@ -73,22 +84,10 @@ export class DownloadClusterComponent {
       this.eventService.openLoginMenu();
       return;
     }
+    button.classList.remove('success');
+    button.classList.remove('failure');
     button.classList.add('loading');
-    var filename = '';
-    var downloadVar = '';
-    switch(this.mode) {
-      case DownloadMode.BOOK:
-        if (!this.book) return;
-        filename = this.book.filename;
-        downloadVar = this.book.md5;
-        break;
-      case DownloadMode.URL:
-        if (!this.customBook) return;
-        filename = `${this.customBook.filename}.epub`;
-        downloadVar = this.customBook.url;
-        break;  
-    }
-    this.bookService.sendToEReader(downloadVar, filename, this.mode).subscribe({
+    this.bookService.sendToEReader(this.book).subscribe({
       next: () => {
         this.showResult(button, 'success');
       },
@@ -106,7 +105,7 @@ export class DownloadClusterComponent {
 
   private showResult(button: any, result: String) {
     button.classList.remove('loading');
-        button.classList.add(result);
+    button.classList.add(result);
         /*setTimeout(() => {
           button.classList.remove(result);
         }, this.stateDuration);*/

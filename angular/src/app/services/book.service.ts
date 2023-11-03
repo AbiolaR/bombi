@@ -7,6 +7,7 @@ import { UserService } from './user.service';
 import { SearchResult } from '../models/search-result';
 import { ServerResponse } from '../models/server-response';
 import { Credentials } from '../models/credentials';
+import { Book } from '../models/book';
 
 const FIFTEEN_MINUTES_IN_MS = 1000 * 60 * 15;
 
@@ -40,33 +41,16 @@ export class BookService {
     (`${this.apiUrl}search?q=${searchString}&p=${pageNumber}`);
   }
 
-  public download(downloadVar: String, mode: DownloadMode): Observable<Blob> {
-    var param = '';
-    switch(mode) {
-      case DownloadMode.BOOK:
-        param = 'md5';
-        break;
-      case DownloadMode.URL:
-        param = 'url';
-        break;
-    }
-    return this.http.get(`${this.apiUrl}download?${param}=${downloadVar}`, 
-    {responseType: 'blob'});
+  public download(book: Book): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}download?bookData=${encodeURIComponent(JSON.stringify(book))}`,
+    { responseType: 'blob' });
   }
 
-  public sendToEReader(downloadVar: String, filename: String, mode: DownloadMode): Observable<any> {
+  public sendToEReader(book: Book): Observable<any> {
+    
     const headers = { 'Authorization': `Bearer ${this.userService.getLocalUserData()?.access_token}`};
-    var param = '';
-    switch(mode) {
-      case DownloadMode.BOOK:
-        param = 'md5';
-        break;
-      case DownloadMode.URL:
-        param = 'url';
-        break;
-    }
     return this.http.post<any>(`${this.apiUrl}send`, 
-      {[param]: downloadVar, filename: filename},
+      { bookData: book },
       { headers });
   }
 

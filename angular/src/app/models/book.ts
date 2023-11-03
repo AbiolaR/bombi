@@ -1,10 +1,10 @@
 export interface Book {
-    book_id: number,
+    id: number,
     md5: string,
-    edition_id: number,
     isbn: number,
     title: string,
     author: string,
+    series: string,
     language: string,
     filesize: number,
     extension: string,

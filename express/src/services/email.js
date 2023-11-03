@@ -13,7 +13,7 @@ const mail = nodemailer.createTransport(connection);
     html: ''
 })*/
 
-const sendFileToKindle = async (recipient, filePath, filename) => {
+const sendFileViaEmail = async (recipient, filePath, filename) => {
     var mailOptions = {
         from: EMAIL_USERNAME,
         to: recipient,
@@ -286,5 +286,5 @@ const sendPasswordResetMail = async (recipient, hash) => {
     }
 }
 
-module.exports.sendFileToKindle = sendFileToKindle;
+module.exports.sendFileViaEmail = sendFileViaEmail;
 module.exports.sendPasswordResetMail = sendPasswordResetMail;
