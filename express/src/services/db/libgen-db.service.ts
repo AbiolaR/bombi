@@ -32,21 +32,38 @@ export class LibgenDbService {
     }
 
     async indexedSearch(searchString: string, page: number): Promise<Book[]> {
+        let language = searchString.split('lang:')[1];
+        let languageQuery = {};
+        if (language) {
+            languageQuery = { Language: language };
+            searchString = searchString.replace('lang:' + language, '');
+        }
         searchString = searchString.split(' ').map(word => `+${word}`).join(' ');
         
         let booksByText = LibgenBook.findAll({
-            where: Sequelize.literal(`MATCH (title, author, series) AGAINST('${searchString}' IN BOOLEAN MODE) 
-            AND Visible <> 'no' AND Extension = 'epub'`),
+            where: [
+                Sequelize.literal(`MATCH (title, author, series) AGAINST('${searchString}' IN BOOLEAN MODE)`),
+                { Visible: { [Op.ne]: 'no' } },
+                { Extension: this.permittedExtensions },
+                languageQuery
+            ], 
             limit: this.SEARCH_LIMIT,
-            offset: (page - 1) * 100
+            offset: (page - 1) * 100,
+            order: [['Filesize', 'DESC']]
         });
 
         let booksByIsbn = LibgenBook.findAll({
-            where: Sequelize.literal(`MATCH (identifier) AGAINST('${searchString}') 
-            AND Visible <> 'no' AND Extension = 'epub'`),
+            where: [
+                Sequelize.literal(`MATCH (identifier) AGAINST('${searchString}')`),
+                { Visible: { [Op.ne]: 'no' } },
+                { Extension: this.permittedExtensions },
+                languageQuery
+            ], 
             limit: this.SEARCH_LIMIT,
-            offset: (page - 1) * 100
+            offset: (page - 1) * 100,
+            order: [['Filesize', 'DESC']]
         });
+        
         let books = (await Promise.all([booksByText, booksByIsbn])).flat();
         return books.map(book => new Book(book.MD5, book.Title, book.Author, book.Identifier.split(',')[0],
             book.Language, book.Year, `${book.Title}.${book.Extension}`, book.Coverurl));
@@ -64,7 +81,7 @@ export class LibgenDbService {
                 Extension: this.permittedExtensions
             },
             group: ['Title', 'Language']
-        });  
+        });
     }
 
     searchMultiColumn(valueList: Object[], ...columnNames: LibgenBookColumn[]) {

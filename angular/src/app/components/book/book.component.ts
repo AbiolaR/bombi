@@ -40,7 +40,7 @@ export class BookComponent {
       return;
     }
     if (this.book) {
-      const url = this.book.coverUrl == 'img/blank.png' ? '/assets/images/covers/blank.png' : 'https://libgen.li/' + this.book.coverUrl.replace('_small', '');
+      const url = this.book.coverUrl == 'img/blank.png' ? '/assets/images/covers/blank.png' : environment.apiServerUrl + '/v1/books/fictioncovers/' + this.book.coverUrl;
       this.dialog.open(ImageDialogComponent, 
         {panelClass: 'image-dialog', 
         data: {url: url}});
