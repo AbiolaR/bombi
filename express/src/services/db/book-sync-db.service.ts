@@ -214,7 +214,6 @@ export class BookSyncDbService {
             
         await this.sequelize.authenticate();
         this.defineModels();
-        await this.sequelize.sync({alter: true});
     }
 
     private static defineModels() {    

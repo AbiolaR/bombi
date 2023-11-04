@@ -33,7 +33,6 @@
             <div *ngFor="let contact of userData.contacts" class="contact">
                 <button mat-flat-button color="primary" (click)="shareBook(contact.name)">
                     {{contact.name}}
-                    <mat-icon>send</mat-icon>
                 </button>
                 <mat-icon color="accent" class="add-message" (click)="openAddMessageDialog(contact.name)">note_add</mat-icon>
             </div>

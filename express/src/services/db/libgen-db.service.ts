@@ -28,7 +28,6 @@ export class LibgenDbService {
         
         await this.sequelize.authenticate();
         this.initModels();
-        await this.sequelize.sync();      
     }
 
     async indexedSearch(searchString: string, page: number): Promise<Book[]> {
