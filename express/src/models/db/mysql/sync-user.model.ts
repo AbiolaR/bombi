@@ -1,4 +1,4 @@
-import { CreationOptional, ForeignKey, InferAttributes, InferCreationAttributes, Model } from "sequelize";
+import { CreationOptional, ForeignKey, InferAttributes, InferCreationAttributes, Model } from "@sequelize/core";
 import { SyncBook } from "./sync-book.model";
 import { SyncStatus } from "../../sync-status.model";
 import { SocialReadingPlatform } from "../../social-reading-platform";

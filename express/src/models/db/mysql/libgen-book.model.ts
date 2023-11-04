@@ -1,4 +1,4 @@
-import { InferAttributes, InferCreationAttributes, Model } from "sequelize";
+import { InferAttributes, InferCreationAttributes, Model } from "@sequelize/core";
 
 export class LibgenBook extends Model<InferAttributes<LibgenBook>, InferCreationAttributes<LibgenBook>> {
     declare ID: number;

@@ -1,4 +1,4 @@
-import { Model, InferAttributes, InferCreationAttributes, CreationOptional } from 'sequelize';
+import { Model, InferAttributes, InferCreationAttributes, CreationOptional } from '@sequelize/core';
 import { SyncLanguage } from '../../sync-language.model';
 
 export class SyncBook extends Model<InferAttributes<SyncBook>, InferCreationAttributes<SyncBook>> {

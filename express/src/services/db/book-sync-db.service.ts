@@ -1,4 +1,4 @@
-import { DataTypes, Op, Sequelize } from "sequelize";
+import { DataTypes, Op, Sequelize } from "@sequelize/core";
 import { DEC } from "../secman";
 import { SyncBook } from "../../models/db/mysql/sync-book.model";
 import { SyncUser } from "../../models/db/mysql/sync-user.model";
@@ -267,8 +267,8 @@ export class BookSyncDbService {
         },
         { sequelize: this.sequelize }
         );
-        syncBook.hasMany(syncUser, { foreignKey: 'syncBookId', onDelete: 'RESTRICT' });
+        syncBook.hasMany(syncUser, { foreignKey: 'syncBookId' });
         syncUser.belongsTo(syncBook,
-            { as: 'syncBook', foreignKey: {name: 'syncBookId'}, onDelete: 'RESTRICT' });
+            { as: 'syncBook', foreignKey: {name: 'syncBookId'} });
     }
 }

@@ -1,4 +1,4 @@
-import { Sequelize, Op, DataTypes } from "sequelize";
+import { Sequelize, Op, DataTypes, sql } from "@sequelize/core";
 import { LibgenParams } from "../../models/db/mysql/libgen-params.model";
 import { initBook } from "../../models/db/mysql/book.model.init";
 import { LibgenBook, LibgenBookColumn } from "../../models/db/mysql/libgen-book.model";
@@ -7,7 +7,7 @@ import { Book } from "../../models/db/book.model";
 
 export class LibgenDbService {
     private static sequelize: Sequelize;
-    private readonly SEARCH_LIMIT = 100;
+    private readonly SEARCH_LIMIT = 50;
     private readonly HOST_IP = 'host_ip';
     private readonly permittedExtensions = ['epub'];
 
@@ -41,30 +41,34 @@ export class LibgenDbService {
         searchString = searchString.split(' ').map(word => `+${word}`).join(' ');
         
         let booksByText = LibgenBook.findAll({
+            attributes: {
+                include: [
+                    [sql`(1.3 * (MATCH(series) AGAINST (${searchString} IN BOOLEAN MODE))
+                    + (1 * (MATCH(title) AGAINST (${searchString} IN BOOLEAN MODE)))
+                    + (0.6 * (MATCH(author) AGAINST (${searchString} IN BOOLEAN MODE))))`, 'relevance']
+                ]
+            },
             where: [
-                Sequelize.literal(`MATCH (title, author, series) AGAINST('${searchString}' IN BOOLEAN MODE)`),
+                sql`MATCH (title, author, series) AGAINST(${searchString} IN BOOLEAN MODE)`,
                 { Visible: { [Op.ne]: 'no' } },
                 { Extension: this.permittedExtensions },
                 languageQuery
-            ], 
-            limit: this.SEARCH_LIMIT,
-            offset: (page - 1) * 100,
-            order: [['Filesize', 'DESC']]
+            ],
+            order: [['relevance', 'DESC']]
         });
 
         let booksByIsbn = LibgenBook.findAll({
             where: [
-                Sequelize.literal(`MATCH (identifier) AGAINST('${searchString}')`),
+                sql`MATCH (identifier) AGAINST(${searchString})`,
                 { Visible: { [Op.ne]: 'no' } },
                 { Extension: this.permittedExtensions },
                 languageQuery
-            ], 
-            limit: this.SEARCH_LIMIT,
-            offset: (page - 1) * 100,
-            order: [['Filesize', 'DESC']]
+            ]
         });
         
-        let books = (await Promise.all([booksByText, booksByIsbn])).flat();
+        let offset = (page - 1) * 100;
+        let limit = offset + this.SEARCH_LIMIT;
+        let books = (await Promise.all([booksByText, booksByIsbn])).flat().slice(offset, limit);
         return books.map(book => new Book(book.ID, book.MD5, book.Title, book.Author, book.Series,
             book.Identifier.split(',')[0], book.Language, book.Year, book.Extension,
             `${book.Title}.${book.Extension}`, book.Coverurl));

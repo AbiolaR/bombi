@@ -1,4 +1,4 @@
-import { DataTypes, Sequelize } from "sequelize";
+import { DataTypes, Sequelize } from "@sequelize/core";
 import { LibgenBook } from "./libgen-book.model";
 
 export const initBook = (sequelize: Sequelize) => {
