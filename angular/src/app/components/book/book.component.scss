@@ -10,6 +10,7 @@
     display: flex;
     flex-direction: column;
     max-width: calc(100% - 230px);
+    width: 100%;
 }
 
 .cover {    
@@ -38,6 +39,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    width: 100%
 }
 
 .auto-scroll:hover {
@@ -49,7 +51,7 @@
 
 .title {
     display: inline-block;
-    width: 48em;
+    width: 100%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -65,7 +67,9 @@
 
 .head {
     display: flex;
-    align-items: baseline;
+    align-items: center;
+    width: 100%;
+    margin: 0.5em 0;
 }
 
 app-download-cluster {
@@ -108,12 +112,6 @@ app-download-cluster {
     }
 }
 
-@media screen and (max-width: 1250px) {
-    .title {
-        width: 48vw;
-    }
-}
-
 @media screen and (max-width: 700px) {
     .book {
         flex-direction: column;
@@ -143,7 +141,6 @@ app-download-cluster {
     }
 
     .title {
-        width: 14em;
         font-size: 22px;
         line-height: 24px;
     }
@@ -165,7 +162,7 @@ app-download-cluster {
     app-download-cluster {
         width: 100%;
         flex-direction: row;
-        justify-content: space-between;
+        justify-content: space-evenly;
     }
 
     .desktop {
