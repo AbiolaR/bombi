@@ -12,7 +12,7 @@ import { MatSelect } from '@angular/material/select';
 import { LanguageMap } from 'src/app/models/language-map';
 import { AppService } from 'src/app/services/app.service';
 
-const ALT_GER_LANG = 'deu';
+const ALT_GER_LANG = 'Deutsch';
 const AUTHOR = 'author';
 const YEAR = 'year';
 const LANG = 'language';
