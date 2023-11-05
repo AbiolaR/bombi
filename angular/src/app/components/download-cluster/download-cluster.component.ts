@@ -1,12 +1,19 @@
 import { HttpStatusCode } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
-import { finalize } from 'rxjs';
+import { Observable, finalize } from 'rxjs';
 import { Book } from 'src/app/models/book';
 import { CustomBook } from 'src/app/models/custom-book';
 import { DownloadMode } from 'src/app/models/download-mode';
+import { ServerResponse } from 'src/app/models/server-response';
+import { SocialReadingPlatform } from 'src/app/models/social-reading-platform';
+import { SyncLanguage } from 'src/app/models/sync-language.model';
+import { SyncRequest } from 'src/app/models/sync-request.model';
+import { SyncStatus } from 'src/app/models/sync-status.model';
 import { BookService } from 'src/app/services/book.service';
 import { EventService } from 'src/app/services/event.service';
+import { SocialReadingPlatformService } from 'src/app/services/social-reading-platform.service';
 import { UserService } from 'src/app/services/user.service';
+import { symbolName } from 'typescript';
 
 @Component({
   selector: 'app-download-cluster',
@@ -15,7 +22,8 @@ import { UserService } from 'src/app/services/user.service';
 })
 export class DownloadClusterComponent {
 
-  constructor(private bookService: BookService, private userService: UserService, private eventService: EventService) {}
+  constructor(private bookService: BookService, private userService: UserService,
+    private eventService: EventService, private srpService: SocialReadingPlatformService) {}
 
   @Input({ required: true })
   book!: Book;
@@ -87,7 +95,21 @@ export class DownloadClusterComponent {
     button.classList.remove('success');
     button.classList.remove('failure');
     button.classList.add('loading');
-    this.bookService.sendToEReader(this.book).subscribe({
+
+    let action: Observable<ServerResponse<Boolean>>;
+
+    if (this.book.id == 999999999) {
+      let language = this.book.language == 'German' ? SyncLanguage.GERMAN : SyncLanguage.ENGLISH;
+
+      let syncRequest = new SyncRequest(userData.username, this.book.isbn.toString(), this.book.title,
+        this.book.author, new Date(this.book.year), SyncStatus.WAITING, SocialReadingPlatform.NONE,
+        language);
+      action = this.srpService.sendSyncRequests([syncRequest]);
+    } else {
+      action = this.bookService.sendToEReader(this.book);
+    }
+
+    action.subscribe({
       next: () => {
         this.showResult(button, 'success');
       },

@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Book } from 'src/app/models/book';
 import { DownloadMode } from 'src/app/models/download-mode';
@@ -14,16 +14,18 @@ import { Action } from 'src/app/models/action';
 import { firstValueFrom } from 'rxjs';
 import { AddMessageDialogComponent } from '../dialogs/add-message-dialog/add-message-dialog.component';
 import { environment } from 'src/environments/environment';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-book',
   templateUrl: './book.component.html',
   styleUrls: ['./book.component.scss']
 })
-export class BookComponent {
+export class BookComponent implements OnInit {
 
   constructor(private dialog: MatDialog, private deviceDetectorService: DeviceDetectorService,
-    private userService: UserService, private translateService: TranslateService, private snackBar: MatSnackBar) { }
+    private userService: UserService, private translateService: TranslateService,
+    private snackBar: MatSnackBar, public sanitizer: DomSanitizer) { }
 
   @Input()
   book: Book | undefined;
@@ -33,17 +35,28 @@ export class BookComponent {
 
   isImgLoaded = false;
   BOOK = DownloadMode.BOOK;
+
+  coverUrl = '';
   
+  ngOnInit(): void {
+    if (!this.book?.coverUrl) {
+      this.coverUrl = '/assets/images/covers/blank.png';
+    } else if (this.book.coverUrl.startsWith('https://books.google.com/')
+      || this.book.coverUrl.startsWith('http://books.google.com/')) {
+      this.coverUrl = this.book.coverUrl;
+    } else {
+      this.coverUrl = environment.apiServerUrl + '/v1/books/fictioncovers/' + this.book.coverUrl
+    }
+  }
 
   enlarge() {
     if (!this.deviceDetectorService.isDesktop()) {
       return;
     }
     if (this.book) {
-      const url = this.book.coverUrl == 'img/blank.png' ? '/assets/images/covers/blank.png' : environment.apiServerUrl + '/v1/books/fictioncovers/' + this.book.coverUrl;
       this.dialog.open(ImageDialogComponent, 
         {panelClass: 'image-dialog', 
-        data: {url: url}});
+        data: {url: this.coverUrl}});
     }
   }
 

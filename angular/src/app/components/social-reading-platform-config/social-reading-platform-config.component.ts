@@ -39,6 +39,9 @@ export class SocialReadingPlatformConfigComponent {
       case SocialReadingPlatform.THE_STORY_GRAPH:
         return (this.userData.tsgUsername 
           && this.userData.tsgCookies && this.userData.tsgCookies.length > 0) as boolean;
+
+      case SocialReadingPlatform.NONE:
+        return false;
     }
   }
 
@@ -57,7 +60,7 @@ export class SocialReadingPlatformConfigComponent {
       next: (cleanReturn) => {
         this.updateUserData();
         if (!cleanReturn && this.foundBooks.length > 0) {
-          this.srpService.startSync(this.foundBooks).subscribe({});
+          this.srpService.sendSyncRequests(this.foundBooks).subscribe({});
         }
         foundBooksChange.unsubscribe();
       }

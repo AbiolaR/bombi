@@ -77,5 +77,8 @@
   "add-message": "Add message",
   "message": "Message",
   "send-with-message": "Send with message",
-  "only-sync-books-when-tagged-with-tag": "Only sync books when tagged with \"Bombi"
+  "only-sync-books-when-tagged-with-tag": "Only sync books when tagged with \"Bombi\"",
+  "when-available": " when available",
+  "not-available-yet": "Not available yet",
+  "this-book-is-not-available-yet": "This book is not available yet"
 }

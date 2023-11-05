@@ -47,6 +47,7 @@ export class SearchResultsComponent {
   showScrollToTop = false;
   oldScrollY = 0;
   usingCorrection = false;
+  searchedUpcoming = false;
 
   constructor(private route: ActivatedRoute, private searchService: BookService, 
     private dialog: MatDialog, public userService: UserService, 
@@ -55,7 +56,8 @@ export class SearchResultsComponent {
     eventService.menuEvent.subscribe(this.toggleLoginMenu.bind(this))
 
     route.queryParams.subscribe(async params => {
-      this.books = undefined;
+      this.books = this.allBooks = undefined;
+      this.searchedUpcoming = false;
       this.isLastPage = false;
       this.distinctAuthors = new Set();
       this.usingCorrection = false;
@@ -79,6 +81,15 @@ export class SearchResultsComponent {
                     this.usingCorrection = true;
                     this.setData(result.books);
                   }
+                  this.searchForAdditionalGermanBooks();
+                }
+              });
+
+            } else if (result.books.length == 0 && !result.suggestion) {
+              searchService.searchUpcoming(this.searchString, this.allBooks || []).subscribe({
+                next: (result) => {
+                  this.searchedUpcoming = true;
+                  this.setData(result.books);
                   this.searchForAdditionalGermanBooks();
                 }
               });
@@ -180,7 +191,7 @@ export class SearchResultsComponent {
   @HostListener("window:scroll", [])
   onScroll(): void {
     this.handleScrollToTopButtonScrollBehavior();
-    if ((this.books?.length || 0) != 0 && (this.books?.length || 0) >= 100 && !this.isLastPage) {
+    if ((this.books?.length || 0) != 0 && !this.isLastPage) {
       this.loadAdditionalBooks();
     }
   }  
@@ -229,6 +240,13 @@ export class SearchResultsComponent {
             this.isLoading = false; 
             if (result.books.length == 0) {
               this.isLastPage = true;
+              if (!this.searchedUpcoming) {
+                this.searchService.searchUpcoming(this.searchString, this.allBooks || []).subscribe({
+                  next: (upcomingBooks) => {
+                    this.setData(this.allBooks?.concat(upcomingBooks.books) || []);
+                  }
+                });
+              }
             }  
             this.setData(this.allBooks?.concat(result.books) || []);
             this.searchForAdditionalGermanBooks();

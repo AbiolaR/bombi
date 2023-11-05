@@ -1,0 +1,80 @@
+import { Book } from "../../models/db/book.model";
+import { GoogleBook } from "../../models/google-book.model";
+import { SearchResponse } from "../../models/google-books/search-response.model";
+import { SyncLanguage } from "../../models/sync-language.model";
+import { DEC } from "../secman";
+import axios from "axios";
+
+export class GoogleBooksSearchService {
+    private static readonly API_KEY = DEC('U2FsdGVkX19xDpW0bIUUp+Wep4V1lJ1NWJPDVrpGzuOM7el6f9PugO7EaWfeVPucqPmffkjfUZtlAb22oifz+A==');
+    private static readonly SEARCH_URL = 'https://www.googleapis.com/books/v1/volumes?q=subject:fiction+intitle:';
+    private static readonly UPPERCASE_REGEX = /^[A-Z]+$/;
+    private static readonly ISBN = 'ISBN_13';
+
+    public static async search(searchString: string, previouslyFoundBooks: Book[]): Promise<Book[]> {
+        const response = await axios.get<SearchResponse>(`${this.SEARCH_URL}"${searchString}"
+            &printType=books&key=${this.API_KEY}`);    
+        
+        if (response.data.totalItems == 0) {
+            return [];
+        }
+
+        let books = response.data.items.map(volume => 
+            new Book(999999999, '', volume.volumeInfo.title, volume.volumeInfo?.authors?.at(0) || '', '',
+                this.parseISBN(volume), this.parseLanguage(volume),
+                new Date(volume.volumeInfo.publishedDate).getFullYear().toString(), '', '',
+                volume.volumeInfo?.imageLinks?.thumbnail));
+
+        return this.merge(books, previouslyFoundBooks);
+    }
+
+    private static merge(books: Book[], previouslyFoundBooks: Book[]): Book[] {
+        let mergedBooks: Book[] = [];
+
+        books.forEach(book => {
+            if (previouslyFoundBooks.find(pfBook => 
+            this.simplify(pfBook.title) == this.simplify(book.title))) {
+                return;
+            }
+            let mBookIndex = mergedBooks.findIndex(mBook => 
+                this.simplify(mBook.title) == this.simplify(book.title)
+                && this.simplify(mBook.author) == this.simplify(book.author)
+                && this.simplify(mBook.year) == this.simplify(mBook.year)
+                && this.simplify(mBook.language) == this.simplify(book.language));
+            let mergedBook = mergedBooks[mBookIndex];
+            if (mergedBook) {
+                if (mergedBook.coverUrl && book.coverUrl) {
+                    if (this.UPPERCASE_REGEX.test(mergedBook.title)) {
+                        mergedBooks.splice(mBookIndex, 1, book);
+                    }
+                } else {
+                    if (!mergedBook.coverUrl) {
+                        mergedBooks.splice(mBookIndex, 1, book);
+                    }
+                }
+            } else {
+                mergedBooks.push(book);
+            }
+        });
+        
+        return mergedBooks;
+    }
+
+    private static simplify(string: string): string {
+        return string.replace(/[^a-z]/gi, '').toLowerCase();
+    }
+
+    private static parseISBN(volume: GoogleBook): string {
+        return volume.volumeInfo.industryIdentifiers
+        .find(identifier => identifier.type == this.ISBN)?.identifier || ''
+    }
+
+    private static parseLanguage(volume: GoogleBook): SyncLanguage {
+        switch (volume.volumeInfo.language) {
+            case 'de':
+                return SyncLanguage.GERMAN
+            default:
+                return SyncLanguage.ENGLISH
+        } 
+    }
+}

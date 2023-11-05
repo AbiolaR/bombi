@@ -9,6 +9,7 @@ const axios = require('axios');
 const { TolinoService } = require('../services/e-readers/tolino.service');
 const { LibgenDbService } = require('../services/db/libgen-db.service');
 const { BookService } = require('../services/book/book.service');
+const { GoogleBooksSearchService } = require('../services/search/google-books-search.service');
 
 const LIBGEN_MIRROR = process.env.LIBGEN_MIRROR || 'https://libgen.rocks';
 const DAY_IN_MS = 1000 * 60 * 60 * 24;
@@ -33,7 +34,9 @@ router.get('/search', async(req, res) => {
       bookData.books = await libgenDbService.indexedSearch(searchString, pageNumber)
       if (bookData.books.length == 0) {
         try {
-          bookData.suggestion = await getSpellingCorrection(searchString);
+          if (process.env.STAGE == 'prod') {
+            bookData.suggestion = await getSpellingCorrection(searchString);
+          }
         } catch (error) {
           console.warn('Error while getting spelling correction: ' + error);
         }
@@ -50,6 +53,12 @@ router.get('/search', async(req, res) => {
     console.error(error);
   }
   res.json(bookData);
+});
+
+router.post('/search/upcoming', async(req, res) => {
+  let bookData = {books: [], suggestion: ''};
+  bookData.books = await GoogleBooksSearchService.search(req.body.searchString, req.body.foundBooks);
+  res.send(bookData)
 });
 
 router.get('/fictioncovers/*', (req, res) => {

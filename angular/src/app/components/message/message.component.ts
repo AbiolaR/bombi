@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Book } from 'src/app/models/book';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-message',
@@ -14,10 +15,22 @@ export class MessageComponent implements OnInit {
 
   isImgLoaded = false;
 
+  coverUrl = '';
+  isOpened = false;
+
   constructor(private router: Router) { }
   ngOnInit(): void {
     if (this.message) {
       this.message.message = this.message.message?.replaceAll('\n', '<br/>');
+
+      if (!this.message.coverUrl) {
+        this.coverUrl = '/assets/images/covers/blank.png';
+      } else if (this.message.coverUrl.startsWith('https://books.google.com/')
+        || this.message.coverUrl.startsWith('http://books.google.com/')) {
+        this.coverUrl = this.message.coverUrl;
+      } else {
+        this.coverUrl = environment.apiServerUrl + '/v1/books/fictioncovers/' + this.message.coverUrl
+      }
     }
   }
   

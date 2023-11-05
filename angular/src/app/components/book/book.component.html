@@ -1,6 +1,11 @@
 <div *ngIf="book" class="book">
-    <img *ngIf="!isImgLoaded" class="cover" aria-label="Book Cover Placeholder" src="/assets/images/covers/loading-cover.png"/>
-    <img (load)="isImgLoaded = true" loading="lazy" [class.hidden]="!isImgLoaded" class="cover" aria-label="Book Cover" src="{{book.coverUrl == '' ? '/assets/images/covers/blank.png' : environment.apiServerUrl + '/v1/books/fictioncovers/' + book.coverUrl}}"
+    <div class="unavailable-banner" *ngIf="book.id == 999999999">
+        {{ 'not-available-yet' | translate }}
+    </div>
+    <img *ngIf="!isImgLoaded" class="cover" aria-label="Book Cover Placeholder" 
+        src="/assets/images/covers/loading-cover.png"/>
+    <img (load)="isImgLoaded = true" loading="lazy" [class.hidden]="!isImgLoaded" class="cover" 
+        aria-label="Book Cover" src="{{coverUrl}}"
     (click)="enlarge()"/>
     <div class="book-details">
         <div>

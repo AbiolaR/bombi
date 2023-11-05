@@ -3,8 +3,10 @@
         <mat-form-field appearance="outline">
             <mat-label>{{ 'social-reading-platform' | translate }}</mat-label>
             <mat-select [(value)]="selectedSRP" hideSingleSelectionIndicator>
-                <mat-option *ngFor="let platform of socialReadingPlatform | keyvalue"
-                [value]="platform.value">{{platform.value}}</mat-option>
+                <ng-container *ngFor="let platform of socialReadingPlatform | keyvalue">
+                    <mat-option *ngIf="platform.value != socialReadingPlatform.NONE"
+                    [value]="platform.value">{{platform.value}}</mat-option>
+                </ng-container>
             </mat-select>
         </mat-form-field>
         <div class="action">

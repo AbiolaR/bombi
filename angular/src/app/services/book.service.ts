@@ -36,6 +36,11 @@ export class BookService {
     return cachedSearch.searchResult;
   }
 
+  public searchUpcoming(searchString: String, foundBooks: Book[]): Observable<SearchResult> {
+    return this.http.post<SearchResult>(`${this.apiUrl}search/upcoming`,
+    { searchString: searchString, foundBooks: foundBooks });
+  }
+
   private getSearchResults(searchString: String, pageNumber: number): Observable<SearchResult> {
     return this.http.get<SearchResult>
     (`${this.apiUrl}search?q=${searchString}&p=${pageNumber}`);

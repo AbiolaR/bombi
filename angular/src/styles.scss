@@ -105,6 +105,10 @@ $primary-dark-theme: mat.define-palette(mat.$purple-palette, 100);
 $accent: mat.define-palette(mat.$amber-palette, 200, A200, A400);
 $warn: mat.define-palette(mat.$red-palette);
 
+:root {
+    --warn-color: #{mat-color($warn)};
+}
+
 $theme: mat.define-light-theme((
     color: (
         primary: $primary-light-theme,

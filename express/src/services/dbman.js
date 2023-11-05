@@ -33,14 +33,17 @@ const PushSubscriptionSchema = mongoose.Schema({
 });
 
 const BookSchema = mongoose.Schema({
-    editionId: { type: Number, required: true },
+    id: { type: Number, required: true },
     title: { type: String, required: true },
     md5: { type: String, required: true },
     filename: { type: String, required: true },
     author: String,
+    series: String,
+    year: String,
+    extension: String,
     language: String,
     coverUrl: String,
-    isbn: Number,
+    isbn: String,
     message: String
 });
 

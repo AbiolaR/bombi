@@ -65,7 +65,7 @@ export class LibgenDbService {
             ]
         });
         
-        let offset = (page - 1) * 100;
+        let offset = (page - 1) * this.SEARCH_LIMIT;
         let limit = offset + this.SEARCH_LIMIT;
         let books = (await Promise.all([booksByText, booksByIsbn])).flat().slice(offset, limit);
         return books.map(book => new Book(book.ID, book.MD5, book.Title, book.Author, book.Series,

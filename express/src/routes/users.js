@@ -12,10 +12,6 @@ const { default: GoodreadsConnection } = require('../services/book-connection/go
 const { SocialReadingPlatform } = require('../models/social-reading-platform');
 const { BookSyncDbService } = require('../services/db/book-sync-db.service');
 const { BookSyncService } = require('../services/book/book-sync.service');
-const { LibgenDbService } = require('../services/db/libgen-db.service');
-const { SyncStatus } = require('../models/sync-status.model');
-const { default: SeleniumAutomationService } = require('../services/selenium-automation.service');
-const { TolinoService } = require('../services/e-readers/tolino.service');
 
 const ONE_YEAR = '8760h';
 
@@ -168,12 +164,9 @@ router.post('/validateResetHash', async (req, res, next) => {
 router.post('/share', async (req, res) => {
     const username = req.body.username;
     const contactName = req.body.contact;
-    const book = req.body.book;
+    const sharedBook =  req.body.book;
     const notificationData = req.body.notificationData;
     const user = await dbman.findUserAsync(username);
-    const sharedBook = { editionId: book.edition_id, title: book.title, md5: book.md5, author: book.author,
-        language: book.language, coverUrl: book.coverUrl, isbn: book.isbn, filename: book.filename, 
-        message: book.message };
     
     if (user) {
         user.contacts.forEach(async contact => {
@@ -186,7 +179,7 @@ router.post('/share', async (req, res) => {
                             _contact.unreadMessages = ++_contact.unreadMessages || 1;
                             await dbman.updateUserAsync(dbContact);
                             await sendPushNotifications(dbContact.pushSubscriptions, 
-                                notificationData.title, notificationData.message, notificationData.actions, book);
+                                notificationData.title, notificationData.message, notificationData.actions, sharedBook);
                             return;
                         }
                     });

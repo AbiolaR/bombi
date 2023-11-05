@@ -33,7 +33,7 @@ export class SocialReadingPlatformService {
       { body: { platform: platform }, headers: headers });
   }
 
-  public startSync(syncRequests: SyncRequest[]): Observable<ServerResponse<boolean>> {
+  public sendSyncRequests(syncRequests: SyncRequest[]): Observable<ServerResponse<boolean>> {
     const headers = { 'Authorization': `Bearer ${this.userService.getLocalUserData()?.access_token}`};
     return this.http.post<ServerResponse<boolean>>(`${this.apiUrl}/srp-sync`,
       { syncRequests: syncRequests }, 

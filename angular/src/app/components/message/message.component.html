@@ -1,12 +1,13 @@
 <div *ngIf="message">
-    <mat-expansion-panel>
+    <mat-expansion-panel (opened)="isOpened = true" (closed)="isOpened = false">
         <mat-expansion-panel-header (click)="toggleShrink(title)">
+            <div class="unavailable-banner" *ngIf="isOpened && message.id == 999999999">
+                {{ 'not-available-yet' | translate }}
+            </div>
             <img *ngIf="!isImgLoaded" class="cover" aria-label="Book Cover Placeholder" 
             src="/assets/images/covers/loading-cover.png"/>
-            <img (load)="isImgLoaded = true" loading="lazy" [class.hidden]="!isImgLoaded" 
-            class="cover" aria-label="Book Cover" 
-            src="{{message.coverUrl == 'img/blank.png' ? '/assets/images/covers/blank.png' 
-            : 'https://libgen.li/' + message.coverUrl}}"/>
+            <img (load)="isImgLoaded = true" loading="lazy" [class.hidden]="!isImgLoaded"
+            class="cover" aria-label="Book Cover" src="{{coverUrl}}"/>
 
             <span #title class="title">{{message.title}}</span>
         </mat-expansion-panel-header>
@@ -20,7 +21,8 @@
                 <mat-icon>search</mat-icon>
             </button>
             <div class="action-buttons">
-                <app-download-cluster [book]="message"></app-download-cluster>    
+                <app-download-cluster [book]="message"
+                [ngClass]="{'unavailable' : message.id == 999999999}"></app-download-cluster>
                 <button mat-mini-fab class="search-more desktop" color="primary" (click)="searchMore()">
                     <mat-icon>search</mat-icon>
                 </button>            

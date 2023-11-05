@@ -9,14 +9,18 @@
 .book-details {
     display: flex;
     flex-direction: column;
-    max-width: calc(100% - 230px);
+    max-width: calc(100% - 250px);
     width: 100%;
 }
 
+.unavailable-banner {
+    display: none;
+}
+
 .cover {    
-    height: 6em;
-    width: 4em;
-    margin-right: 1em;
+    height: 8em;
+    width: 5.33em;
+    margin: auto 1em auto 0;
 }
 
 .cover.hidden {
@@ -76,6 +80,7 @@ app-download-cluster {
     display: flex;
     flex-direction: column;
     justify-content: space-around;
+    align-items: center;
     margin-left: auto;
 }
 
@@ -176,6 +181,18 @@ app-download-cluster {
     .share {
         border: 1px mat-color($accent) dashed;
         border-radius: 100%;
+    }
+
+    .unavailable-banner {
+        display: block;
+        position: absolute;
+        width: 100%;
+        margin-top: -0.8em;
+        text-align: center;
+        font-weight: 500;
+        line-height: 2em;
+        border-radius: 4px 4px 0 0;
+        background-color: var(--warn-color);
     }
     
 }

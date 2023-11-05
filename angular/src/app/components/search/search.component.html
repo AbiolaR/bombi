@@ -20,7 +20,7 @@
             <img src="/assets/images/flags/{{selectedLang}}.svg" *ngIf="selectedLang">     
         </button>
         
-        <button class="search-button" mat-icon-button matSuffix type="submit" aria-label="Search">
+        <button class="search-button" mat-icon-button matSuffix type="submit" aria-label="Search" (click)="$event.stopPropagation()">
             <mat-icon>search</mat-icon>
         </button>
         <mat-error *ngIf="searchForm.get('input')?.invalid">

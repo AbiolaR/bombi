@@ -90,7 +90,7 @@ export class SrpSyncDialogComponent {
     this.booksToSync = this.foundBooks.filter((book) => book.status == SyncStatus.WAITING);
     this.syncStarted = true;
     this.foundBooksChange.emit([]);
-    this.srpService.startSync(this.foundBooks).subscribe({
+    this.srpService.sendSyncRequests(this.foundBooks).subscribe({
       next: (response) => {
         switch (response.status) {
           case 0:

@@ -77,5 +77,8 @@
   "message": "Nachricht",
   "send-book-to": "Buch senden an",
   "send-with-message": "Mit Nachricht senden",
-  "only-sync-books-when-tagged-with-tag": "Bücher nur Synchronisieren, wenn sie mit „Bombi“ getaggt sind"
+  "only-sync-books-when-tagged-with-tag": "Bücher nur Synchronisieren, wenn sie mit „Bombi“ getaggt sind",
+  "not-available-yet": "Noch nicht verfügbar",
+  "when-available": " sobald verfügbar",
+  "this-book-is-not-available-yet": "Dieses Buch ist noch nicht verfügbar"
 }
