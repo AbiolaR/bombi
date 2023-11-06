@@ -2,6 +2,7 @@
 @import '../../../styles.scss'; // /angular/src/styles.scss
 
 .book {
+    position: relative;
     display: flex;
     width: 100%;
 }
@@ -117,6 +118,23 @@ app-download-cluster {
     }
 }
 
+.share.desktop {
+    display: block;
+    /*border-radius: 50%;
+    width: 36px;
+    height: 36px;
+
+    mat-icon {
+        width: 16px;
+        height: 16px;
+        font-size: 16px;
+    }*/
+}
+
+.share.mobile {
+    display: none;
+}
+
 @media screen and (max-width: 700px) {
     .book {
         flex-direction: column;
@@ -136,6 +154,11 @@ app-download-cluster {
         height: calc(55vh - 2.5em);
         width: fit-content;
         max-width: 75%;
+    }
+
+    .head {
+        margin: unset;
+        margin-top: 0.5em;
     }
 
     .title-container {
@@ -165,6 +188,7 @@ app-download-cluster {
     }
 
     app-download-cluster {
+        margin-top: 0.5em;
         width: 100%;
         flex-direction: row;
         justify-content: space-evenly;
@@ -178,9 +202,22 @@ app-download-cluster {
         display: inherit;
     }
 
-    .share {
-        border: 1px mat-color($accent) dashed;
-        border-radius: 100%;
+    .share.mobile {
+        display: block;
+        position: absolute;
+        top: 0.3em;
+        right: 0.3em;
+        border: 1px dashed;
+        transform: scale(0.9);
+
+        mat-icon {
+            margin-left: -3px;
+            margin-top: -1px;
+        }
+    }
+
+    .share.desktop {
+        display: none;
     }
 
     .unavailable-banner {

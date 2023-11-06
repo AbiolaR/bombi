@@ -2,6 +2,9 @@
     <div class="unavailable-banner" *ngIf="book.id == 999999999">
         {{ 'not-available-yet' | translate }}
     </div>
+    <button mat-icon-button color="primary" class="share mobile" [matMenuTriggerFor]="contactMenu">
+        <mat-icon>share</mat-icon>
+    </button>
     <img *ngIf="!isImgLoaded" class="cover" aria-label="Book Cover Placeholder" 
         src="/assets/images/covers/loading-cover.png"/>
     <img (load)="isImgLoaded = true" loading="lazy" [class.hidden]="!isImgLoaded" class="cover" 
@@ -13,10 +16,10 @@
                 <img class="lang" src="/assets/images/flags/{{book.language}}.svg" aria-label="Book Language"/>
                 <div class="title-container">
                     <h1 #title class="title" (mouseover)="setAutoScroll(title)">{{book.title}}</h1>
+                    <button mat-icon-button color="primary" class="share desktop" [matMenuTriggerFor]="contactMenu">
+                        <mat-icon>share</mat-icon>
+                    </button>
                 </div>
-                <button mat-icon-button color="accent" class="share" [matMenuTriggerFor]="contactMenu">
-                    <mat-icon>send</mat-icon>
-                </button>
             </div>
             <span class="author">{{book.author || "author unknown"}}</span>
             <span class="year" *ngIf="book.year && book.year != 0">{{book.year}}</span>
