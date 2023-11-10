@@ -21,7 +21,7 @@ module.exports.testAuth = async (user) => {
 }
 
 async function executeScript(command, commandArgs, user) {
-    const credentials = `--user ${user.eReaderDeviceId} --password ${user.eReaderRefreshToken}`
+    const credentials = `--user "${user.eReaderDeviceId}" --password "${user.eReaderRefreshToken}"`
     var result;
     try {
         const { stdout } = await execAsync(`${STATIC_ARGS} ${credentials} ${command} ${commandArgs}`);

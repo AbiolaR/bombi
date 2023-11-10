@@ -11,10 +11,11 @@ export class SyncRequest {
     status: SyncStatus;
 	platform: SocialReadingPlatform;
 	language: SyncLanguage;
+	creationDate: Date;
 	asin: string = '';
 
 	constructor(username: string, isbn: string, title: string, author: string, pubDate: Date, 
-		status: SyncStatus, platform: SocialReadingPlatform, language: SyncLanguage) {
+		status: SyncStatus, platform: SocialReadingPlatform, language: SyncLanguage, creationDate: Date) {
 		this.username = username;
 		this.isbn = isbn;
 		this.title = title;
@@ -23,6 +24,7 @@ export class SyncRequest {
 		this.status = status;
 		this.platform = platform;
 		this.language = language;
+		this.creationDate = creationDate;
 	}
     
 }

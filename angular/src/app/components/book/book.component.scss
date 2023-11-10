@@ -120,15 +120,6 @@ app-download-cluster {
 
 .share.desktop {
     display: block;
-    /*border-radius: 50%;
-    width: 36px;
-    height: 36px;
-
-    mat-icon {
-        width: 16px;
-        height: 16px;
-        font-size: 16px;
-    }*/
 }
 
 .share.mobile {
@@ -213,6 +204,12 @@ app-download-cluster {
         mat-icon {
             margin-left: -3px;
             margin-top: -1px;
+        }
+    }
+
+    .book.unavailable {
+        .share.mobile {
+            top: 1.4em;
         }
     }
 

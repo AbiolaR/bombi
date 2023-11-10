@@ -71,7 +71,8 @@ export class BookSyncDbService {
         return result.map((syncUser) => new SyncRequest(syncUser.username, syncUser.syncBook.isbn, 
                 syncUser.syncBook.title, syncUser.syncBook.author, syncUser.syncBook.pubDate, 
                 syncUser.status, syncUser.platform, syncUser.syncBook.language, syncUser.syncBook.asin,
-                syncUser.createdAt));
+                syncUser.createdAt, syncUser.syncBook.md5Hash, syncUser.syncBook.downloadUrl, 
+                syncUser.syncBook.coverUrl));
     }
 
     async createSyncRequest(syncRequest: SyncRequest): Promise<void> {
@@ -186,6 +187,7 @@ export class BookSyncDbService {
                 });
             });
         } catch (error) {
+            console.error('Error in [updateDownloadData] for syncRequests: ', syncRequests);
             console.error(error);
         }
     }
@@ -230,12 +232,10 @@ export class BookSyncDbService {
             },
             asin: {
                 type: DataTypes.STRING,
-                unique: 'asin'
             },
             language: {
                 type: DataTypes.STRING,
                 primaryKey: true,
-                unique: 'language'
             },
             md5Hash: { 
                 type: DataTypes.STRING,

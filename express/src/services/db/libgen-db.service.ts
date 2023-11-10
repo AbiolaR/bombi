@@ -1,4 +1,4 @@
-import { Sequelize, Op, DataTypes, sql } from "@sequelize/core";
+import { Sequelize, Op, DataTypes, sql, Literal, col } from "@sequelize/core";
 import { LibgenParams } from "../../models/db/mysql/libgen-params.model";
 import { initBook } from "../../models/db/mysql/book.model.init";
 import { LibgenBook, LibgenBookColumn } from "../../models/db/mysql/libgen-book.model";
@@ -10,6 +10,7 @@ export class LibgenDbService {
     private readonly SEARCH_LIMIT = 50;
     private readonly HOST_IP = 'host_ip';
     private readonly permittedExtensions = ['epub'];
+    private readonly fulltextIndexes = ['Title', 'Author', 'Series', 'Identifier'];
 
     constructor() {}
 
@@ -74,16 +75,23 @@ export class LibgenDbService {
     }
       
     searchOneColumn(valueList: String[], columnName: LibgenBookColumn) {
-        let searchArray = [];
-        valueList.forEach(value => {
-            searchArray.push({ [columnName]: {[Op.like]: `%${value}%`} });
-        })
+        let query: { [Op.or]: any[] } | Literal;
+        if (columnName == 'Identifier') {
+            query = sql`MATCH (Identifier) AGAINST(${valueList.join(' ')})`;
+        } else {
+            let searchArray = [];
+            valueList.forEach(value => {
+                searchArray.push({ [columnName]: {[Op.like]: `%${value}%`} });
+            });
+            query = { [Op.or]: searchArray }
+        }        
+        
         return LibgenBook.findAll({
-            where: {
-                [Op.or]: searchArray,
-                Visible: { [Op.ne]: 'no' },
-                Extension: this.permittedExtensions
-            },
+            where: [
+                query,
+                { Visible: { [Op.ne]: 'no' } },
+                { Extension: this.permittedExtensions }
+            ],
             group: ['Title', 'Language']
         });
     }

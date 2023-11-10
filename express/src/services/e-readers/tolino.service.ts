@@ -19,7 +19,8 @@ export class TolinoService {
     private readonly EMAIL_FIELD_ID = 'login_emailAddress';
     private readonly PASSWORD_FIELD_ID = 'login_password';
 
-    private readonly NETWORK_RESPONSE = 'Network.responseReceived'
+    private readonly NETWORK_RESPONSE = 'Network.responseReceived';
+    private readonly REQUEST_EXTRA_INFO = 'Network.requestWillBeSentExtraInfo';
     private readonly GET_RESPONSE_BODY_COMMAND = 'Network.getResponseBody';
 
     private readonly TOKEN_URL = 'https://api.weltbild.de/rest/oauth2/token';
@@ -73,9 +74,12 @@ export class TolinoService {
             this.LONG_WAIT_DURATION);
 
         let refreshToken: string;
+        let deviceId: string;
 
         await driver.manage().logs().get(Type.PERFORMANCE).then(async (log) => {
             for (const logEntry of log) {
+                if (refreshToken && deviceId) break;
+
                 let message = JSON.parse(logEntry.message).message;
                 if (message.method == this.NETWORK_RESPONSE 
                 && message.params.response.url == this.TOKEN_URL) {
@@ -86,15 +90,12 @@ export class TolinoService {
                         refreshToken = responseBody.refresh_token;
                     }
                 }
+                if (message.method == this.REQUEST_EXTRA_INFO && message.params.headers.hardware_id) {
+                    deviceId = message.params.headers.hardware_id;
+
+                }
             }
         });
-
-        await driver.get(this.ACCOUNT_PAGE);
-        let button = await driver.wait(until.elementLocated(By.css(this.DEVICE_MANAGEMENT_BUTTON_SELECTOR)), 
-            this.SHORT_WAIT_DURATION);
-        await driver.executeScript('arguments[0].click();', button);
-        let deviceId = await driver.wait(until.elementLocated(By.css(this.DEVICE_ID_SELECTOR)), 
-            this.LONG_WAIT_DURATION).getText();
 
         if (refreshToken && deviceId) {
             credentials = new TolinoCredentials(deviceId, refreshToken);

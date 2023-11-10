@@ -103,7 +103,7 @@ export class DownloadClusterComponent {
 
       let syncRequest = new SyncRequest(userData.username, this.book.isbn.toString(), this.book.title,
         this.book.author, new Date(this.book.year), SyncStatus.WAITING, SocialReadingPlatform.NONE,
-        language);
+        language, new Date());
       action = this.srpService.sendSyncRequests([syncRequest]);
     } else {
       action = this.bookService.sendToEReader(this.book);

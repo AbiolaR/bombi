@@ -155,19 +155,20 @@ export class BookSyncService {
           break;  
       }
       if (result.status != 200) {
-        console.error(result.message);
+        console.error('Error: failed to send downloaded syncRequest for: ' + syncRequest.title, syncRequest);
+        console.error(result.message)
         return;
       }
 
-      if (syncRequest.pubDate > syncRequest.creationDate) {
+      if (new Date(new Date().toDateString()) > new Date(syncRequest.creationDate.toDateString()) ) {
         this.sendNotification((syncRequest));
       }
       this.bookSyncDbService.updateSyncStatus(syncRequest, SyncStatus.SENT);
     } else {
+      console.error('Error: failed to download syncRequest for: ' + syncRequest.title, syncRequest);
       syncRequest.downloadUrl = '';
       syncRequest.status = SyncStatus.UPCOMING;
       this.bookSyncDbService.updateDownloadData([syncRequest]);
-      console.error('Error: failed to download syncRequest for: ', syncRequest.title);
     }
   }
 
@@ -214,6 +215,7 @@ export class BookSyncService {
   private async tryBasedOnProperty(syncRequests: SyncRequest[], property: SyncBookProperty, column: LibgenBookColumn): Promise<void> {
     let values = syncRequests.filter(this.noDownloadData)
       .map((syncRequest) => syncRequest[property]).filter((prop) => !!prop?.trim());
+    if (values.length < 1) return;
     let libgenBooks = await this.libgenDbService.searchOneColumn(values, column);
     libgenBooks.forEach((libgenBook) => {
       syncRequests.filter((syncRequest) => {
@@ -232,6 +234,7 @@ export class BookSyncService {
         return {title: syncRequest.title, author: author} 
       })
       .filter((searchObj) => !!searchObj.title?.trim() && !!searchObj.author?.trim());
+    if (searchValues.length < 1) return;
     let libgenBooks = await this.libgenDbService.searchMultiColumn(searchValues, 'Title', 'Author');
     libgenBooks.forEach((libgenBook) => {
       syncRequests.filter((syncRequest) => {
