@@ -2,6 +2,24 @@ import os
 import keyring
 import requests
 
+def getNewVersion(file):
+    print('Please enter new version:')
+    version = input()
+    file.seek(0)
+    file.write(version)
+    file.truncate()
+    checkVersion(version, file)
+
+
+def checkVersion(version, file):
+    if not version:
+        print('Version can not be empty')
+        getNewVersion(file)
+    if version in response.json()['tags']:
+        print(f'Version {version} already exists!')
+        getNewVersion(file)
+
+
 registry = 'docker.tinym.de'
 appName = 'bombi'
 
@@ -12,11 +30,10 @@ session.auth = (credential.username, credential.password)
 
 response = session.get(f'https://{registry}/v2/{appName}/tags/list')
 
-version = open('release-version.txt', 'r').read()
-
-if version in response.json()['tags']:
-    print('Version already exists!')
-    quit()
+versionFile = open('release-version.txt', 'r+')
+version = versionFile.read()
+checkVersion(version, versionFile)
+versionFile.close()
 
 os.chdir('./angular')
 os.system('npm link @angular/cli')
