@@ -8,17 +8,17 @@ def getNewVersion(file):
     file.seek(0)
     file.write(version)
     file.truncate()
-    checkVersion(version, file)
+    return checkVersion(version, file)
 
 
 def checkVersion(version, file):
     if not version:
         print('Version can not be empty')
-        getNewVersion(file)
+        version = getNewVersion(file)
     if version in response.json()['tags']:
         print(f'Version {version} already exists!')
-        getNewVersion(file)
-
+        version = getNewVersion(file)
+    return version
 
 registry = 'docker.tinym.de'
 appName = 'bombi'
@@ -32,7 +32,8 @@ response = session.get(f'https://{registry}/v2/{appName}/tags/list')
 
 versionFile = open('release-version.txt', 'r+')
 version = versionFile.read()
-checkVersion(version, versionFile)
+version = checkVersion(version, versionFile)
+
 versionFile.close()
 
 os.chdir('./angular')
