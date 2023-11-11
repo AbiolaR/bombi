@@ -47,6 +47,7 @@ export class SearchComponent {
   ngOnChanges() {
     this.searchString = this.searchString.replace(` lang:${this.selectedLang}`, '');
     this.searchForm.get('input')?.setValue(this.searchString);
+    (this.searchInput as any)?._elementRef.nativeElement.blur();
   }
 
   public onSubmit() {
