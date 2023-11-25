@@ -8,6 +8,8 @@ import { BookDownloadResponse as BookDownloadResponse } from "../../models/book-
 import { Readable } from "stream";
 import { CoverBlob } from "../../models/cover-blob.model";
 import { Book } from "../../models/db/book.model";
+import { createReadStream } from "fs";
+import { dirname } from "path";
 
 export class BookService {
 
@@ -16,6 +18,9 @@ export class BookService {
   private static readonly LIBGEN_FICTION_COVERS = 'https://library.lol/fictioncovers/';
 
   static async download(book: Book): Promise<BookDownloadResponse> {
+    if (!book.md5) {
+      return this.fetchFromLocal(book);
+    }
     let series = book.series ? `(${book.series})` : '';
 
     let downloadUrl = this.BASE_DOWNLOAD_URL + this.encodeUriAll(`${this.torrentNumber(book)}/${book.md5}.${book.extension}/${series} ${book.author} - ${book.title}.${book.extension}`);
@@ -66,20 +71,29 @@ export class BookService {
     }
   }
 
-  static async sendFileToKindle(recipient: string, book: BookBlob) {
-      const filePath = await saveToDiskAsync(book.data, book.filename)
-      return await sendFileViaEmail(recipient, filePath, book.filename);
+  private static fetchFromLocal(book: Book): BookDownloadResponse {
+    let filePath = `/tmp/app.bombi/books${book.filename}`;
+    let coverPath = `${dirname(require.main.filename)}/static${book.coverUrl}`;
+    let downloadResponse = new BookDownloadResponse(new BookBlob(createReadStream(filePath), book.filename.split('/').pop(), filePath));
+    if (book.coverUrl) {
+      downloadResponse.cover = new CoverBlob(createReadStream(coverPath), book.coverUrl.split('/').pop(), coverPath);
+    }
+    return downloadResponse;
   }
-    
-  static async sendFileToTolino(book: BookBlob, cover: CoverBlob, user: User) {
-      const filePath = await saveToDiskAsync(book.data, book.filename);      
-      let coverPath: string;
 
-      if (cover) {
-        coverPath = await saveToDiskAsync(cover.data, cover.filename);
+  static async sendFileToKindle(recipient: string, book: BookBlob) {
+    book.filePath = book.filePath || await saveToDiskAsync(book.data, book.filename);
+    return await sendFileViaEmail(recipient, book.filePath, book.filename);
+  }
+
+  static async sendFileToTolino(book: BookBlob, cover: CoverBlob, user: User) {
+      book.filePath = book.filePath || await saveToDiskAsync(book.data, book.filename);      
+
+      if (cover && !cover.filePath) {
+        cover.filePath =  await saveToDiskAsync(cover.data, cover.filename);
       }
     
-      const result = await upload(filePath, coverPath, user);
+      const result = await upload(book.filePath, cover.filePath, user);
     
       if (result.command && result.refresh_token) {
         return { status: 200, message: { success: 'file sent to tolino' } };

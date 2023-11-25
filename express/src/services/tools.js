@@ -9,6 +9,7 @@ const ebookconvert = require('ebook-convert');
 const ebookConvertAsync = util.promisify(ebookconvert);
 const { DEC } = require('./secman');
 var axios = require('axios');
+const sharp = require('sharp');
 
 const TEMP_DIR = '/tmp/app.bombi/';
 const ENGLISH = 'en';
@@ -112,4 +113,20 @@ module.exports.saveToDiskAsync = async (file, filename) => {
     const path = `${TEMP_DIR}${name}_${timestamp}${fileEnding}`;
     await pipeline(file, fs.createWriteStream(path));
     return path;
+}
+
+module.exports.compressEpubAsync = async(filePath) => {
+    const fileContent = fs.readFileSync(filePath);
+    const jsZip = new jszip();
+
+    const zip = await jsZip.loadAsync(fileContent);
+    const jpgs = Object.keys(zip.files).filter(key => key.endsWith('.jpg'));
+
+    for (const jpg of jpgs) {
+        let buffer = await zip.files[jpg].async('nodebuffer');
+        buffer = await sharp(buffer).jpeg({quality: 40}).toBuffer();
+        zip.file(jpg, buffer);
+    }
+    const stream = zip.generateNodeStream({type:'nodebuffer', streamFiles:true});
+    return await this.saveToDiskAsync(stream, filePath.split('/').pop());;
 }

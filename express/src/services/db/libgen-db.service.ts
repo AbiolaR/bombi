@@ -1,9 +1,11 @@
 import { Sequelize, Op, DataTypes, sql, Literal, col } from "@sequelize/core";
 import { LibgenParams } from "../../models/db/mysql/libgen-params.model";
-import { initBook } from "../../models/db/mysql/book.model.init";
+import { initLibgenBookModel } from "../../models/db/mysql/libgen-book.model.init";
 import { LibgenBook, LibgenBookColumn } from "../../models/db/mysql/libgen-book.model";
 import { DEC } from '../secman';
 import { Book } from "../../models/db/book.model";
+import { initReadarrBookModel } from "../../models/db/mysql/readarr-book.model.init";
+import { ReadarrBook } from "../../models/db/mysql/readarr-book.model";
 
 export class LibgenDbService {
     private static sequelize: Sequelize;
@@ -69,9 +71,47 @@ export class LibgenDbService {
         let offset = (page - 1) * this.SEARCH_LIMIT;
         let limit = offset + this.SEARCH_LIMIT;
         let books = (await Promise.all([booksByText, booksByIsbn])).flat().slice(offset, limit);
-        return books.map(book => new Book(book.ID, book.MD5, book.Title, book.Author, book.Series,
+
+        let localBooks = []
+        if (page == 1) {
+            localBooks = await this.indexedLocalSearch(searchString, languageQuery);
+        }
+
+        return localBooks.concat(books.map(book => new Book(book.ID, book.MD5, book.Title, book.Author, book.Series,
             book.Identifier.split(',')[0], book.Language, book.Year, book.Extension,
-            `${book.Title}.${book.Extension}`, book.Coverurl));
+            `${book.Title}.${book.Extension}`, book.Coverurl)));
+    }
+
+    private async indexedLocalSearch(searchString: String, languageQuery: any): Promise<Book[]> {
+        searchString = searchString.replaceAll('+', '');
+        let booksByText = ReadarrBook.findAll({
+            attributes: {
+                include: [
+                    [sql`(1.3 * (MATCH(series) AGAINST (${searchString} IN BOOLEAN MODE))
+                    + (1 * (MATCH(title) AGAINST (${searchString} IN BOOLEAN MODE)))
+                    + (0.6 * (MATCH(author) AGAINST (${searchString} IN BOOLEAN MODE))))`, 'relevance']
+                ]
+            },
+            where: [
+                sql`MATCH (title, author, series) AGAINST(${searchString} IN BOOLEAN MODE)`,
+                { extension: this.permittedExtensions },
+                languageQuery
+            ],
+            order: [['relevance', 'DESC']]
+        });
+
+        let booksByIsbn = ReadarrBook.findAll({
+            where: [
+                sql`MATCH (isbn) AGAINST(${searchString})`,
+                { extension: this.permittedExtensions },
+                languageQuery
+            ]
+        });
+
+        let books = (await Promise.all([booksByText, booksByIsbn])).flat();
+        return books.map(book => new Book(book.id, '', book.title, book.author, book.series,
+            book.isbn, book.language, book.year, book.extension,
+            book.filename, book.coverUrl));
     }
       
     searchOneColumn(valueList: String[], columnName: LibgenBookColumn) {
@@ -137,7 +177,8 @@ export class LibgenDbService {
             updatedAt: DataTypes.DATE
         }, { sequelize: this.sequelize });
 
-        initBook(this.sequelize);
+        initLibgenBookModel(this.sequelize);
+        initReadarrBookModel(this.sequelize);
     }
 
 }

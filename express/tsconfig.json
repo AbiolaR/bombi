@@ -4,7 +4,10 @@
       "allowJs": true,
       "target": "ES6",
       "module": "CommonJS",
-      "esModuleInterop": true
+      "esModuleInterop": true,
+      "lib": [
+        "ES2021.String"
+      ]
     },
     "include": ["./src/**/*"],
     "noImplicitReturns": true,

@@ -42,7 +42,8 @@ export class BookComponent implements OnInit {
     if (!this.book?.coverUrl) {
       this.coverUrl = '/assets/images/covers/blank.png';
     } else if (this.book.coverUrl.startsWith('https://books.google.com/')
-      || this.book.coverUrl.startsWith('http://books.google.com/')) {
+      || this.book.coverUrl.startsWith('http://books.google.com/')
+      || this.book.coverUrl.startsWith('/assets/')) {
       this.coverUrl = this.book.coverUrl;
     } else {
       this.coverUrl = environment.apiServerUrl + '/v1/books/fictioncovers/' + this.book.coverUrl
