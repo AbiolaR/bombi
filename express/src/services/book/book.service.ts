@@ -26,8 +26,8 @@ export class BookService {
     let downloadUrl = this.BASE_DOWNLOAD_URL + this.encodeUriAll(`${this.torrentNumber(book)}/${book.md5}.${book.extension}/${series} ${book.author} - ${book.title}.${book.extension}`);
     let coverUrl = book.coverUrl ? `${this.LIBGEN_FICTION_COVERS}${book.coverUrl}` : '';
 
-    return await this.downloadWithUrl(downloadUrl, coverUrl, book.filename) 
-      || await this.downloadWithMD5(book.md5, `${this.LIBGEN_FICTION_COVERS}${book.coverUrl}`, book.filename);
+    return await this.downloadWithMD5(book.md5, coverUrl, book.filename)
+      || await this.downloadWithUrl(downloadUrl, coverUrl, book.filename);
   }
 
   static async downloadWithUrl(url: string, coverUrl: string, filename: string): Promise<BookDownloadResponse> {
