@@ -73,7 +73,7 @@ export class BookService {
 
   private static fetchFromLocal(book: Book): BookDownloadResponse {
     let filePath = `/tmp/app.bombi/books${book.filename}`;
-    let coverPath = `${dirname(require.main.filename)}/static${book.coverUrl}`;
+    let coverPath = `${dirname(require.main.filename)}/../static${book.coverUrl}`;
     let downloadResponse = new BookDownloadResponse(new BookBlob(createReadStream(filePath), book.filename.split('/').pop(), filePath));
     if (book.coverUrl) {
       downloadResponse.cover = new CoverBlob(createReadStream(coverPath), book.coverUrl.split('/').pop(), coverPath);

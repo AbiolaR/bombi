@@ -8,10 +8,10 @@ const STATIC_ARGS = 'python3 resources/python/tolinoclient.py --partner 10 --use
 module.exports.upload = async (filePath, coverPath, user) => {
     var coverArg = '';
     if (coverPath) {
-        coverArg = `--cover ${coverPath}`;
+        coverArg = `--cover "${coverPath}"`;
     }
 
-    const commandArgs = `${filePath} ${coverArg}`;
+    const commandArgs = `"${filePath}" ${coverArg}`;
 
     return await executeScript('upload', commandArgs, user);
 }
