@@ -7,8 +7,17 @@ const EMAIL_USERNAME = DEC('U2FsdGVkX1/BOVsuuHLZSv6HtP1DfHEHcI08D4vNe9c=');
 const EMAIL_PASSWORD = DEC('U2FsdGVkX18pqmzHNBqcgdZ5DBiNHnxYcB9/y9bTZOM=');
 const SUPPORT_SENDER = `Bombi Support <${EMAIL_USERNAME}>`;
 
-const connection = `smtps://${EMAIL_USERNAME}:${EMAIL_PASSWORD}@smtp.strato.de`;
-const mail = nodemailer.createTransport(connection);
+const config = {
+    host: 'smtp.strato.de',
+    port: 465,
+    secure: true,
+    auth: {
+        user: EMAIL_USERNAME,
+        pass: EMAIL_PASSWORD
+    }
+};
+
+const mail = nodemailer.createTransport(config);
 
 const MAX_SIZE_BYTES = 52428800;
 
