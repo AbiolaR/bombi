@@ -35,7 +35,7 @@ export class BookService {
         const request = await axios.get<Readable>(url, {
           responseType: 'stream',
         });
-        let cover: CoverBlob;
+        let cover = new CoverBlob();
         if (coverUrl) {
           const coverRequest = await axios.get<Readable>(coverUrl, { responseType: 'stream' });
           cover = new CoverBlob(coverRequest.data, coverRequest.config.url.split('/').pop());
@@ -48,18 +48,18 @@ export class BookService {
 
   static async downloadWithMD5(md5Hash: string, coverUrl: string, filename: string): Promise<BookDownloadResponse> {
     try {
-      const page = (await axios.get<string>(`${this.LIBGEN_MIRROR}/get.php?md5=${md5Hash}`)).data;
+      const page = (await axios.get<string>(`${this.LIBGEN_MIRROR}/ads.php?md5=${md5Hash}`)).data;
       const regexDownloadURL = new RegExp(/(?<=href=")(.*)(?="><h2>GET<)/g);
 
       let downloadUrl = page.match(regexDownloadURL).toString();
 
-      const request = await axios.get<Readable>(`${this.LIBGEN_MIRROR}/${downloadUrl}`, { 
+      const request = await axios.get<Readable>(`${downloadUrl}`, { 
         responseType: 'stream'
       });
 
       let book = new BookBlob(request.data, filename);
 
-      let cover: CoverBlob;
+      let cover = new CoverBlob();
       if (coverUrl) {
         const coverRequest = await axios.get<Readable>(coverUrl, { responseType: 'stream' });
         cover = new CoverBlob(coverRequest.data, coverRequest.config.url.split('/').pop());
@@ -89,7 +89,7 @@ export class BookService {
   static async sendFileToTolino(book: BookBlob, cover: CoverBlob, user: User) {
       book.filePath = book.filePath || await saveToDiskAsync(book.data, book.filename);      
 
-      if (cover && !cover.filePath) {
+      if (cover.data && !cover.filePath) {
         cover.filePath =  await saveToDiskAsync(cover.data, cover.filename);
       }
     
