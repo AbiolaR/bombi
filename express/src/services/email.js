@@ -38,13 +38,16 @@ const sendFileViaEmail = async (recipient, filePath, filename) => {
     }
 
     var result = await mail.sendMail(mailOptions);
-    fs.unlinkSync(filePath);
-    if (result.accepted.length > 0) {
-        return { status: 200, message: { success: 'file sent successfully' } };
-    } else {
-        const error = result.rejected[0];
-        console.error(error);
-        return { status: 501, message: { error: `could not send file via mail: ${error}` } };
+    try {
+        fs.unlinkSync(filePath);
+    } finally {
+        if (result.accepted.length > 0) {
+            return { status: 200, message: { success: 'file sent successfully' } };
+        } else {
+            const error = result.rejected[0];
+            console.error(error);
+            return { status: 501, message: { error: `could not send file via mail: ${error}` } };
+        }
     }
 }
 
