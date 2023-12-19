@@ -20,10 +20,20 @@ def checkVersion(version, file):
         version = getNewVersion(file)
     return version
 
+def checkCredential(credential):
+    if not credential:
+        print('Invalid username!')
+        print('Please enter the username to connect to the docker registry:')
+        username = input()
+        credential = keyring.get_credential(registry, username)
+        return checkCredential(credential)
+    return credential
+
 registry = 'docker.tinym.de'
 appName = 'bombi'
 
 credential = keyring.get_credential(registry, '')
+credential = checkCredential(credential)
 
 session = requests.Session()
 session.auth = (credential.username, credential.password)
