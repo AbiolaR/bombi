@@ -8,7 +8,7 @@ import { BookDownloadResponse as BookDownloadResponse } from "../../models/book-
 import { Readable } from "stream";
 import { CoverBlob } from "../../models/cover-blob.model";
 import { Book } from "../../models/db/book.model";
-import { createReadStream } from "fs";
+import { createReadStream, existsSync } from "fs";
 import { dirname } from "path";
 
 export class BookService {
@@ -19,15 +19,17 @@ export class BookService {
 
   static async download(book: Book): Promise<BookDownloadResponse> {
     if (!book.md5) {
-      return this.fetchFromLocal(book);
+      return await this.fetchFromLocal(book);
     }
     let series = book.series ? `(${book.series})` : '';
 
     let downloadUrl = this.BASE_DOWNLOAD_URL + this.encodeUriAll(`${this.torrentNumber(book)}/${book.md5}.${book.extension}/${series} ${book.author} - ${book.title}.${book.extension}`);
     let coverUrl = book.coverUrl ? `${this.LIBGEN_FICTION_COVERS}${book.coverUrl}` : '';
+    book.coverUrl = coverUrl;
 
-    return await this.downloadWithMD5(book.md5, coverUrl, book.filename)
-      || await this.downloadWithUrl(downloadUrl, coverUrl, book.filename);
+    return await this.fetchFromLocal(book) 
+      || await this.downloadWithMD5(book.md5, coverUrl, book.md5 + book.filename)
+      || await this.downloadWithUrl(downloadUrl, coverUrl, book.md5 + book.filename);
   }
 
   static async downloadWithUrl(url: string, coverUrl: string, filename: string): Promise<BookDownloadResponse> {
@@ -71,14 +73,39 @@ export class BookService {
     }
   }
 
-  private static fetchFromLocal(book: Book): BookDownloadResponse {
-    let filePath = `/tmp/app.bombi/books${book.filename}`;
-    let coverPath = `${dirname(require.main.filename)}/../static${book.coverUrl}`;
-    let downloadResponse = new BookDownloadResponse(new BookBlob(createReadStream(filePath), book.filename.split('/').pop(), filePath));
-    if (book.coverUrl) {
-      downloadResponse.cover = new CoverBlob(createReadStream(coverPath), book.coverUrl.split('/').pop(), coverPath);
+  private static async fetchFromLocal(book: Book): Promise<BookDownloadResponse> {
+    try {
+      let filePath = `/tmp/app.bombi/${book.md5}${book.filename}`;
+      if(!existsSync(filePath)) return
+
+      let coverPath = '';
+      if (!book.md5) {
+        `${dirname(require.main.filename)}/../static${book.coverUrl}`;
+      } else {
+        coverPath = `/tmp/app.bombi/${book.coverUrl.split('/').pop()}`
+      }
+
+      let downloadResponse = new BookDownloadResponse(
+        new BookBlob(createReadStream(filePath), book.filename.split('/').pop(), filePath)
+      );
+
+      let cover = new CoverBlob();
+      if (book.coverUrl) {
+        let data: Readable;
+        if (existsSync(coverPath)) {
+          data = createReadStream(coverPath);
+        } else {
+          data = (await axios.get<Readable>(book.coverUrl, { responseType: 'stream' })).data;
+          coverPath = '';
+        }
+        cover = new CoverBlob(data, book.coverUrl.split('/').pop(), coverPath);
+      }
+      downloadResponse.cover = cover;
+
+      return downloadResponse;
+    } catch(error) {
+      console.error(error);
     }
-    return downloadResponse;
   }
 
   static async sendFileToKindle(recipient: string, book: BookBlob) {
