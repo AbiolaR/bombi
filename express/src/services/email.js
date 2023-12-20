@@ -25,12 +25,15 @@ const sendFileViaEmail = async (recipient, filePath, filename) => {
     if(fs.statSync(filePath).size > MAX_SIZE_BYTES) {
         filePath = await compressEpubAsync(filePath);
     }
+
+    let bookName = filename.split('.').shift();
     
     var mailOptions = {
         from: EMAIL_USERNAME,
         to: recipient,
-        subject: 'new book',
-        text: 'new book',
+        subject: bookName,
+        text: `Enjoy reading ${bookName}`,
+        html: `Enjoy reading <b>${bookName}</b>`,
         attachments: [{
             filename: filename,
             path: filePath
