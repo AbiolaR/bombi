@@ -80,7 +80,7 @@ export class BookService {
 
       let coverPath = '';
       if (!book.md5) {
-        `${dirname(require.main.filename)}/../static${book.coverUrl}`;
+        coverPath = `${dirname(require.main.filename)}/../static${book.coverUrl}`;
       } else {
         coverPath = `/tmp/app.bombi/${book.coverUrl.split('/').pop()}`
       }
