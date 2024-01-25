@@ -107,7 +107,6 @@ async function setEpubLanguage(filePath, lang) {
 
 module.exports.saveToDiskAsync = async (file, filename) => {
     const path = `${TEMP_DIR}${filename}`;
-    fs.mkdirSync(dirname(path));
     await pipeline(file, fs.createWriteStream(path));
     return path;
 }

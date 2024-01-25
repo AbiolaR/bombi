@@ -16,6 +16,7 @@ export class BookService {
   private static readonly LIBGEN_MIRROR = process.env.LIBGEN_MIRROR || 'https://libgen.rocks';
   private static readonly BASE_DOWNLOAD_URL = 'https://download.library.lol/fiction/';
   private static readonly LIBGEN_FICTION_COVERS = 'https://library.lol/fictioncovers/';
+  private static readonly SPLIT = '._-_.';
 
   static async download(book: Book): Promise<BookDownloadResponse> {
     if (!book.md5) {
@@ -28,8 +29,8 @@ export class BookService {
     book.coverUrl = coverUrl;
 
     return await this.fetchFromLocal(book) 
-      || await this.downloadWithMD5(book.md5, coverUrl, `${book.md5}/${book.filename}`)
-      || await this.downloadWithUrl(downloadUrl, coverUrl, `${book.md5}/${book.filename}`);
+      || await this.downloadWithMD5(book.md5, coverUrl, `${book.md5}${this.SPLIT}${book.filename}`)
+      || await this.downloadWithUrl(downloadUrl, coverUrl, `${book.md5}${this.SPLIT}${book.filename}`);
   }
 
   static async downloadWithUrl(url: string, coverUrl: string, filename: string): Promise<BookDownloadResponse> {
@@ -75,7 +76,7 @@ export class BookService {
 
   private static async fetchFromLocal(book: Book): Promise<BookDownloadResponse> {
     try {
-      let filePath = `/tmp/app.bombi/${book.md5}/${book.filename}`;
+      let filePath = `/tmp/app.bombi/${book.md5}${this.SPLIT}${book.filename}`;
       if(!existsSync(filePath)) return
 
       let coverPath = '';
@@ -110,7 +111,7 @@ export class BookService {
 
   static async sendFileToKindle(recipient: string, book: BookBlob) {
     book.filePath = book.filePath || await saveToDiskAsync(book.data, book.filename);
-    return await sendFileViaEmail(recipient, book.filePath, book.filename);
+    return await sendFileViaEmail(recipient, book.filePath, book.filename.split(this.SPLIT).pop());
   }
 
   static async sendFileToTolino(book: BookBlob, cover: CoverBlob, user: User) {
