@@ -10,6 +10,7 @@ const ebookConvertAsync = util.promisify(ebookconvert);
 const { DEC } = require('./secman');
 var axios = require('axios');
 const sharp = require('sharp');
+const { dirname } = require('path');
 
 const TEMP_DIR = '/tmp/app.bombi/';
 const ENGLISH = 'en';
@@ -106,6 +107,7 @@ async function setEpubLanguage(filePath, lang) {
 
 module.exports.saveToDiskAsync = async (file, filename) => {
     const path = `${TEMP_DIR}${filename}`;
+    fs.mkdirSync(dirname(path));
     await pipeline(file, fs.createWriteStream(path));
     return path;
 }

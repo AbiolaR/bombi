@@ -28,8 +28,8 @@ export class BookService {
     book.coverUrl = coverUrl;
 
     return await this.fetchFromLocal(book) 
-      || await this.downloadWithMD5(book.md5, coverUrl, book.md5 + book.filename)
-      || await this.downloadWithUrl(downloadUrl, coverUrl, book.md5 + book.filename);
+      || await this.downloadWithMD5(book.md5, coverUrl, `${book.md5}/${book.filename}`)
+      || await this.downloadWithUrl(downloadUrl, coverUrl, `${book.md5}/${book.filename}`);
   }
 
   static async downloadWithUrl(url: string, coverUrl: string, filename: string): Promise<BookDownloadResponse> {
@@ -75,7 +75,7 @@ export class BookService {
 
   private static async fetchFromLocal(book: Book): Promise<BookDownloadResponse> {
     try {
-      let filePath = `/tmp/app.bombi/${book.md5}${book.filename}`;
+      let filePath = `/tmp/app.bombi/${book.md5}/${book.filename}`;
       if(!existsSync(filePath)) return
 
       let coverPath = '';
