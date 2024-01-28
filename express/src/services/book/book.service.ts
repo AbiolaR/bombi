@@ -13,9 +13,9 @@ import { dirname } from "path";
 
 export class BookService {
 
-  private static readonly LIBGEN_MIRROR = process.env.LIBGEN_MIRROR || 'https://libgen.rocks';
-  private static readonly BASE_DOWNLOAD_URL = 'https://download.library.lol/fiction/';
-  private static readonly LIBGEN_FICTION_COVERS = 'https://library.lol/fictioncovers/';
+  private static readonly LIBGEN_MIRROR = process.env.LIBGEN_MIRROR || 'http://libgen.rocks';
+  private static readonly BASE_DOWNLOAD_URL = 'http://download.library.lol/fiction/';
+  private static readonly LIBGEN_FICTION_COVERS = 'http://library.lol/fictioncovers/';
   private static readonly SPLIT = '._-_.';
 
   static async download(book: Book): Promise<BookDownloadResponse> {
@@ -76,7 +76,11 @@ export class BookService {
 
   private static async fetchFromLocal(book: Book): Promise<BookDownloadResponse> {
     try {
-      let filePath = `/tmp/app.bombi/${book.md5}${this.SPLIT}${book.filename}`;
+      let prefix = '';
+      if (book.md5) {
+        prefix = book.md5 + this.SPLIT;
+      }
+      let filePath = `/tmp/app.bombi/${prefix}${book.filename}`;      
       if(!existsSync(filePath)) return
 
       let coverPath = '';
