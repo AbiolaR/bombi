@@ -7,7 +7,7 @@ import axios from "axios";
 
 export class GoogleBooksSearchService {
     private static readonly API_KEY = DEC('U2FsdGVkX19xDpW0bIUUp+Wep4V1lJ1NWJPDVrpGzuOM7el6f9PugO7EaWfeVPucqPmffkjfUZtlAb22oifz+A==');
-    private static readonly SEARCH_URL = 'https://www.googleapis.com/books/v1/volumes?q=subject:fiction+intitle:';
+    private static readonly SEARCH_URL = 'https://www.googleapis.com/books/v1/volumes?q=intitle:';
     private static readonly UPPERCASE_REGEX = /^[A-Z]+$/;
     private static readonly ISBN = 'ISBN_13';
 
@@ -65,8 +65,9 @@ export class GoogleBooksSearchService {
     }
 
     private static parseISBN(volume: GoogleBook): string {
-        return volume.volumeInfo.industryIdentifiers
-        .find(identifier => identifier.type == this.ISBN)?.identifier || ''
+        return volume.volumeInfo.industryIdentifiers?.find(identifier => 
+            identifier.type == this.ISBN
+        )?.identifier || ''
     }
 
     private static parseLanguage(volume: GoogleBook): SyncLanguage {
