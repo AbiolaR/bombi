@@ -50,6 +50,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { AddMessageDialogComponent } from './components/dialogs/add-message-dialog/add-message-dialog.component';
+import { PocketBookConfigComponent } from './components/pocket-book-config/pocket-book-config.component';
+import { MatRadioModule } from '@angular/material/radio';
 
 export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http);
@@ -79,6 +81,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     SocialReadingPlatformConfigComponent,
     SrpSyncDialogComponent,
     AddMessageDialogComponent,
+    PocketBookConfigComponent,
   ],
   imports: [
     BrowserModule,
@@ -104,6 +107,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     MatTooltipModule,
     MatCheckboxModule,
     MatProgressBarModule,
+    MatRadioModule,
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,

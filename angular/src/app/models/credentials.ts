@@ -10,7 +10,10 @@ export class Credentials {
         this.password = password;    
     }
 
-    valid(): boolean {
+    valid(ignorePassword = false): boolean {
+        if (ignorePassword) {
+            return Boolean(this.username.match(this.emailRegex));
+        }
         return (this.username.match(this.emailRegex) || false)
             && (this.password.length >= this.minimumPasswordLength);
     }

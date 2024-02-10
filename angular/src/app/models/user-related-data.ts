@@ -1,5 +1,6 @@
 import { Language } from "./language";
 import { Contact } from "./contact";
+import { PocketBookConfig } from "./pocketbook-config";
 
 const SEARCH_HISTORY_MAX_SIZE = 100;
 
@@ -21,6 +22,7 @@ export class UserRelatedData {
     tsgCookies: string[] = [];
     grUserId: string = '';
     grCookies: string[] = [];
+    pocketBookConfig: PocketBookConfig = new PocketBookConfig();
 
     sanitize(): void {
         if (this.eReaderDeviceId && this.eReaderDeviceId.length > 4) {
@@ -84,6 +86,7 @@ export class UserRelatedData {
     }
 
     private notStarred(v: any) {
+        if (v.cloudConfig) return false;
         if (typeof v !== 'string') return true;
         return !v.startsWith('*****');
     }

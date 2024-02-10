@@ -1,4 +1,5 @@
 import { Contact } from "./contact.model";
+import { PocketBookConfig } from "./pocketbook-config.model";
 import { PushSubscription } from "./push-subscription.model";
 
 export interface User {
@@ -26,5 +27,6 @@ export interface User {
     grRigidLanguage: boolean,
     grUseSyncTag: boolean,
     grUserId: string,
-    grCookies: string[]
+    grCookies: string[],
+    pocketBookConfig: PocketBookConfig
 }

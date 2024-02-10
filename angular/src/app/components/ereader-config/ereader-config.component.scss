@@ -13,7 +13,7 @@ mat-form-field {
     margin-top: 0.5em;
 }
 
-.e-reader-config {
+.e-reader-config-container {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -46,6 +46,18 @@ button {
     ::ng-deep span {
         pointer-events: none;
     }
+}
+
+app-pocket-book-config {
+    width: 100%;
+}
+
+.ereader-config {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin-top: 1rem;
 }
 
 .tolino-config {

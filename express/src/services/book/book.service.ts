@@ -10,6 +10,7 @@ import { CoverBlob } from "../../models/cover-blob.model";
 import { Book } from "../../models/db/book.model";
 import { createReadStream, existsSync } from "fs";
 import { dirname } from "path";
+import { PocketBookCloudService } from "../e-readers/pocketbook-cloud.service";
 
 export class BookService {
 
@@ -132,6 +133,16 @@ export class BookService {
       } else {
         return { status: 501, message: { error: 'file not sent to tolino' } };
       }
+  }
+
+  static async sendFileToPocketBook(book: BookBlob, user: User) {
+    const success = await PocketBookCloudService.uploadBook(user, book);
+
+    if (success) {
+      return { status: 200, message: { success: 'file sent to pocketbook' } };
+    } else {
+      return { status: 501, message: { error: 'file not sent to pocketbook' } };
+    }
   }
 
   private static encodeUriAll(value: string): string {

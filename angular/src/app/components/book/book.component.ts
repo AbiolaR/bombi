@@ -120,6 +120,8 @@ export class BookComponent implements OnInit {
         return 'Kindle'
       case 'T': // Tolino
         return 'Tolino';
+      case 'P': // PocketBook
+        return 'PocketBook';
       default:
         return 'E-Reader';
     }

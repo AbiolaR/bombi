@@ -352,6 +352,12 @@ function sanitize(user) {
     if (user.eReaderRefreshToken) {
         user.eReaderRefreshToken = '**********';
     }
+    if (user.pocketBookConfig.cloudConfig?.accessToken) {
+        user.pocketBookConfig.cloudConfig.accessToken = '**********';
+    }
+    if (user.pocketBookConfig.cloudConfig?.refreshToken) {
+        user.pocketBookConfig.cloudConfig.refreshToken = '**********';
+    }
     return user;
 }
 

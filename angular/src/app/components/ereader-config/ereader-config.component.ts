@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Credentials } from 'src/app/models/credentials';
+import { PocketBookSyncType } from 'src/app/models/pocketbook-sync-type.enum';
 import { UserData } from 'src/app/models/user-data';
 import { UserRelatedData } from 'src/app/models/user-related-data';
 import { BookService } from 'src/app/services/book.service';
@@ -18,11 +19,12 @@ export class EReaderConfigComponent implements OnInit {
   @Output()
   userRelatedDataChange: EventEmitter<UserData> = new EventEmitter<UserData>();
 
-  activeEReader: number = 0;
+  activeEReader: string = '';
   credentials = new Credentials();
   executingRequest = false;
   isPasswordHidden = true;
   errorText = '';
+
 
   constructor(private bookService: BookService, private translate: TranslateService,
     private userService: UserService) { }
@@ -30,24 +32,16 @@ export class EReaderConfigComponent implements OnInit {
   ngOnInit(): void {
     switch (this.userRelatedData.eReaderType) {
       case 'K': // Kindle
-        this.activeEReader = 0;
+        this.activeEReader = 'Kindle';
         break;
       case 'T': // Tolino
-        this.activeEReader = 1;
+        this.activeEReader = 'Tolino';
+        break;
+      case 'P':
+        this.activeEReader = 'PocketBook';
         break;
       default:
         this.userRelatedData.eReaderType = 'K';
-        break;
-    }
-  }
-
-  setEReader(index: any): void {
-    switch(index) {
-      case 0: // Kindle
-        this.userRelatedData.eReaderType = 'K';
-        break;
-      case 1: // Tolino
-        this.userRelatedData.eReaderType = 'T';
         break;
     }
   }

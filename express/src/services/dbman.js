@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const { DEC } = require('./secman');
+const { PocketBookConfig: PocketBookConfigClass } = require('../models/db/mongodb/pocketbook-config.model');
 
 const ENV = process.env.STAGE == 'prod' ? 'Prod' : 'Test';
 
@@ -53,6 +54,16 @@ const ContactSchema = mongoose.Schema({
     sharedBooks: [BookSchema]
 });
 
+const PocketBookCloudConfig = mongoose.Schema({
+    accessToken: { type: String, required: true },
+    refreshToken: { type: String, required: true }
+});
+
+const PocketBookConfig = mongoose.Schema({
+    cloudConfig: PocketBookCloudConfig,
+    sendToEmail: String 
+});
+
 const UserSchema = mongoose.Schema({
     username: { type: String, required: true },
     password: { type: String, required: true },
@@ -77,7 +88,8 @@ const UserSchema = mongoose.Schema({
     grRigidLanguage: Boolean,
     grUseSyncTag: Boolean,
     grUserId: String,
-    grCookies: [String]
+    grCookies: [String],
+    pocketBookConfig: { type: PocketBookConfig, default: new PocketBookConfigClass() }
 });
 
 module.exports.UserSchema = UserSchema;

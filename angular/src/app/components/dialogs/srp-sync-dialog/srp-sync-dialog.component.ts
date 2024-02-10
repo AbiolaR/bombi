@@ -142,6 +142,8 @@ export class SrpSyncDialogComponent {
         return 'Kindle'
       case 'T':
         return 'Tolino';
+      case 'P': // PocketBook
+        return 'PocketBook';
       default:
         return 'E-Reader';
     }

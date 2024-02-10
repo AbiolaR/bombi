@@ -1,0 +1,87 @@
+div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+mat-form-field {
+    margin: 0.5em 0;
+    width: 100%;
+}
+
+.password-visibility {
+    cursor: pointer;
+}
+
+.hide-text {
+    -webkit-text-security: disc;
+}
+
+.error-text {
+    margin-top: 1em;
+    color: #f44336;
+    text-align: center;
+}
+
+button {
+    margin-top: 1rem;
+    width: 10rem;
+    min-height: 3rem;
+    height: fit-content;
+    line-height: 24px;
+    
+    mat-spinner {
+        ::ng-deep circle {
+            stroke: var(--main-background-color) !important;
+        }
+    }
+}
+
+.providers {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.provider {
+    width: 100%;
+    padding: 0.5rem;
+
+    ::ng-deep.mdc-form-field {        
+        width: 100%;
+
+        .mdc-label {
+            width: 100%;
+        }
+
+        .mdc-label:hover {        
+            cursor: pointer;
+        }
+    }
+
+    .provider-content {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        width: 100%;
+    }
+
+    .provider-icon {
+        margin-left: 1rem;
+    }
+}
+
+.provider-password {
+    flex-direction: row;
+    align-items: center;
+
+    .provider-icon {
+        margin-right: 1rem;
+    }
+}
+
+.provider-icon {
+    height: 3rem;    
+    border-radius: 4px;
+}

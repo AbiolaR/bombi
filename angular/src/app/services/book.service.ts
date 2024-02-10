@@ -8,6 +8,7 @@ import { SearchResult } from '../models/search-result';
 import { ServerResponse } from '../models/server-response';
 import { Credentials } from '../models/credentials';
 import { Book } from '../models/book';
+import { PocketBookProvider } from '../models/pocketbook-provider';
 
 const FIFTEEN_MINUTES_IN_MS = 1000 * 60 * 15;
 
@@ -51,8 +52,7 @@ export class BookService {
     { responseType: 'blob' });
   }
 
-  public sendToEReader(book: Book): Observable<any> {
-    
+  public sendToEReader(book: Book): Observable<any> {    
     const headers = { 'Authorization': `Bearer ${this.userService.getLocalUserData()?.access_token}`};
     return this.http.post<any>(`${this.apiUrl}send`, 
       { bookData: book },
@@ -64,6 +64,30 @@ export class BookService {
     return this.http.post<ServerResponse<void>>(`${this.apiUrl}tolino/connect`,
     { credentials },
     { headers });
+  }
+
+  public getPocketBookProviders(email: string): Observable<ServerResponse<PocketBookProvider[]>> {
+    const headers = { 'Authorization': `Bearer ${this.userService.getLocalUserData()?.access_token}`};
+    return this.http.post<ServerResponse<PocketBookProvider[]>>(
+      `${this.apiUrl}pocketbook-cloud/providers`,
+      { email: email },
+      { headers }
+    );
+  }
+
+  public connectPocketBookCloud(credentials: Credentials, provider: PocketBookProvider): Observable<ServerResponse<boolean>> {
+    const headers = { 'Authorization': `Bearer ${this.userService.getLocalUserData()?.access_token}`};
+    return this.http.post<ServerResponse<boolean>>(
+      `${this.apiUrl}pocketbook-cloud/connect`,
+      { credentials: credentials, provider: provider },
+      { headers }
+    );
+  }
+
+  public disconnectPocketBookCloud(): Observable<ServerResponse<void>> {
+    const headers = { 'Authorization': `Bearer ${this.userService.getLocalUserData()?.access_token}`};
+    return this.http.delete<ServerResponse<void>>(`${this.apiUrl}pocketbook-cloud/disconnect`,
+      { headers });
   }
 
   public disconnectTolino(): Observable<ServerResponse<void>> {

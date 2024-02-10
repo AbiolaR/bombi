@@ -150,6 +150,8 @@ export class BookSyncService {
         case 'T': // Tolino
           result = await BookService.sendFileToTolino(book, cover, user);
           break;
+        case 'P': // PocketBook
+          result = await  BookService.sendFileToPocketBook(book, user);
         default:
           result = { status: 501, message: `no eReader value set on user ${user.username}` };
           break;  
@@ -181,6 +183,8 @@ export class BookSyncService {
         break;
       case 'T':
         eReader = 'Tolino';
+      case 'P': 
+        eReader = 'PocketBook';
     }
     let title = i18n.__({ phrase: 'book-available-title', locale: user.language });
     let message = i18n.__({ phrase: 'book-available-message', locale: user.language },
