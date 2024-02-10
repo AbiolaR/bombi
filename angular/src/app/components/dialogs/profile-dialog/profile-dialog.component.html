@@ -64,13 +64,13 @@
                             src="/assets/images/language-flags/de.svg">
                         </div>                
                     </mat-expansion-panel>
-                    <mat-expansion-panel #ebrPanel (afterExpand)="ebrPanel._body.nativeElement.scrollIntoView()">
+                    <mat-expansion-panel #ebrPanel (afterExpand)="scrollIntoView(ebrPanel)">
                         <mat-expansion-panel-header>
                             <h4>{{ 'configure-your-ebook-reader' | translate }}</h4>
                         </mat-expansion-panel-header>
                         <app-ereader-config *ngIf="userData" [(userRelatedData)]="userData"></app-ereader-config>
                     </mat-expansion-panel>
-                    <mat-expansion-panel #srpPanel (afterExpand)="srpPanel._body.nativeElement.scrollIntoView()"
+                    <mat-expansion-panel #srpPanel (afterExpand)="scrollIntoView(srpPanel)"
                     *ngIf="eReaderEmailSaved || (userData?.eReaderDeviceId && userData?.eReaderRefreshToken)">
                         <mat-expansion-panel-header>
                             <h4>{{ 'connect-social-reading-platforms' | translate }}</h4>

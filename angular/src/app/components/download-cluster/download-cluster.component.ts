@@ -139,6 +139,8 @@ export class DownloadClusterComponent {
         return 'Kindle'
       case 'T': // Tolino
         return 'Tolino';
+      case 'P': // PocketBook
+        return 'PocketBook';
       default:
         return 'E-Reader';
     }

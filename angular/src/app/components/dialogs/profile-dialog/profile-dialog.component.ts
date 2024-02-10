@@ -9,6 +9,7 @@ import { Contact } from 'src/app/models/contact';
 import { AddContactDialogComponent } from '../add-contact-dialog/add-contact-dialog.component';
 import { NotificationInfo } from 'src/app/models/notification-info';
 import { SwPush } from '@angular/service-worker';
+import { MatExpansionPanel } from '@angular/material/expansion';
 
 const PUBLIC_VAPID_KEY = 'BKoDZzDgSyM4qGa9wvX_u3udANeC-8Cn3JGmSfJKfUEp37edT0JFNXl85w_QfsK7ft7NjwJneG7Wz6HmTynRCuU';
 
@@ -127,6 +128,10 @@ export class ProfileDialogComponent implements OnInit {
       });
     })
     .catch();
+  }
+
+  scrollIntoView(panel: MatExpansionPanel) {
+    panel._body.nativeElement.scrollIntoView({behavior: 'smooth'})
   }
 
   private deleteFriendRequest(username: string) {

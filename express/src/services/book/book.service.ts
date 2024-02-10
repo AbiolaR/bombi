@@ -10,12 +10,13 @@ import { CoverBlob } from "../../models/cover-blob.model";
 import { Book } from "../../models/db/book.model";
 import { createReadStream, existsSync } from "fs";
 import { dirname } from "path";
+import { PocketBookCloudService } from "../e-readers/pocketbook-cloud.service";
 
 export class BookService {
 
-  private static readonly LIBGEN_MIRROR = process.env.LIBGEN_MIRROR || 'https://libgen.rocks';
-  private static readonly BASE_DOWNLOAD_URL = 'https://download.library.lol/fiction/';
-  private static readonly LIBGEN_FICTION_COVERS = 'https://library.lol/fictioncovers/';
+  private static readonly LIBGEN_MIRROR = process.env.LIBGEN_MIRROR || 'http://libgen.rocks';
+  private static readonly BASE_DOWNLOAD_URL = 'http://download.library.lol/fiction/';
+  private static readonly LIBGEN_FICTION_COVERS = 'http://library.lol/fictioncovers/';
 
   static async download(book: Book): Promise<BookDownloadResponse> {
     if (!book.md5) {
@@ -127,6 +128,16 @@ export class BookService {
       } else {
         return { status: 501, message: { error: 'file not sent to tolino' } };
       }
+  }
+
+  static async sendFileToPocketBook(book: BookBlob, user: User) {
+    const success = await PocketBookCloudService.uploadBook(user, book);
+
+    if (success) {
+      return { status: 200, message: { success: 'file sent to pocketbook' } };
+    } else {
+      return { status: 501, message: { error: 'file not sent to pocketbook' } };
+    }
   }
 
   private static encodeUriAll(value: string): string {

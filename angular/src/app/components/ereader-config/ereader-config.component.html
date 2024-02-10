@@ -1,6 +1,54 @@
-<div class="e-reader-config">    
-    <mat-tab-group mat-stretch-tabs dynamicHeight (selectedTabChange)="setEReader($event.index)"
-        [(selectedIndex)]="activeEReader">    
+<div class="e-reader-config-container">
+    <mat-label>Choose your E-Reader</mat-label>
+    <mat-form-field appearance="outline">
+        <mat-select [(ngModel)]="userRelatedData.eReaderType">
+            <mat-option value="K">Kindle</mat-option>
+            <mat-option value="T">Tolino</mat-option>
+            <mat-option value="P">PocketBook</mat-option>
+        </mat-select>
+    </mat-form-field>
+    
+    <div *ngIf="userRelatedData.eReaderType == 'K'" class="ereader-config">
+        <mat-form-field appearance="outline">
+            <mat-label>{{ 'enter-your-kindles-e-mail-here' | translate }}</mat-label>
+            <input matInput [(ngModel)]="userRelatedData.eReaderEmail"/>
+        </mat-form-field>
+    </div>    
+    <div *ngIf="userRelatedData.eReaderType == 'T'" class="ereader-config">
+        <div class="tolino-config" *ngIf="!userRelatedData.eReaderDeviceId">
+            <mat-form-field appearance="outline">
+                <mat-label>{{ 'e-mail' | translate }}</mat-label>
+                <input name="email" matInput [(ngModel)]="credentials.username" (keydown)="submit($event)"/>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+                <mat-label>{{ 'password' | translate }}</mat-label>
+                <input autocomplete="new-password" matInput [(ngModel)]="credentials.password"
+                (keydown)="submit($event)" [ngClass]="{'hide-text' : isPasswordHidden}"/>
+                <mat-icon matSuffix *ngIf="isPasswordHidden" (click)="isPasswordHidden = false"
+                class="password-visibility">visibility</mat-icon>
+                <mat-icon matSuffix *ngIf="!isPasswordHidden" (click)="isPasswordHidden = true"
+                class="password-visibility">visibility_off</mat-icon>
+            </mat-form-field>
+            <p *ngIf="errorText" class="error-text">{{errorText}}</p>
+            <button mat-flat-button color="primary" (click)="connectTolino()" [disabled]="!credentials.valid()">
+                <span *ngIf="!executingRequest">Connect Account</span>
+                <mat-spinner *ngIf="executingRequest" [diameter]="30"></mat-spinner>
+            </button>
+        </div>
+        <button mat-flat-button color="primary" *ngIf="userRelatedData.eReaderDeviceId"
+        (click)="disconnectTolino()">
+            <span *ngIf="!executingRequest">Disconnect Account</span>
+            <mat-spinner *ngIf="executingRequest" [diameter]="30"></mat-spinner>
+        </button>
+    </div>
+    <div *ngIf="userRelatedData.eReaderType == 'P'" class="ereader-config">
+        <app-pocket-book-config [(pocketBookConfig)]="userRelatedData.pocketBookConfig" />
+    </div>
+
+
+
+    <!--<mat-tab-group mat-stretch-tabs dynamicHeight (selectedTabChange)="setEReader($event.index)"
+        selectedIndex="0">    
         <mat-tab label="Kindle">
             <mat-form-field appearance="outline">
                 <mat-label>{{ 'enter-your-kindles-e-mail-here' | translate }}</mat-label>
@@ -34,5 +82,5 @@
                 <mat-spinner *ngIf="executingRequest" [diameter]="30"></mat-spinner>
             </button>
         </mat-tab>
-    </mat-tab-group>
+    </mat-tab-group>-->
 </div>

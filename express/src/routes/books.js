@@ -10,10 +10,11 @@ const { TolinoService } = require('../services/e-readers/tolino.service');
 const { LibgenDbService } = require('../services/db/libgen-db.service');
 const { BookService } = require('../services/book/book.service');
 const { GoogleBooksSearchService } = require('../services/search/google-books-search.service');
+const { PocketBookCloudService } = require('../services/e-readers/pocketbook-cloud.service');
 
 const LIBGEN_MIRROR = process.env.LIBGEN_MIRROR || 'https://libgen.rocks';
-const DAY_IN_MS = 1000 * 60 * 60 * 24;
 
+//const DAY_IN_MS = 1000 * 60 * 60 * 24;
 //const axios = setupCache(Axios, { ttl: DAY_IN_MS, headerInterpreter: () => {return 'not enough headers'} });
 
 router.get('/search', async(req, res) => {
@@ -127,6 +128,9 @@ router.post('/send', async(req, res) => {
     case 'T': // Tolino
       result = await  BookService.sendFileToTolino(downloadResponse.book, downloadResponse.cover, user);
       break;
+    case 'P': // PocketBook
+      result = await  BookService.sendFileToPocketBook(downloadResponse.book, user);
+      break;
     default:
       result = { status: 501, error: `no eReader value set on user ${user.username}` };
       break;  
@@ -150,6 +154,44 @@ router.delete('/tolino/disconnect', async(req, res) => {
   let tolinoService = new TolinoService();
   await tolinoService.disconnect(req.body.username);
   res.send({ status: 0, message: 'disconnected from tolino account' });
+});
+
+router.post('/pocketbook-cloud/providers', async (req, res) => {
+  let email = req.body.email;
+
+  if (!email) {
+    res.send({ status: 1, message: 'missing email' });
+    return;
+  }
+
+  const providers = await PocketBookCloudService.getProviders(email);
+  //const providers = [ { "alias": "umbreit1", "name": "Buchladen zur schwankenden Weltkugel", "shop_id": "601520", "icon": "https://www.buchladen-weltkugel.de/sites/601520.umbreitshopsolution.de/files/neues_logo.jpg", "icon_eink": "https://www.buchladen-weltkugel.de/sites/601520.umbreitshopsolution.de/files/neues_logo.jpg", "logged_by": "password" }, { "alias": "pocketbook_de", "name": "Pocketbook.de", "shop_id": "1", "icon": "https://pocketbook.de/media/logo/stores/1/Logo_PocketBook_E-Books-u-E-Reader_green.png", "icon_eink": "https://pocketbook.de/media/logo/stores/1/Logo_PocketBook_E-Books-u-E-Reader_green.png", "logged_by": "facebook|gmail" } ];
+
+  if (providers) {
+    res.send({ status: 0, data: providers });
+  } else {
+    res.send( { status: 2, message: 'No account found for given email' });
+  }
+});
+
+router.post('/pocketbook-cloud/connect', async (req, res) => {
+  let username = req.body.username;
+  let credentials = req.body.credentials;
+  let provider = req.body.provider;
+
+  const connected = await PocketBookCloudService.connect(username, credentials, provider);
+  //let connected;
+
+  if (connected) {
+    res.send({ status: 0, data: true });
+  } else {
+    res.send({ status: 1, message: 'Could not connect, please check your password is correct' })
+  }
+});
+
+router.delete('/pocketbook-cloud/disconnect', async (req, res) => {
+  await PocketBookCloudService.disconnect(req.body.username);
+  res.send({ status: 0, message: 'disconnected from pocketbook-cloud account' });
 });
 
 /*async function sendFileToKindle(recipient, data, filename) {
