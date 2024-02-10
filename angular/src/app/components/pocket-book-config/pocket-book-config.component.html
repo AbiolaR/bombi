@@ -1,6 +1,6 @@
 <div>
     <mat-form-field appearance="outline" color="primary">
-        <mat-label>PocketBook Sync Service</mat-label>
+        <mat-label>{{ 'pocketbook-sync-service' | translate }}</mat-label>
         <mat-select [(ngModel)]="selectedPocketBookSyncType">
             <mat-option *ngFor="let pbSyncType of pocketBookSyncType | keyvalue" [value]="pbSyncType.value">
                 {{pbSyncType.value}}
@@ -11,12 +11,12 @@
         <ng-template [ngIf]="!pocketBookConfig.cloudConfig?.accessToken">
             <ng-template [ngIf]="!providers.length">
                 <mat-form-field appearance="outline">
-                    <mat-label>E-Mail</mat-label>
+                    <mat-label>{{ 'e-mail' | translate }}</mat-label>
                     <input matInput [(ngModel)]="credentials.username" (keydown)="submit($event)" />
                 </mat-form-field>
                 <p *ngIf="errorText" class="error-text">{{errorText}}</p>
                 <button [disabled]="!credentials.valid(true)" (click)="getProviders()" mat-flat-button color="primary">
-                    <span *ngIf="!isLoading">Next</span>
+                    <span *ngIf="!isLoading">{{ 'next' | translate }}</span>
                     <mat-spinner [diameter]="30" *ngIf="isLoading"></mat-spinner>
                 </button>
             </ng-template>
@@ -32,7 +32,7 @@
                     </mat-card>
                 </div>
                 <button [disabled]="!selectedProvider" (click)="providerSelected = true" mat-flat-button color="primary">
-                    Next
+                    {{ 'next' | translate }}
                 </button>
             </ng-template>
             <ng-template [ngIf]="selectedProvider && providerSelected">
@@ -50,45 +50,25 @@
                 </div>
                 <p *ngIf="errorText" class="error-text">{{errorText}}</p>
                 <button [disabled]="!credentials.valid()" (click)="connect()" mat-flat-button color="primary">
-                    <span *ngIf="!isLoading">Connect</span>
+                    <span *ngIf="!isLoading">{{ 'connect' | translate }}</span>
                     <mat-spinner [diameter]="30" *ngIf="isLoading"></mat-spinner>
                 </button>
             </ng-template>
         </ng-template>
         <ng-template [ngIf]="pocketBookConfig.cloudConfig?.accessToken">
             <button mat-flat-button color="primary" (click)="disconnect()">
-                <span *ngIf="!isLoading">Disconnect</span>
+                <span *ngIf="!isLoading">{{ 'disconnect' | translate }}</span>
                 <mat-spinner [diameter]="30" *ngIf="isLoading"></mat-spinner>
             </button>
         </ng-template>
     </ng-template>
     <ng-template [ngIf]="selectedPocketBookSyncType == pocketBookSyncType.SEND_TO_POCKETBOOK">
         <mat-form-field appearance="outline">
-            <mat-label>E-Mail</mat-label>
+            <mat-label>{{ 'e-mail' | translate }}</mat-label>
             <input matInput [(ngModel)]="pocketBookConfig.sendToEmail" (keydown)="submit($event)"/>
         </mat-form-field>
         <button mat-flat-button color="primary" (click)="setEmail()" [disabled]="!shouldSetEmail()">
-            Set
+            {{ 'set' | translate }}
         </button>
     </ng-template>
 </div>
-
-
-<!--<mat-tab-group mat-stretch-tabs dynamicHeight>
-    <mat-tab>
-        <mat-form-field appearance="outline">
-            <mat-label>Enter your PocketBooks E-Mail here</mat-label>
-            <input matInput [(ngModel)]="email"/>
-        </mat-form-field>
-    </mat-tab>
-    <mat-tab>
-        <mat-form-field appearance="outline">
-            <mat-label>E-Mail</mat-label>
-            <input matInput [(ngModel)]="email"/>
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-            <mat-label>Password</mat-label>
-            <input matInput [(ngModel)]="email"/>
-        </mat-form-field>
-    </mat-tab>
-</mat-tab-group>-->

@@ -80,5 +80,8 @@
   "only-sync-books-when-tagged-with-tag": "Only sync books when tagged with \"Bombi\"",
   "when-available": " when available",
   "not-available-yet": "Not available yet",
-  "this-book-is-not-available-yet": "This book is not available yet"
+  "this-book-is-not-available-yet": "This book is not available yet",
+  "pocketbook-sync-service": "PocketBook Sync Service",
+  "next": "Next",
+  "set": "Set"
 }
