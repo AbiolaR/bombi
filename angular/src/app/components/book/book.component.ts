@@ -15,6 +15,7 @@ import { firstValueFrom } from 'rxjs';
 import { AddMessageDialogComponent } from '../dialogs/add-message-dialog/add-message-dialog.component';
 import { environment } from 'src/environments/environment';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-book',
@@ -25,7 +26,7 @@ export class BookComponent implements OnInit {
 
   constructor(private dialog: MatDialog, private deviceDetectorService: DeviceDetectorService,
     private userService: UserService, private translateService: TranslateService,
-    private snackBar: MatSnackBar, public sanitizer: DomSanitizer) { }
+    private snackBar: MatSnackBar, public sanitizer: DomSanitizer, private router: Router) { }
 
   @Input()
   book: Book | undefined;
@@ -112,6 +113,12 @@ export class BookComponent implements OnInit {
         this.shareBook(contact);
       }
     });
+  }
+
+  public searchAuthor() {
+    if (this.book?.author) {
+      this.router.navigate(['search'], { queryParams: { q: this.book.author } });
+    }
   }
 
   private getEReader() {

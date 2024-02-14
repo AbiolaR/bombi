@@ -80,13 +80,19 @@
 app-download-cluster {
     display: flex;
     flex-direction: column;
-    justify-content: space-around;
+    justify-content: center;
+    gap: 0.5rem;
     align-items: center;
     margin-left: auto;
 }
 
 .mobile {
     display: none;
+}
+
+.author {
+    font-size: 16px;
+    cursor: pointer;
 }
 
 .year {
@@ -164,13 +170,20 @@ app-download-cluster {
         line-height: 24px;
     }
 
+    .author {
+        font-size: 17px;
+        line-height: 19px;
+    }
+
     .author,.year {
-        font-size: 15px;
-        line-height: 17px;
+        //font-size: 15px;
+        //line-height: 17px;
     }
 
     .year {
         float: right;
+        font-size: 15px;
+        line-height: 17px;
     }
 
     .book-details {

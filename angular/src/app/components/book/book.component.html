@@ -21,7 +21,7 @@
                     </button>
                 </div>
             </div>
-            <span class="author">{{book.author || "author unknown"}}</span>
+            <span class="author" (click)="searchAuthor()">{{book.author || "author unknown"}}</span>
             <span class="year" *ngIf="book.year && book.year != 0">{{book.year}}</span>
         </div>
         <app-download-cluster [book]="book" class="mobile" [mode]="BOOK">            
