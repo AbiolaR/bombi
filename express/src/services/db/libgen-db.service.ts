@@ -1,11 +1,11 @@
 import { Sequelize, Op, DataTypes, sql, Literal, col } from "@sequelize/core";
 import { LibgenParams } from "../../models/db/mysql/libgen-params.model";
 import { initLibgenBookModel } from "../../models/db/mysql/libgen-book.model.init";
-import { LibgenBook, LibgenBookColumn } from "../../models/db/mysql/libgen-book.model";
+import { FictionBook, LibgenBookColumn } from "../../models/db/mysql/libgen-book.model";
 import { DEC } from '../secman';
 import { Book } from "../../models/db/book.model";
 import { initReadarrBookModel } from "../../models/db/mysql/readarr-book.model.init";
-import { ReadarrBook } from "../../models/db/mysql/readarr-book.model";
+import { ReadarrBook, ReadarrBookColumn } from "../../models/db/mysql/readarr-book.model";
 
 export class LibgenDbService {
     private static sequelize: Sequelize;
@@ -33,7 +33,7 @@ export class LibgenDbService {
         this.initModels();
     }
 
-    async indexedSearch(searchString: string, page: number): Promise<Book[]> {
+    async indexedSearch(searchString: string, defaultLang: string, page: number): Promise<Book[]> {
         let language = searchString.split('lang:')[1];
         let languageQuery = {};
         if (language) {
@@ -41,13 +41,18 @@ export class LibgenDbService {
             searchString = searchString.replace('lang:' + language, '');
         }
         searchString = searchString.split(' ').map(word => `+${word}`).join(' ');
+        const orderedSearchString = `"${searchString}"`;
         
-        let booksByText = LibgenBook.findAll({
+        let booksByText = FictionBook.findAll({
             attributes: {
                 include: [
-                    [sql`(1.3 * (MATCH(series) AGAINST (${searchString} IN BOOLEAN MODE))
+                    [sql`(1.5 * (MATCH(series) AGAINST (${orderedSearchString} IN BOOLEAN MODE))
+                    + 1.3 * (MATCH(series) AGAINST (${searchString} IN BOOLEAN MODE))
+                    + (1.2 * (MATCH(title) AGAINST (${orderedSearchString} IN BOOLEAN MODE)))
                     + (1 * (MATCH(title) AGAINST (${searchString} IN BOOLEAN MODE)))
-                    + (0.6 * (MATCH(author) AGAINST (${searchString} IN BOOLEAN MODE))))`, 'relevance']
+                    + (0.8 * (MATCH(author) AGAINST (${orderedSearchString} IN BOOLEAN MODE)))
+                    + (0.6 * (MATCH(author) AGAINST (${searchString} IN BOOLEAN MODE)))
+                    + (0.45 * (MATCH(language) AGAINST (${defaultLang} IN BOOLEAN MODE))))`, 'relevance']
                 ]
             },
             where: [
@@ -59,7 +64,7 @@ export class LibgenDbService {
             order: [['relevance', 'DESC']]
         });
 
-        let booksByIsbn = LibgenBook.findAll({
+        let booksByIsbn = FictionBook.findAll({
             where: [
                 sql`MATCH (identifier) AGAINST(${searchString})`,
                 { Visible: { [Op.ne]: 'no' } },
@@ -113,6 +118,38 @@ export class LibgenDbService {
             book.isbn, book.language, book.year, book.extension,
             book.filename, book.coverUrl));
     }
+
+    private async indexedNonFictionSearch(searchString: String, languageQuery: any): Promise<Book[]> {
+        searchString = searchString.replaceAll('+', '');
+        let booksByText = ReadarrBook.findAll({
+            attributes: {
+                include: [
+                    [sql`(1.3 * (MATCH(series) AGAINST (${searchString} IN BOOLEAN MODE))
+                    + (1 * (MATCH(title) AGAINST (${searchString} IN BOOLEAN MODE)))
+                    + (0.6 * (MATCH(author) AGAINST (${searchString} IN BOOLEAN MODE))))`, 'relevance']
+                ]
+            },
+            where: [
+                sql`MATCH (title, author, series) AGAINST(${searchString} IN BOOLEAN MODE)`,
+                { extension: this.permittedExtensions },
+                languageQuery
+            ],
+            order: [['relevance', 'DESC']]
+        });
+
+        let booksByIsbn = ReadarrBook.findAll({
+            where: [
+                sql`MATCH (isbn) AGAINST(${searchString})`,
+                { extension: this.permittedExtensions },
+                languageQuery
+            ]
+        });
+
+        let books = (await Promise.all([booksByText, booksByIsbn])).flat();
+        return books.map(book => new Book(book.id, '', book.title, book.author, book.series,
+            book.isbn, book.language, book.year, book.extension,
+            book.filename, book.coverUrl));
+    }
       
     searchOneColumn(valueList: String[], columnName: LibgenBookColumn) {
         let query: { [Op.or]: any[] } | Literal;
@@ -126,7 +163,7 @@ export class LibgenDbService {
             query = { [Op.or]: searchArray }
         }        
         
-        return LibgenBook.findAll({
+        return FictionBook.findAll({
             where: [
                 query,
                 { Visible: { [Op.ne]: 'no' } },
@@ -134,6 +171,29 @@ export class LibgenDbService {
             ],
             group: ['Title', 'Language']
         });
+    }
+
+    async localSearchOneColumn(valueList: String[], columnName: ReadarrBookColumn) {
+        let searchArray = [];
+        valueList.forEach(value => {
+            searchArray.push({ [columnName]: {[Op.like]: `%${value}%`} });
+        });
+        let query = { [Op.or]: searchArray }
+
+        let readarrBooks = await ReadarrBook.findAll({
+            where: [
+                query,
+                { extension: this.permittedExtensions }
+            ],
+            group: ['title', 'language']
+        });
+
+        return readarrBooks.map(readarrBook => { 
+            let book = new FictionBook();
+            book.Title = readarrBook.title;
+            book.Author = readarrBook.author;
+            
+        })
     }
 
     searchMultiColumn(valueList: Object[], ...columnNames: LibgenBookColumn[]) {
@@ -147,7 +207,7 @@ export class LibgenDbService {
             })
             searchArray.push({ [Op.and]: search });
         })
-        return LibgenBook.findAll({
+        return FictionBook.findAll({
             where: {
                 [Op.or]: searchArray,
                 Visible: { [Op.ne]: 'no' },
@@ -179,6 +239,19 @@ export class LibgenDbService {
 
         initLibgenBookModel(this.sequelize);
         initReadarrBookModel(this.sequelize);
+    }
+
+    private libgenToReadarrColumn(libgenBookColumn: LibgenBookColumn): ReadarrBookColumn {
+        switch (libgenBookColumn) {
+            case 'Identifier':
+                return 'isbn'
+            case 'Title':
+                return 'title'
+            case 'Author':
+                return 'author'
+            default:
+                return;
+        }
     }
 
 }

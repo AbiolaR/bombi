@@ -9,6 +9,8 @@ import { ServerResponse } from '../models/server-response';
 import { Credentials } from '../models/credentials';
 import { Book } from '../models/book';
 import { PocketBookProvider } from '../models/pocketbook-provider';
+import { Language } from '../models/language';
+import { LanguageMap } from '../models/language-map';
 
 const FIFTEEN_MINUTES_IN_MS = 1000 * 60 * 15;
 
@@ -23,12 +25,14 @@ export class BookService {
   constructor(private http: HttpClient, private userService: UserService) { }
 
   public search(searchString: string, pageNumber: number): Observable<SearchResult> {
-    let query = `q=${searchString}&p=${pageNumber}`;
+    let defaultLang = this.mapToLanguage(this.userService.getLocalUserData().language 
+      || navigator.language);
+    let query = `q=${searchString}&p=${pageNumber}&dl=${defaultLang}`;
     let cachedSearch = this.cachedSearches.get(query);
 
     if (!cachedSearch || cachedSearch.ttl < Date.now()) {
       cachedSearch = {
-        searchResult: this.getSearchResults(searchString, pageNumber)
+        searchResult: this.getSearchResults(searchString, defaultLang, pageNumber)
         .pipe(shareReplay(1)),
         ttl: Date.now() + FIFTEEN_MINUTES_IN_MS
       };
@@ -42,9 +46,9 @@ export class BookService {
     { searchString: searchString, foundBooks: foundBooks });
   }
 
-  private getSearchResults(searchString: String, pageNumber: number): Observable<SearchResult> {
+  private getSearchResults(searchString: String, defaultLang: string, pageNumber: number): Observable<SearchResult> {
     return this.http.get<SearchResult>
-    (`${this.apiUrl}search?q=${searchString}&p=${pageNumber}`);
+    (`${this.apiUrl}search?q=${searchString}&p=${pageNumber}&dl=${defaultLang}`);
   }
 
   public download(book: Book): Observable<Blob> {
@@ -93,5 +97,20 @@ export class BookService {
   public disconnectTolino(): Observable<ServerResponse<void>> {
     const headers = { 'Authorization': `Bearer ${this.userService.getLocalUserData()?.access_token}`};
     return this.http.delete<ServerResponse<void>>(`${this.apiUrl}tolino/disconnect`, { headers });
+  }
+
+  private mapToLanguage(lang: string): LanguageMap {
+    switch (lang.split('-')[0]) {
+      case Language.DE:
+        return LanguageMap.A;
+      case 'fr':
+        return LanguageMap.C;
+      case 'es':
+        return LanguageMap.D;
+      case 'it':
+        return LanguageMap.E;    
+      default:
+        return LanguageMap.B;
+    }
   }
 }

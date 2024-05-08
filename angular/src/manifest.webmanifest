@@ -7,18 +7,86 @@
   "capture_links": "existing-client-navigate",
   "scope": "./",
   "start_url": "./",
+  "description": "Effortlessly send your favourite books to your favourite reading devices.\n\n Supported devices include: Your current device, Kindle, Tolino and PocketBook.",
   "icons": [
     {
         "src": "/assets/images/icons/android-chrome-192x192.png",
         "sizes": "192x192",
         "type": "image/png",
-        "purpose": "maskable any"
+        "purpose": "maskable"
     },
     {
         "src": "/assets/images/icons/android-chrome-512x512.png",
         "sizes": "512x512",
         "type": "image/png",
-        "purpose": "maskable any"
+        "purpose": "any"
     }
+  ],
+  "share_target": {
+    "action": "/search-target/",
+    "method": "GET",
+    "enctype": "application/x-www-form-urlencoded",
+    "params": {
+      "text": "q",
+      "url": "url"
+    }
+  },
+  "screenshots": [
+    {
+     "src": "/assets/images/screenshots/screencapture-bombi-light.png",
+      "sizes": "1440x890",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Bombi Home - Light Theme"
+    },
+    {
+      "src": "/assets/images/screenshots/screencapture-bombi-search-light.png",
+       "sizes": "1440x890",
+       "type": "image/png",
+       "form_factor": "wide",
+       "label": "Bombi Search - Light Theme"
+     },
+     {
+      "src": "/assets/images/screenshots/screencapture-bombi.png",
+       "sizes": "1440x890",
+       "type": "image/png",
+       "form_factor": "wide",
+       "label": "Bombi Home - Dark Theme"
+     },
+     {
+      "src": "/assets/images/screenshots/screencapture-bombi-search.png",
+       "sizes": "1440x890",
+       "type": "image/png",
+       "form_factor": "wide",
+       "label": "Bombi Search - Light Theme"
+     },
+     {
+      "src": "/assets/images/screenshots/screencapture-bombi-mobile-light.png",
+       "sizes": "1170x2532",
+       "type": "image/png",
+       "form_factor": "narrow",
+       "label": "Mobile Bombi Home - Light Theme"
+     },
+     {
+       "src": "/assets/images/screenshots/screencapture-bombi-search-mobile-light.png",
+       "sizes": "1170x2532",
+        "type": "image/png",
+        "form_factor": "narrow",
+        "label": "Mobile Bombi Search - Light Theme"
+      },
+      {
+       "src": "/assets/images/screenshots/screencapture-bombi-mobile.png",
+       "sizes": "1170x2532",
+        "type": "image/png",
+        "form_factor": "narrow",
+        "label": "Mobile Bombi Home - Dark Theme"
+      },
+      {
+       "src": "/assets/images/screenshots/screencapture-bombi-search-mobile.png",
+       "sizes": "1170x2532",
+        "type": "image/png",
+        "form_factor": "narrow",
+        "label": "Mobile Bombi Search - Light Theme"
+      }
   ]
 }

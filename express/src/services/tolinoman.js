@@ -20,6 +20,10 @@ module.exports.testAuth = async (user) => {
     return await executeScript('test', '', user);
 }
 
+module.exports.listBooks = async (user) => {
+    return await executeScript('inventory', '', user);
+}
+
 async function executeScript(command, commandArgs, user) {
     const credentials = `--user "${user.eReaderDeviceId}" --password "${user.eReaderRefreshToken}"`
     var result;
@@ -53,6 +57,8 @@ class TolinoResult {
         } else {
             console.error('no refresh token for user: ', this.user.username);
         }
+
+        console.log('** RESULT **: ', this.result);
 
         return { command: this.result.includes(this.SUCCESS), refresh_token: token };
     }

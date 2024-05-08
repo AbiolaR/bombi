@@ -21,6 +21,7 @@ router.get('/search', async(req, res) => {
   let libgenDbService = new LibgenDbService();
 
   var searchString = req.query.q;
+  var defaultLang = req.query.dl;
   var pageNumber = req.query.p;
 
   if(!searchString) {
@@ -32,7 +33,7 @@ router.get('/search', async(req, res) => {
   
   try {
     if (process.env.STAGE == 'prod' || process.env.STAGE == 'staging') {
-      bookData.books = await libgenDbService.indexedSearch(searchString, pageNumber)
+      bookData.books = await libgenDbService.indexedSearch(searchString, defaultLang, pageNumber)
       if (bookData.books.length == 0) {
         try {
           if (process.env.STAGE == 'prod') {

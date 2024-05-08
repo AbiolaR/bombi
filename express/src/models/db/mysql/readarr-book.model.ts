@@ -12,3 +12,15 @@ export class ReadarrBook extends Model<InferAttributes<ReadarrBook>, InferCreati
     declare extension: string;
     declare filename: string;
 }
+
+export type ReadarrBookColumn = 
+    | 'id'
+    | 'title'
+    | 'author'
+    | 'series'
+    | 'language'
+    | 'year'
+    | 'isbn'
+    | 'coverUrl'
+    | 'extension'
+    | 'filename'

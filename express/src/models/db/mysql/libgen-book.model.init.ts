@@ -1,8 +1,8 @@
 import { DataTypes, Sequelize } from "@sequelize/core";
-import { LibgenBook } from "./libgen-book.model";
+import { FictionBook } from "./libgen-book.model";
 
 export const initLibgenBookModel = (sequelize: Sequelize) => {
-    LibgenBook.init({
+    FictionBook.init({
         ID: {
             type: DataTypes.INTEGER,
             allowNull: false,

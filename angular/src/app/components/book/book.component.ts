@@ -34,6 +34,9 @@ export class BookComponent implements OnInit {
   userData: UserData = new UserData();
   environment = environment;
 
+  @Input({ required: true })
+  currentEReader!: string;
+
   isImgLoaded = false;
   BOOK = DownloadMode.BOOK;
 
@@ -117,7 +120,7 @@ export class BookComponent implements OnInit {
 
   public searchAuthor() {
     if (this.book?.author) {
-      this.router.navigate(['search'], { queryParams: { q: this.book.author } });
+      this.router.navigate(['search'], { queryParams: { q: this.book.author, l: this.book.language } });
     }
   }
 

@@ -48,11 +48,12 @@ export class SearchResultsComponent {
   oldScrollY = 0;
   usingCorrection = false;
   searchedUpcoming = false;
+  currentEReader = 'E-Reader';
 
   constructor(private route: ActivatedRoute, private searchService: BookService, 
     private dialog: MatDialog, public userService: UserService, 
     private eventService: EventService, private router: Router, private appService: AppService) {
-
+    this.currentEReader = this.getCurrentEReader();
     eventService.menuEvent.subscribe(this.toggleLoginMenu.bind(this))
 
     route.queryParams.subscribe(async params => {
@@ -377,6 +378,19 @@ export class SearchResultsComponent {
     return filter.length > 0 && !(array as (string | undefined)[]).includes(undefined)
       ? filter 
       : this.allBooks?.map(book => book[property as keyof typeof book]) || [];
+  }
+
+  getCurrentEReader() {
+    switch(this.userService.getLocalUserData()?.eReaderType) {
+      case 'K': // Kindle
+        return 'Kindle'
+      case 'T': // Tolino
+        return 'Tolino';
+      case 'P': // PocketBook
+        return 'PocketBook';
+      default:
+        return 'E-Reader';
+    }
   }
 
 }

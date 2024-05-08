@@ -5,7 +5,7 @@ import { BookService } from "./book.service";
 import { findAllUsersAsync, findUserAsync } from "../dbman";
 import { BookSyncDbService } from "../db/book-sync-db.service";
 import { SyncStatus } from "../../models/sync-status.model";
-import { LibgenBook, LibgenBookColumn } from "../../models/db/mysql/libgen-book.model";
+import { FictionBook, LibgenBookColumn } from "../../models/db/mysql/libgen-book.model";
 import { SyncLanguage } from "../../models/sync-language.model";
 import { SyncBookProperty } from "../../models/db/mysql/sync-book.model";
 import { User } from "../../models/db/mongodb/user.model";
@@ -250,7 +250,7 @@ export class BookSyncService {
     });
   }
 
-  private setSyncBookDownloadData(syncRequest: SyncRequest, libgenBook: LibgenBook): void {
+  private setSyncBookDownloadData(syncRequest: SyncRequest, libgenBook: FictionBook): void {
     if ((syncRequest.language || SyncLanguage.ENGLISH) == libgenBook.Language) {
       syncRequest.md5Hash = libgenBook.MD5;
       syncRequest.coverUrl = libgenBook.Coverurl;
@@ -258,7 +258,7 @@ export class BookSyncService {
     }
   }
 
-  private parseDownloadUrl(libgenBook: LibgenBook): string {
+  private parseDownloadUrl(libgenBook: FictionBook): string {
     let series = '';
     if (libgenBook.Series) {
       series = `(${libgenBook.Series})`
@@ -272,7 +272,7 @@ export class BookSyncService {
     ).toLowerCase();
   }
 
-  private torrentNumber(libgenBook: LibgenBook): number {
+  private torrentNumber(libgenBook: FictionBook): number {
     return Math.floor(libgenBook.ID / 1000) * 1000;
   }
 

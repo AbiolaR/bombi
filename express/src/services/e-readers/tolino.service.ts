@@ -4,7 +4,7 @@ import SeleniumAutomationService from "../selenium-automation.service";
 import { Type } from "selenium-webdriver/lib/logging";
 import { findUserAsync } from "../dbman";
 import { User } from "../../models/db/mongodb/user.model";
-import { testAuth } from "../tolinoman";
+import { listBooks, testAuth } from "../tolinoman";
 import { Credentials } from "../../models/credentials";
 import { ServerResponse } from "../../models/server-response";
 
@@ -51,6 +51,12 @@ export class TolinoService {
         } else {
             return new ServerResponse(undefined, 3, 'error while executing tolino test auth');
         }
+    }
+
+    public async listBooks(username: string) {
+        let user: User = await findUserAsync(username);
+
+        await listBooks(user);
     }
 
     public async disconnect(username: string) {

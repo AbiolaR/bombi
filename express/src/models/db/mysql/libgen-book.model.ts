@@ -27,6 +27,9 @@ export class LibgenBook extends Model<InferAttributes<LibgenBook>, InferCreation
     declare TimeLastModified: Date;
 }
 
+export class FictionBook extends LibgenBook {}
+export class NonFictionBook extends LibgenBook {}
+
 export type LibgenBookColumn = 
     | 'ID'
     | 'MD5'

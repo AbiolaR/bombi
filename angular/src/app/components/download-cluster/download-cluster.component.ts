@@ -32,7 +32,10 @@ export class DownloadClusterComponent {
   customBook: CustomBook | undefined;
 
   @Input()
-  mode: DownloadMode = DownloadMode.BOOK; 
+  mode: DownloadMode = DownloadMode.BOOK;
+
+  @Input()
+  currEReader: string = this.currentEReader();
 
   @Input()
   buttonClassList: String = '';

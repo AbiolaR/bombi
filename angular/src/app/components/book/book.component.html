@@ -24,10 +24,10 @@
             <span class="author" (click)="searchAuthor()">{{book.author || "author unknown"}}</span>
             <span class="year" *ngIf="book.year && book.year != 0">{{book.year}}</span>
         </div>
-        <app-download-cluster [book]="book" class="mobile" [mode]="BOOK">            
+        <app-download-cluster [book]="book" class="mobile" [mode]="BOOK" [currEReader]="currentEReader">            
         </app-download-cluster>
     </div>
-    <app-download-cluster [book]="book" class="desktop" [mode]="BOOK">
+    <app-download-cluster [book]="book" class="desktop" [mode]="BOOK" [currEReader]="currentEReader">
         
     </app-download-cluster>
 </div>
