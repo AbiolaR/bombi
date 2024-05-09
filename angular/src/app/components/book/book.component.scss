@@ -140,11 +140,8 @@ app-download-cluster {
 @media screen and (max-width: 700px) {
     .book {
         flex-direction: column;
-        margin-bottom: 2em;
         align-items: center;
-        box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
         padding: 0.8em;
-        border-radius: 4px;
         width: calc(100% - 1.6em);
     }
 

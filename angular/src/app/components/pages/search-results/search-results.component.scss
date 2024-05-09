@@ -154,6 +154,10 @@ h1 {
     .hover-search-bar {
         width: calc(94% + 2px);
     }
+
+    #search-results {
+        gap: 2rem;
+    }
 }
 
 @media screen and (max-width: 380px) {
