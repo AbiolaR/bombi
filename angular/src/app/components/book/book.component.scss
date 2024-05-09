@@ -150,7 +150,6 @@ app-download-cluster {
     .cover {
         height: calc(55vh - 2.5em);
         width: fit-content;
-        max-width: 75%;
     }
 
     .head {
@@ -206,7 +205,8 @@ app-download-cluster {
         position: absolute;
         top: 0.3em;
         right: 0.3em;
-        border: 1px dashed;
+        backdrop-filter: blur(140px);
+        box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
         transform: scale(0.9);
 
         mat-icon {

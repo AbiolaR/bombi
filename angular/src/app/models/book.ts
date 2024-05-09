@@ -5,6 +5,7 @@ export interface Book {
     title: string,
     author: string,
     series: string,
+    publisher: string,
     language: string,
     filesize: number,
     extension: string,

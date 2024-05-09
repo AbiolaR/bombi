@@ -11,6 +11,7 @@ import { ProfileDialogComponent } from '../../dialogs/profile-dialog/profile-dia
 import { MatSelect } from '@angular/material/select';
 import { LanguageMap } from 'src/app/models/language-map';
 import { AppService } from 'src/app/services/app.service';
+import { UserData } from 'src/app/models/user-data';
 
 const ALT_GER_LANG = 'Deutsch';
 const AUTHOR = 'author';
@@ -49,10 +50,12 @@ export class SearchResultsComponent {
   usingCorrection = false;
   searchedUpcoming = false;
   currentEReader = 'E-Reader';
+  userData: UserData = new UserData();
 
   constructor(private route: ActivatedRoute, private searchService: BookService, 
     private dialog: MatDialog, public userService: UserService, 
     private eventService: EventService, private router: Router, private appService: AppService) {
+    this.userData = userService.getLocalUserData()
     this.currentEReader = this.getCurrentEReader();
     eventService.menuEvent.subscribe(this.toggleLoginMenu.bind(this))
 
@@ -162,7 +165,9 @@ export class SearchResultsComponent {
       autoFocus: false
     });
     dialogRef.afterClosed().subscribe(() => {
-      this.appService.setLanguage(this.userService.getLocalUserData().language);
+      this.userData = this.userService.getLocalUserData();
+      this.appService.setLanguage(this.userData.language);
+      this.currentEReader = this.getCurrentEReader();
     });
   }
 
@@ -381,7 +386,7 @@ export class SearchResultsComponent {
   }
 
   getCurrentEReader() {
-    switch(this.userService.getLocalUserData()?.eReaderType) {
+    switch(this.userData.eReaderType) {
       case 'K': // Kindle
         return 'Kindle'
       case 'T': // Tolino

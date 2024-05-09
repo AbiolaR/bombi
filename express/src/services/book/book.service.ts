@@ -15,8 +15,10 @@ import { PocketBookCloudService } from "../e-readers/pocketbook-cloud.service";
 export class BookService {
 
   private static readonly LIBGEN_MIRROR = process.env.LIBGEN_MIRROR || 'http://libgen.rocks';
-  private static readonly BASE_DOWNLOAD_URL = 'http://download.library.lol/fiction/';
-  private static readonly LIBGEN_FICTION_COVERS = 'http://library.lol/fictioncovers/';
+  private static readonly BASE_DOWNLOAD_URL = 'https://download.library.lol';
+  private static readonly FICTION_DOWNLOAD_URL = `${this.BASE_DOWNLOAD_URL}/fiction/`;
+  private static readonly NON_FICTION_DOWNLOAD_URL = `${this.BASE_DOWNLOAD_URL}/main/`;
+  private static readonly LIBGEN_COVERS = 'https://library.lol/';
   private static readonly SPLIT = '._-_.';
 
   static async download(book: Book): Promise<BookDownloadResponse> {
@@ -24,14 +26,18 @@ export class BookService {
       return await this.fetchFromLocal(book);
     }
     let series = book.series ? `(${book.series})` : '';
-
-    let downloadUrl = this.BASE_DOWNLOAD_URL + this.encodeUriAll(`${this.torrentNumber(book)}/${book.md5}.${book.extension}/${series} ${book.author} - ${book.title}.${book.extension}`);
-    let coverUrl = book.coverUrl ? `${this.LIBGEN_FICTION_COVERS}${book.coverUrl}` : '';
+    let downloadUrl = '';
+    if (book.coverUrl.startsWith('/fictioncover')) {
+      downloadUrl = this.FICTION_DOWNLOAD_URL + this.encodeUriAll(`${this.torrentNumber(book)}/${book.md5}.${book.extension}/${series} ${book.author} - ${book.title}.${book.extension}`);
+    } else {
+      downloadUrl = this.NON_FICTION_DOWNLOAD_URL + this.encodeUriAll(`${this.torrentNumber(book)}/${book.md5}/${series} ${book.author} - ${book.title}-${book.publisher}.${book.extension}`);
+    }
+    let coverUrl = book.coverUrl.replace(/\/.*covers\//, '') ? `${this.LIBGEN_COVERS}${book.coverUrl}` : '';
     book.coverUrl = coverUrl;
 
     return await this.fetchFromLocal(book) 
-      || await this.downloadWithMD5(book.md5, coverUrl, `${book.md5}${this.SPLIT}${book.filename}`)
-      || await this.downloadWithUrl(downloadUrl, coverUrl, `${book.md5}${this.SPLIT}${book.filename}`);
+      || await this.downloadWithUrl(downloadUrl, coverUrl, `${book.md5}${this.SPLIT}${book.filename}`)
+      || await this.downloadWithMD5(book.md5, coverUrl, `${book.md5}${this.SPLIT}${book.filename}`);
   }
 
   static async downloadWithUrl(url: string, coverUrl: string, filename: string): Promise<BookDownloadResponse> {

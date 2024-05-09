@@ -1,4 +1,5 @@
 import { InferAttributes, InferCreationAttributes, Model } from "@sequelize/core";
+import { BookType } from "../../book-type.enum";
 
 export class LibgenBook extends Model<InferAttributes<LibgenBook>, InferCreationAttributes<LibgenBook>> {
     declare ID: number;
@@ -25,6 +26,7 @@ export class LibgenBook extends Model<InferAttributes<LibgenBook>, InferCreation
     declare Visible: string;
     declare TimeAdded: Date;
     declare TimeLastModified: Date;
+    declare Booktype: BookType;
 }
 
 export class FictionBook extends LibgenBook {}

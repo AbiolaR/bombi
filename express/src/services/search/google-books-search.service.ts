@@ -20,10 +20,10 @@ export class GoogleBooksSearchService {
         }
 
         let books = response.data.items.map(volume => 
-            new Book(999999999, '', volume.volumeInfo.title, volume.volumeInfo?.authors?.at(0) || '', '',
+            new Book(999999999, '', volume.volumeInfo.title, volume.volumeInfo?.authors?.at(0) || '', '', '',
                 this.parseISBN(volume), this.parseLanguage(volume),
                 new Date(volume.volumeInfo.publishedDate).getFullYear().toString(), '', '',
-                volume.volumeInfo?.imageLinks?.thumbnail));
+                volume.volumeInfo?.imageLinks?.thumbnail.replace('http://', 'https://')));
 
         return this.merge(books, previouslyFoundBooks);
     }

@@ -33,7 +33,7 @@ router.get('/search', async(req, res) => {
   
   try {
     if (process.env.STAGE == 'prod' || process.env.STAGE == 'staging') {
-      bookData.books = await libgenDbService.indexedSearch(searchString, defaultLang, pageNumber)
+      bookData.books = await libgenDbService.indexedFullSearch(searchString, defaultLang, pageNumber)
       if (bookData.books.length == 0) {
         try {
           if (process.env.STAGE == 'prod') {
@@ -64,13 +64,18 @@ router.post('/search/upcoming', async(req, res) => {
 });
 
 router.get('/fictioncovers/*', (req, res) => {
+  const url = req.url.replace('/fictioncovers/', '');
 
-  if (!req.url.replace('/fictioncovers/', '')) {
-    res.status(404).send('incorrect cover url');
-    return;
-  }
-  axios.get('https://library.lol' + req.url, {responseType: 'stream', cache: false}).then(async (response) => {
-    response.data.pipe(res)
+  axios.get('https://library.lol/' + url, {responseType: 'stream', cache: false}).then(async (response) => {
+    response.data.pipe(res);
+  }).catch(() => {});
+});
+
+router.get('/coversproxy/*', (req, res) => { 
+  const url = req.url.replace('/coversproxy/', '');
+
+  axios.get('https://library.lol/' + url, {responseType: 'stream', cache: false}).then(async (response) => {
+    response.data.pipe(res);
   }).catch(() => {});
 });
 
@@ -81,7 +86,9 @@ router.get('/download', async(req, res, next) => {
     res.status(404).send({error: "No book data given"});
     return;
   }
-  bookData.coverUrl = '';
+
+  let coverUrl = bookData.coverUrl.split(/\/.*covers\//).pop();
+  bookData.coverUrl = bookData.coverUrl.replace(coverUrl, '');
   let response = await BookService.download(bookData);
   
   try {

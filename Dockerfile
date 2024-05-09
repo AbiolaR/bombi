@@ -13,6 +13,7 @@ RUN mkdir /tmp/app.bombi/
 
 COPY ./express/built .
 COPY ./express/locales/ ./locales
+COPY ./express/resources/sql/ ../resources/sql
 COPY ./express/package*.json ./
 
 RUN npm install .

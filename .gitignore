@@ -107,7 +107,8 @@ dist
 
 __pycache__/
 
-resources/
+*/resources/*
+!*/resources/sql
 
 # build output
 built

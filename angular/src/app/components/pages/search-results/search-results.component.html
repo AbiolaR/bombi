@@ -71,7 +71,7 @@
         </div>
     </div>
     <ng-template ngFor let-book [ngForOf]="books">
-        <app-book [book]="book" [userData]="userService.getLocalUserData()" [currentEReader]="currentEReader"></app-book>
+        <app-book [book]="book" [userData]="userData" [currentEReader]="currentEReader"></app-book>
     </ng-template>
     <mat-spinner *ngIf="!books || isLoading"></mat-spinner>
 </div>
