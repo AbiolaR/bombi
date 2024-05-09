@@ -16,6 +16,7 @@
                 <img class="lang" src="/assets/images/flags/{{book.language}}.svg" aria-label="Book Language"/>
                 <div class="title-container">
                     <h1 #title class="title" (mouseover)="setAutoScroll(title)">{{book.title}}</h1>
+                    <div class="title-blocker desktop"></div>
                     <button mat-icon-button color="primary" class="share desktop" [matMenuTriggerFor]="contactMenu">
                         <mat-icon>share</mat-icon>
                     </button>
