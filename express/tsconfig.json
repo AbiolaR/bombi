@@ -9,7 +9,7 @@
         "ES2021.String"
       ]
     },
-    "include": ["./src/**/*"],
+    "include": ["./src/**/*", "./decs.d.ts"],
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "strict": true,

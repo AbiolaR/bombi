@@ -3,6 +3,11 @@ RUN apk add python3 py-requests py3-qt5 npm chromium chromium-chromedriver
 
 WORKDIR /usr/src/app/
 
+RUN mkdir /opt/calibre/
+RUN wget "https://cloud.tinym.de/s/zHER2QyAT3AzjET/download" -O /tmp/calibre.txz
+RUN tar -xf /tmp/calibre.txz -C /opt/calibre/
+RUN /opt/calibre/calibre_postinstall
+
 RUN mkdir /usr/src/app/resources
 RUN wget "https://cloud.tinym.de/s/wrZym3n9E6ZBtQ8/download" -O /usr/src/app/resources/python.zip 
 RUN unzip /usr/src/app/resources/python.zip -d /usr/src/app/resources 

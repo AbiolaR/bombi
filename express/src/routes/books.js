@@ -4,7 +4,6 @@ var mailservice = require('../services/email');
 const { findUserAsync } = require('../services/dbman');
 const { upload } = require('../services/tolinoman');
 const jsdom = require('jsdom');
-const { saveToDiskAsync, getSpellingCorrection } = require('../services/tools');
 const axios = require('axios');
 const { TolinoService } = require('../services/e-readers/tolino.service');
 const { LibgenDbService } = require('../services/db/libgen-db.service');
@@ -35,7 +34,7 @@ router.get('/search', async(req, res) => {
       if (bookData.books.length == 0) {
         try {
           if (process.env.STAGE == 'prod') {
-            bookData.suggestion = await getSpellingCorrection(searchString);
+            bookData.suggestion = await BookService.getSpellingCorrection(searchString);
           }
         } catch (error) {
           console.warn('Error while getting spelling correction: ' + error);
@@ -113,12 +112,17 @@ router.post('/send', async(req, res) => {
   }
 
   if (user.eReaderType != 'T') {
-    bookData.coverUrl = '';
+    let coverUrl = bookData.coverUrl.split(/\/.*covers\//).pop();
+    bookData.coverUrl = bookData.coverUrl.replace(coverUrl, '');
+  }
+  let kindleMode = false;
+  if (user.eReaderType == 'K') {
+    kindleMode = true;
   }
 
   let downloadResponse;
   try {
-    downloadResponse = await BookService.download(bookData);
+    downloadResponse = await BookService.download(bookData, kindleMode);
   } catch(error) {}
 
   if (!downloadResponse) {

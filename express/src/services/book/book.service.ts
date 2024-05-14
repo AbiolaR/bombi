@@ -1,5 +1,4 @@
 import axios from "axios";
-import { saveToDiskAsync } from "../tools";
 import { sendFileViaEmail } from "../email";
 import { upload } from "../tolinoman";
 import { User } from "../../models/db/mongodb/user.model";
@@ -11,6 +10,8 @@ import { Book } from "../../models/db/book.model";
 import { createReadStream, existsSync } from "fs";
 import { dirname } from "path";
 import { PocketBookCloudService } from "../e-readers/pocketbook-cloud.service";
+import { DEC } from "../secman";
+import { EpubToolsService } from "../epub-tools.service";
 
 export class BookService {
 
@@ -20,10 +21,20 @@ export class BookService {
   private static readonly NON_FICTION_DOWNLOAD_URL = `${this.BASE_DOWNLOAD_URL}/main/`;
   private static readonly LIBGEN_COVERS = 'https://library.lol/';
   private static readonly SPLIT = '._-_.';
+  private static readonly TEMP_DIR = '/tmp/app.bombi/';
+  private static readonly CONVERTED_PREFIX = 'CONVERTED_';
 
-  static async download(book: Book): Promise<BookDownloadResponse> {
+
+  // Google Spelling Correction
+  private static readonly SEARCH_SUFFIX = ' book';
+  private static readonly SEARCH_LANG_OPERATOR = 'lang:';
+  private static readonly GOOGLE_CUSTOM_SEARCH_URL = 'https://www.googleapis.com/customsearch/v1';
+  private static readonly GOOGLE_SEARCH_API_KEY = DEC('U2FsdGVkX1+OzilJcaZ0HHvEiXBKwMqai8HVF4YBD2ZT2vNmyao3/nGxc0FaZiz/HVERMeGf2eXoao0gYAj0Aw==');
+  private static readonly GOOGLE_SEARCH_ENGINE_ID = DEC('U2FsdGVkX18Ojn/1fd2EQDZtxcO5EMndOFxadSUZkt7b9ogUBQ1glL0JsREgLY+9');
+
+  static async download(book: Book, kindleMode = false): Promise<BookDownloadResponse> {
     if (!book.md5) {
-      return await this.fetchFromLocal(book);
+      return await this.fetchFromLocal(book, false);
     }
     let series = book.series ? `(${book.series})` : '';
     let downloadUrl = '';
@@ -35,7 +46,8 @@ export class BookService {
     let coverUrl = book.coverUrl.replace(/\/.*covers\//, '') ? `${this.LIBGEN_COVERS}${book.coverUrl}` : '';
     book.coverUrl = coverUrl;
 
-    return await this.fetchFromLocal(book) 
+    return await this.fetchFromLocal(book, kindleMode)
+      || await this.fetchFromLocal(book, false)
       || await this.downloadWithUrl(downloadUrl, coverUrl, `${book.md5}${this.SPLIT}${book.filename}`)
       || await this.downloadWithMD5(book.md5, coverUrl, `${book.md5}${this.SPLIT}${book.filename}`);
   }
@@ -81,20 +93,23 @@ export class BookService {
     }
   }
 
-  private static async fetchFromLocal(book: Book): Promise<BookDownloadResponse> {
+  private static async fetchFromLocal(book: Book, kindleMode: boolean): Promise<BookDownloadResponse> {
     try {
-      let prefix = '';
+      let prefix = '';      
       if (book.md5) {
-        prefix = book.md5 + this.SPLIT;
+        if (kindleMode) {
+          prefix = this.CONVERTED_PREFIX;
+        }
+        prefix += book.md5 + this.SPLIT;
       }
-      let filePath = `/tmp/app.bombi/${prefix}${book.filename}`;      
+      let filePath = `${this.TEMP_DIR}${prefix}${book.filename}`;      
       if(!existsSync(filePath)) return
 
       let coverPath = '';
       if (!book.md5) {
         coverPath = `${dirname(require.main.filename)}/../static${book.coverUrl}`;
       } else {
-        coverPath = `/tmp/app.bombi/${book.coverUrl.split('/').pop()}`
+        coverPath = `${this.TEMP_DIR}${book.coverUrl.split('/').pop()}`
       }
 
       let downloadResponse = new BookDownloadResponse(
@@ -121,15 +136,18 @@ export class BookService {
   }
 
   static async sendFileToKindle(recipient: string, book: BookBlob) {
-    book.filePath = book.filePath || await saveToDiskAsync(book.data, book.filename);
-    return await sendFileViaEmail(recipient, book.filePath, book.filename.split(this.SPLIT).pop());
+    if (!book.filePath.startsWith(this.TEMP_DIR + this.CONVERTED_PREFIX)) {      
+      await EpubToolsService.makeKindleCombatible(book);
+    }
+    const fileName = book.filename.replace(this.CONVERTED_PREFIX, '').split(this.SPLIT).pop();
+    return await sendFileViaEmail(recipient, book.filePath, fileName);
   }
 
   static async sendFileToTolino(book: BookBlob, cover: CoverBlob, user: User) {
-      book.filePath = book.filePath || await saveToDiskAsync(book.data, book.filename);      
+      book.filePath = book.filePath || await EpubToolsService.saveToDiskAsync(book);      
 
       if (cover.data && !cover.filePath) {
-        cover.filePath =  await saveToDiskAsync(cover.data, cover.filename);
+        cover.filePath =  await EpubToolsService.saveToDiskAsync(cover);
       }
     
       const result = await upload(book.filePath, cover.filePath, user);
@@ -148,6 +166,18 @@ export class BookService {
       return { status: 200, message: { success: 'file sent to pocketbook' } };
     } else {
       return { status: 501, message: { error: 'file not sent to pocketbook' } };
+    }
+  }
+
+  public static async getSpellingCorrection(searchString: string) {
+    const searchUrl = `${this.GOOGLE_CUSTOM_SEARCH_URL}?key=${this.GOOGLE_SEARCH_API_KEY}`
+        + `&cx=${this.GOOGLE_SEARCH_ENGINE_ID}&num=1`;
+    searchString = searchString.split(this.SEARCH_LANG_OPERATOR)[0];
+    var response = await axios.get(`${searchUrl}&q=${searchString}${this.SEARCH_SUFFIX}`);
+    if (response.data.spelling) {
+        return response.data.spelling.correctedQuery.replace(this.SEARCH_SUFFIX, '');
+    } else {
+        return '';
     }
   }
 

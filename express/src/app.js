@@ -8,10 +8,14 @@ var authorization = require('./filters/authorization');
 const { LibgenDbService } = require('./services/db/libgen-db.service');
 const { BookSyncDbService } = require('./services/db/book-sync-db.service');
 const { JobScheduler } = require('./services/job-schedule.service');
+const { EpubToolsService } = require('./services/epub-tools.service');
 
-async function initDBs() {
-    await LibgenDbService.initDB();
-    await BookSyncDbService.initDB();
+async function initStatics() {
+    let libgenDBInit = LibgenDbService.initDB();
+    let bookSyncDBInit = BookSyncDbService.initDB();
+    let epubToolsInit = EpubToolsService.initialize();
+
+    await Promise.all([libgenDBInit, bookSyncDBInit, epubToolsInit]);
 }
 
 var app = express();
@@ -44,7 +48,7 @@ app.use('/api/v1/users', users);
 app.use('/', express.static('./static'));
 app.use('/*', express.static('./static'));
 
-initDBs().then(() => {
+initStatics().then(() => {
     JobScheduler.scheduleJobs();
 });
 
