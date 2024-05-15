@@ -17,6 +17,7 @@ const ALT_GER_LANG = 'Deutsch';
 const AUTHOR = 'author';
 const YEAR = 'year';
 const LANG = 'language';
+const BOOKS_PER_PAGE = 50;
 
 @Component({
   selector: 'app-search-results',
@@ -233,7 +234,7 @@ export class SearchResultsComponent {
   }
 
   loadAdditionalBooks() {
-    if ((window.innerHeight + window.scrollY * 1.1) >= document.body.scrollHeight) {
+    if ((window.innerHeight + window.scrollY * 1.1) >= document.body.scrollHeight - window.innerHeight * 2) {
       if (!this.isLastPage && !this.isLoading) {
         this.pageNumber++;
         this.isLoading = true;
@@ -347,7 +348,7 @@ export class SearchResultsComponent {
     let filteredLanguages = this.getFilter(LANG, this.filteredLanguages, this.languageMap, this.langSelect);
 
     this.books = this.books?.filter(book => filteredAuthors.includes(book.author) && filteredYears.includes(book.year) && filteredLanguages.includes(book.language));
-    if ((this.books?.length || 0) != 0 && (this.books?.length || 0) < 100 && !this.isLastPage) {
+    if ((this.books?.length || 0) != 0 && (this.books?.length || 0) < BOOKS_PER_PAGE && !this.isLastPage) {
       this.loadAdditionalBooks();
     }
   }
