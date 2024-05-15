@@ -10,6 +10,9 @@
     --main-text-color: var(--dark-color);
     --mdc-elevated-card-container-color: var(--main-background-color);
     --primary-tinted-color: #a88cdb;
+    --primary-bold-color-dark: #a88cdb;
+    --primary-bold-color-light: #643da9;
+    --primary-bold-color: var(--primary-bold-color-light);
     --primary-opaque-color: #a88cff4d;
     --success-icon-color: #4caf50;
     --failure-icon-color: #f44336;
@@ -144,6 +147,7 @@ $dark-theme: map_merge($dark-theme, (background: $dark-background));
         --main-text-color: #2c2c2c !important;
         --autofill-color: #f5e9f7 !important;
         --accent-color: mat.get-color-from-palette($accent, 200);
+        --primary-bold-color: var(--primary-bold-color-light);
     }
 
     mat-dialog-content,mat-dialog-actions,mat-expansion-panel-header,.mat-expansion-panel-body {
@@ -162,5 +166,6 @@ $dark-theme: map_merge($dark-theme, (background: $dark-background));
         --main-text-color: #faede3 !important;
         --autofill-color: #471d4e !important;
         --accent-color: mat.get-color-from-palette($accent, default);
+        --primary-bold-color: var(--primary-bold-color-dark);
     }
 }
