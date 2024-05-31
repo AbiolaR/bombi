@@ -111,14 +111,14 @@ export class RequestsComponent implements OnInit {
     return splitAuthor[1] + ' ' + splitAuthor[0];
   }
 
-  private parseIsbn(isbn: string): number {
+  private parseIsbn(isbn: string): string {
     if (isbn.startsWith('isbn:')) {
-      return parseInt(isbn.replace('isbn:', ''));
+      return isbn.replace('isbn:', '');
     }
     if (isbn.length == 13 && (isbn.startsWith('978') || isbn.startsWith('979'))) {
-      return parseInt(isbn);
+      return isbn;
     }
-    return 0;
+    return '';
   }
 
 }

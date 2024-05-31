@@ -190,7 +190,7 @@ export class LibgenDbService {
     }
 
     static async createLocalBook(book: Book) {
-        book.isbn = String(book.isbn);
+        book.isbn = book.isbn;
         try {
             await ReadarrBook.create(book);
         } catch (error) {

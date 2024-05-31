@@ -1,7 +1,7 @@
 export class Book {
     id: number = 0;
     md5: string = '';
-    isbn: number = 0;
+    isbn: string = '';
     title: string = '';
     author: string = '';
     series: string = '';
