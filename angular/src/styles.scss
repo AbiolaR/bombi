@@ -1,7 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
 @use '@angular/material' as mat;
 
-
 :root {
     --light-color: #fffbeb;
     --light-color-shade: #fffcf3;
@@ -97,8 +96,7 @@ app-root {
 }*/
 
 // Imports for Angular Material Theming
-@import '@angular/material/theming';
-@include mat-core();
+@include mat.core();
 
 $light-color: #fffbeb;
 $dark-color: #2c2c2c;
@@ -109,7 +107,7 @@ $accent: mat.define-palette(mat.$amber-palette, 200, A200, A400);
 $warn: mat.define-palette(mat.$red-palette);
 
 :root {
-    --warn-color: #{mat-color($warn)};
+    --warn-color: #{mat.get-color-from-palette($warn)};
 }
 
 $theme: mat.define-light-theme((
@@ -150,7 +148,7 @@ $dark-theme: map_merge($dark-theme, (background: $dark-background));
         --primary-bold-color: var(--primary-bold-color-light);
     }
 
-    mat-dialog-content,mat-dialog-actions,mat-expansion-panel-header,.mat-expansion-panel-body {
+    mat-dialog-content,mat-dialog-actions,mat-expansion-panel-header,mat-expansion-panel,.mat-expansion-panel-body {
         background-color: #fffcf3;
     }
     
@@ -167,5 +165,9 @@ $dark-theme: map_merge($dark-theme, (background: $dark-background));
         --autofill-color: #471d4e !important;
         --accent-color: mat.get-color-from-palette($accent, default);
         --primary-bold-color: var(--primary-bold-color-dark);
+    }
+
+    mat-card,.mat-mdc-autocomplete-panel {
+        background-color: #424242 !important;
     }
 }

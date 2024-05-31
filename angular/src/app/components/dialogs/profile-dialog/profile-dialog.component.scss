@@ -1,5 +1,5 @@
-@import '@angular/material/theming';
-@import '../../../../styles.scss'; // /angular/src/styles.scss
+@use '@angular/material' as mat;
+@use '../../../../styles' as colors; // /angular/src/styles.scss
 
 mat-dialog-content {
     display: flex;
@@ -99,7 +99,7 @@ h3 {
 }
 
 .friend-request {
-    background: mat-color($warn, lighter);
+    background: mat.get-color-from-palette(colors.$warn, lighter);
     color: var(--dark-color) !important;
     margin-bottom: 1em !important;
 
@@ -117,7 +117,7 @@ h3 {
     }
 
     .mat-expansion-panel-header {
-        background: mat-color($warn, lighter) !important;
+        background: mat.get-color-from-palette(colors.$warn, lighter) !important;
         padding: 0 10px;
         text-align: center;
 
