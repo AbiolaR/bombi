@@ -1,3 +1,4 @@
+<app-header/>
 <div #dropZone class="drop-zone" (dragover)="dragOver($event)" (drop)="getMetadata($event)"
 (dragenter)="dragEnter($event)" (dragleave)="dragLeave($event)">
     <input type="file" class="file-upload" (change)="getMetadata($event)" #fileInput>

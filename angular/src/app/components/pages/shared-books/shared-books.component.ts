@@ -38,13 +38,6 @@ export class SharedBooksComponent implements OnInit {
     });
   }
 
-  openProfileDialog() {
-    this.dialog.open(ProfileDialogComponent, {
-      width: '500px',
-      autoFocus: false
-    });
-  }
-
   isMobile() {
     this.isMobileDevice = window.matchMedia("(max-width: 700px)").matches;
   }

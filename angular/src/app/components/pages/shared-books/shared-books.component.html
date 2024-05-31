@@ -1,16 +1,4 @@
-<div id="search-bar" class="search-bar">
-    <app-search></app-search>
-    <button mat-fab (click)="openProfileDialog()" *ngIf="userService.getLocalUserData()?.username" aria-label="User"
-    [matBadge]="userService.openNotifications()" [matBadgeHidden]="userService.openNotifications() < 1"
-    matBadgePosition="below">
-        <mat-icon>perm_identity</mat-icon>
-    </button>
-    <button mat-fab [matMenuTriggerFor]="loginMenu" *ngIf="!userService.getLocalUserData()?.username" aria-label="User"
-    [matBadge]="userService.openNotifications()" [matBadgeHidden]="userService.openNotifications() < 1"
-    matBadgePosition="below">
-        <mat-icon>perm_identity</mat-icon>
-    </button>
-</div>
+<app-header/>
 
 <div (window:resize)="isMobile()">
     <button mat-icon-button class="back-btn" (click)="openChatOverview()" *ngIf="tabIndex == 1 && isMobileDevice">
@@ -36,7 +24,3 @@
         <app-chat [contact]="selectedContact"></app-chat>
     </div>
 </div>
-
-<mat-menu #loginMenu="matMenu">
-    <app-login></app-login>
-</mat-menu>

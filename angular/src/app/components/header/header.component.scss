@@ -1,0 +1,19 @@
+.search-bar {
+    display: flex;
+    justify-content: space-between;
+
+    button {
+        margin-top: 6px;
+        background-color: var(--primary-tinted-color);
+    }
+    
+    app-search {
+        width: calc(100% - 66px);
+        margin-top: 7px;
+    }
+
+    ::ng-deep.mat-badge-content {
+        right: -3px !important;
+        bottom: -3px !important;
+    }
+}

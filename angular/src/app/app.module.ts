@@ -54,6 +54,7 @@ import { PocketBookConfigComponent } from './components/pocket-book-config/pocke
 import { MatRadioModule } from '@angular/material/radio';
 import { RequestsComponent } from './components/pages/requests/requests.component';
 import { UploadBookDialogComponent } from './components/dialogs/upload-book-dialog/upload-book-dialog.component';
+import { HeaderComponent } from './components/header/header.component';
 
 export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http);
@@ -86,6 +87,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     PocketBookConfigComponent,
     RequestsComponent,
     UploadBookDialogComponent,
+    HeaderComponent,
   ],
   imports: [
     BrowserModule,

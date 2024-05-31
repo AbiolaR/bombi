@@ -3,16 +3,6 @@ app-search {
     margin-top: 7px;
 }
 
-.search-bar {
-    display: flex;
-    margin-bottom: 5px;
-
-    ::ng-deep.mat-badge-content {
-        right: -3px !important;
-        bottom: -3px !important;
-    }
-}
-
 .hover-search-bar {
     position: fixed;
     z-index: 100;
@@ -115,6 +105,7 @@ h1 {
     background-color: var(--main-background-color) !important;
 }
 #filters {
+    margin-top: 5px;
     margin-bottom: -1em;
 
     ::ng-deep.mat-mdc-text-field-wrapper {
