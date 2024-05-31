@@ -2,7 +2,6 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, shareReplay } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { DownloadMode } from '../models/download-mode';
 import { UserService } from './user.service';
 import { SearchResult } from '../models/search-result';
 import { ServerResponse } from '../models/server-response';
@@ -54,6 +53,11 @@ export class BookService {
   public download(book: Book): Observable<Blob> {
     return this.http.get(`${this.apiUrl}download?bookData=${encodeURIComponent(JSON.stringify(book))}`,
     { responseType: 'blob' });
+  }
+
+  public upload(formData: FormData): Observable<ServerResponse<void>> {
+    const headers = { 'Authorization': `Bearer ${this.userService.getLocalUserData()?.access_token}`};
+    return this.http.post<ServerResponse<void>>(`${this.apiUrl}upload`, formData, { headers });
   }
 
   public sendToEReader(book: Book): Observable<any> {    

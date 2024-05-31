@@ -12,6 +12,7 @@ const { default: GoodreadsConnection } = require('../services/book-connection/go
 const { SocialReadingPlatform } = require('../models/social-reading-platform');
 const { BookSyncDbService } = require('../services/db/book-sync-db.service');
 const { BookSyncService } = require('../services/book/book-sync.service');
+const { ServerResponse } = require('../models/server-response');
 
 const ONE_YEAR = '8760h';
 
@@ -32,6 +33,23 @@ router.get('/data', (req, res) => {
     }
 });
 
+router.get('/role', (req, res) => {
+    const username = req.body.username;
+
+    try {
+        dbman.findUser(username, (user) => {
+            if (!user) {
+                res.status(200).send(new ServerResponse(undefined, 3, 'user does not exist'));
+                return;
+            } else {
+                res.status(200).send(new ServerResponse(user.role));
+            }
+        })
+    } catch (error) {
+        res.status(200).send(new ServerResponse(undefined, 0, error));
+    }
+})
+
 router.post('/login', (req, res, next) => {
     const { username, password } = req.body;
 
@@ -42,7 +60,7 @@ router.post('/login', (req, res, next) => {
                 return;
             }
             if (bcrypt.compareSync(password, user.password)) {
-                var token = authenticateUser(user.username);
+                var token = authenticateUser(user.username, user.role);
                 user = sanitize(user._doc);
                 user.access_token = token;
                 res.status(200).send(user);
@@ -74,7 +92,7 @@ router.post('/register', async (req, res, next) => {
     try {
         user.password = bcrypt.hashSync(user.password, bcrypt.genSaltSync(10));
         dbman.createUser(user, (result) => {
-            var token = authenticateUser(user.username);
+            var token = authenticateUser(user.username, user.role);
             user = sanitize(user);
             user.access_token = token;
             res.status(200).send(user);
@@ -340,8 +358,8 @@ router.delete('/srp-connection', async (req, res) => {
     res.status(200).send({status: 0, message: `deleted ${platform} connection`});
 });
 
-function authenticateUser(username) {
-    return jwt.sign({ username: username }, TOKEN_SECRET, { expiresIn: ONE_YEAR });
+function authenticateUser(username, role) {
+    return jwt.sign({ username: username, role: role }, TOKEN_SECRET, { expiresIn: ONE_YEAR });
 }
 
 function sanitize(user) {

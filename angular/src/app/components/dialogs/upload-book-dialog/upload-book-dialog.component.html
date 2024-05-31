@@ -1,0 +1,47 @@
+<mat-dialog-content>
+    <div class="book-container">
+        <div class="book-details">
+            <h2>Upload new Book</h2>
+            <mat-form-field appearance="outline">
+                <mat-label>Title</mat-label>
+                <input matInput [(ngModel)]="data.book.title"/>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+                <mat-label>Author</mat-label>
+                <input matInput [(ngModel)]="data.book.author"/>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+                <mat-label>Series</mat-label>
+                <input matInput [(ngModel)]="data.book.series"/>
+            </mat-form-field>
+            <div class="detail-group">
+                <mat-form-field class="year-input" appearance="outline">
+                    <mat-label>Year</mat-label>
+                    <input matInput [(ngModel)]="data.book.year"/>
+                </mat-form-field>
+                <button mat-flat-button matSuffix type="button" class="lang" 
+                aria-label="Select Language" (click)="openMenu($event)" 
+                #langMenuTrigger="matMenuTrigger" [matMenuTriggerFor]="langMenu" 
+                [ngStyle]="{'background-image': 'url(/assets/images/flags/' + data.book.language + '.svg)'}">
+                </button>
+                <mat-form-field class="isbn-input" appearance="outline">
+                    <mat-label>ISBN</mat-label>
+                    <input matInput [(ngModel)]="data.book.isbn"/>
+                </mat-form-field>
+            </div>
+
+            <button mat-flat-button color="primary" class="upload-btn" (click)="upload()" 
+            [disabled]="!data.book.title || !data.book.author">
+                Upload
+            </button>
+            <mat-error *ngIf="showError">Error while trying to upload Book</mat-error>
+
+            <mat-menu #langMenu="matMenu" class="lang-menu" backdropClass="customize">
+                <button mat-menu-item *ngFor="let language of languages | keyvalue" 
+                (click)="data.book.language = language.value">
+                    <img class="lang-image" src="/assets/images/flags/{{language.value}}.svg"></button>
+            </mat-menu>
+        </div>
+        <img [src]="data.book.coverUrl" />
+    </div>
+</mat-dialog-content>

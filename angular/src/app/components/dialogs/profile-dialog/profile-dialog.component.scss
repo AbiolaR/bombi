@@ -18,7 +18,7 @@ mat-dialog-actions {
     padding: 20px 15px;
 }
 
-#lgtBtn,#messagesBtn {
+#lgtBtn,#messagesBtn,#requestsBtn {
     position: absolute;
     top: 18px;
     max-width: 25vw;
@@ -30,6 +30,10 @@ mat-dialog-actions {
 
 #messagesBtn {
     left: 24px;
+}
+
+#requestsBtn {
+    left: 88px;
 }
 
 mat-expansion-panel {

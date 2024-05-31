@@ -10,6 +10,10 @@ const { LibgenDbService } = require('../services/db/libgen-db.service');
 const { BookService } = require('../services/book/book.service');
 const { GoogleBooksSearchService } = require('../services/search/google-books-search.service');
 const { PocketBookCloudService } = require('../services/e-readers/pocketbook-cloud.service');
+const path = require('path');
+const { ServerResponse } = require('../models/server-response');
+
+const TEMP_DIR = '/tmp/app.bombi/';
 
 //const DAY_IN_MS = 1000 * 60 * 60 * 24;
 //const axios = setupCache(Axios, { ttl: DAY_IN_MS, headerInterpreter: () => {return 'not enough headers'} });
@@ -74,6 +78,40 @@ router.get('/coversproxy/*', (req, res) => {
   axios.get('https://library.lol/' + url, {responseType: 'stream', cache: false}).then(async (response) => {
     response.data.pipe(res);
   }).catch(() => {});
+});
+
+router.post('/upload', (req, res, next) => {
+  const bookFile = req.files.bookFile;
+  const coverFile = req.files.coverFile;
+  const bookData = JSON.parse(req.body.bookData);
+  const bookFilePath = path.join('books', bookData.author, bookData.title, bookFile.name);
+  
+  bookData.filename = bookFilePath;
+  bookData.coverUrl = '';
+
+  bookFile.mv(path.join(TEMP_DIR, bookFilePath), (error) => {
+    if (error) {
+      const errorMessage = 'Error while trying to save uploaded book';
+      console.error(errorMessage + ': ', error);
+      return res.status(200).send(new ServerResponse(undefined, 0, errorMessage));
+    }
+    if (coverFile) {
+      const coverUrl = path.join('/assets/images/MediaCover/Books/custom/', coverFile.name);
+      bookData.coverUrl = coverUrl;
+      const coverFolder = `${path.dirname(require.main.filename)}/../static`;
+      coverFile.mv(path.join(coverFolder, coverUrl), async (error) => {
+        if (error) {
+          const errorMessage = 'Error while trying to save uploaded book';
+          console.error(errorMessage + ': ', error);
+          return res.status(200).send(new ServerResponse(undefined, 0, errorMessage));
+        }
+        await LibgenDbService.createLocalBook(bookData);
+        res.status(200).send(new ServerResponse(undefined, 1));
+      });    
+    } else {
+      res.status(200).send(new ServerResponse(undefined, 1));
+    }
+  });
 });
 
 router.get('/download', async(req, res, next) => {

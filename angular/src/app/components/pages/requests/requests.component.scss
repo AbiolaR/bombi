@@ -1,0 +1,46 @@
+.drop-zone {
+    width: 100%;
+    border: dashed gray 2px;
+    height: 16rem;
+    border-radius: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 4rem 0;
+    
+
+    input {
+        display: none;
+    }
+}
+
+.drop-hint {
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 1.5rem;
+    line-height: 1.5rem;
+    position: relative;
+    
+    mat-icon {
+        font-size: 6rem;
+        line-height: 6rem;
+    }
+
+    button {
+        margin: 1rem 0;
+        font-size: large;
+    }
+
+    mat-error {
+        font-size: 1rem;
+        position: absolute;
+        bottom: -1rem;
+    }
+}
+
+.drop-zone.drag-over {
+    opacity: 50%;
+}

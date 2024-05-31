@@ -5,6 +5,7 @@ import { convert, setPoolSize } from "node-ebook-converter";
 import jszip from "jszip";
 import sharp from "sharp";
 import { Readable } from "stream";
+import path from "path";
 
 export class EpubToolsService {
     private static readonly TEMP_DIR = '/tmp/app.bombi/';
@@ -19,10 +20,10 @@ export class EpubToolsService {
         await this.convertToAsync(book, 'epub', true);
     }
 
-    public static async saveToDiskAsync(book: BookBlob) {
-        const path = `${this.TEMP_DIR}${book.filename}`;
-        await pipeline(book.data, createWriteStream(path));
-        return path;
+    public static async saveToDiskAsync(book: BookBlob) {        
+        const filePath = path.resolve(this.TEMP_DIR, book.filename);       
+        await pipeline(book.data, createWriteStream(filePath));
+        return filePath;
     }
 
     public static async compressEpubAsync(filePath: string) {

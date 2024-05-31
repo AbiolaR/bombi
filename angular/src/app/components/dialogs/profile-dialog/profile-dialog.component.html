@@ -1,8 +1,13 @@
 <mat-dialog-content class="profile-dialog">
-    <button id="messagesBtn" mat-mini-fab (click)="navigateToSharedBooks()">
+    <button id="messagesBtn" mat-mini-fab (click)="navigateTo('shared')">
         <mat-icon [matBadge]="userService.openNotifications()" aria-hidden="false"
         [matBadgeHidden]="userService.openNotifications() < 1" [matBadgeOverlap]="false">
             message
+        </mat-icon>
+    </button>
+    <button id="requestsBtn" mat-mini-fab (click)="navigateTo('requests')" *ngIf="isAdmin">
+        <mat-icon  aria-hidden="false">
+            library_books
         </mat-icon>
     </button>
     <button id="lgtBtn" mat-stroked-button color="warn" (click)="logout()">

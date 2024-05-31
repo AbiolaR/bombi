@@ -67,6 +67,7 @@ const PocketBookConfig = mongoose.Schema({
 const UserSchema = mongoose.Schema({
     username: { type: String, required: true },
     password: { type: String, required: true },
+    role: String,
     email: { type: String, required: true },
     searchHistory : { type: Map, of: String, required: true },
     passwordResetHash: {type: String, required: false },

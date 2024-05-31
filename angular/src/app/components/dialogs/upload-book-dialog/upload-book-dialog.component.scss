@@ -1,0 +1,77 @@
+.book-container {
+    display: flex;
+    gap: 2rem;
+
+    img {
+        max-width: 400px;
+        border-radius: 4px;
+    }
+}
+
+.book-details {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+
+    .detail-group {
+        width: 100%;
+        display: flex;
+        justify-content: space-around;
+        flex-wrap: wrap;
+        gap: 1rem;
+        
+        .year-input {
+            width: 6.5rem;
+        }
+
+        .isbn-input {
+            width: 16rem;
+            flex-grow: 1;
+        }
+
+        button {
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            margin-top: 0.5rem;
+
+            height: 3.5rem;
+            width: 6rem;
+        }
+    }
+
+    mat-error {
+        position: absolute;
+        bottom: -1rem;
+    }
+}
+
+.upload-btn {
+    width: 16rem;
+    margin-top: auto;
+    margin-bottom: 1rem;
+    height: 3rem;
+    font-size: large;
+}
+
+.lang-image {
+
+    display: block;
+    height: auto;
+    width: 4em;
+    
+}
+
+mat-form-field {
+    width: 100%;
+    margin-top: 0.5rem;
+}
+
+@media screen and (max-width: 1200px) {
+    .book-container {
+        flex-direction: column;
+        align-items: center;
+    }
+}

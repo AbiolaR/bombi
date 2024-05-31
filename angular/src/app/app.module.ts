@@ -52,6 +52,8 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { AddMessageDialogComponent } from './components/dialogs/add-message-dialog/add-message-dialog.component';
 import { PocketBookConfigComponent } from './components/pocket-book-config/pocket-book-config.component';
 import { MatRadioModule } from '@angular/material/radio';
+import { RequestsComponent } from './components/pages/requests/requests.component';
+import { UploadBookDialogComponent } from './components/dialogs/upload-book-dialog/upload-book-dialog.component';
 
 export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http);
@@ -82,6 +84,8 @@ export function HttpLoaderFactory(http: HttpClient) {
     SrpSyncDialogComponent,
     AddMessageDialogComponent,
     PocketBookConfigComponent,
+    RequestsComponent,
+    UploadBookDialogComponent,
   ],
   imports: [
     BrowserModule,

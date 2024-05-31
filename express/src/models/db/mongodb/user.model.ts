@@ -6,6 +6,7 @@ export interface User {
     save(): any;
     username: string,
     password: string,
+    role: string,
     email: string,
     searchHistory: Map<string, string>,
     passwordResetHash: string,

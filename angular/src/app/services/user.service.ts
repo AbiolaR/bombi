@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, firstValueFrom, take } from 'rxjs';
+import { Observable, take } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { ResetData } from '../models/reset-data';
 import { ServerResponse } from '../models/server-response';
@@ -34,6 +34,13 @@ export class UserService {
       JSON.stringify(user), 
       { headers }
     );
+  }
+
+  public getRole(): Observable<ServerResponse<string>> {
+    const headers = { 'Content-Type': 'application/json',
+    'Authorization': `Bearer ${this.getLocalUserData()?.access_token}` };
+
+    return this.http.get<ServerResponse<string>>(`${this.userApiUrl}/role`, { headers });
   }
 
   public saveUserDataProperty(key: keyof UserData, value: UserData[keyof UserData]) {

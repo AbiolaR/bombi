@@ -188,6 +188,15 @@ export class LibgenDbService {
     updateHostIp(hostIp: string): void {
         LibgenParams.update({ value: hostIp }, { where: { name: this.HOST_IP } });
     }
+
+    static async createLocalBook(book: Book) {
+        book.isbn = String(book.isbn);
+        try {
+            await ReadarrBook.create(book);
+        } catch (error) {
+            console.error('Error saving uploaded book data: ', error);
+        }
+    }
     
     private static initModels() {
         LibgenParams.init({

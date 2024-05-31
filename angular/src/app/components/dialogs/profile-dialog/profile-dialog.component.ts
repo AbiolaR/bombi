@@ -20,11 +20,14 @@ const PUBLIC_VAPID_KEY = 'BKoDZzDgSyM4qGa9wvX_u3udANeC-8Cn3JGmSfJKfUEp37edT0JFNX
 })
 export class ProfileDialogComponent implements OnInit {
 
+  ADMIN_ROLE = 'admin';
+
   userData: UserData | undefined;
   Language = Language;
   selectedLanguage = '';
   showNotificationButton = false;
   eReaderEmailSaved = false;
+  isAdmin = false;
 
   constructor(public userService: UserService, private appService: AppService, private swPush: SwPush,
     private router: Router, private dialogRef: MatDialogRef<ProfileDialogComponent>, private dialog: MatDialog) { }
@@ -36,6 +39,14 @@ export class ProfileDialogComponent implements OnInit {
         this.userData = userData; 
         this.selectedLanguage = userData.language;
         this.eReaderEmailSaved = !!userData.eReaderEmail;
+
+        this.userService.getRole().subscribe({
+          next: (response) => {
+            if (response.data === this.ADMIN_ROLE) {
+              this.isAdmin = true;
+            }
+          }
+        });
       }
     });
   }
@@ -80,8 +91,8 @@ export class ProfileDialogComponent implements OnInit {
     this.appService.setLanguage(language) 
   }
 
-  navigateToSharedBooks() {
-    this.router.navigateByUrl('shared');
+  navigateTo(url: string) {
+    this.router.navigateByUrl(url);
     this.close();
   }
 
