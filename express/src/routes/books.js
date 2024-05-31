@@ -12,6 +12,8 @@ const { GoogleBooksSearchService } = require('../services/search/google-books-se
 const { PocketBookCloudService } = require('../services/e-readers/pocketbook-cloud.service');
 const path = require('path');
 const { ServerResponse } = require('../models/server-response');
+const { BookSyncDbService } = require('../services/db/book-sync-db.service');
+const { SyncStatus } = require('../models/sync-status.model');
 
 const TEMP_DIR = '/tmp/app.bombi/';
 
@@ -78,6 +80,14 @@ router.get('/coversproxy/*', (req, res) => {
   axios.get('https://library.lol/' + url, {responseType: 'stream', cache: false}).then(async (response) => {
     response.data.pipe(res);
   }).catch(() => {});
+});
+
+router.get('/requests', (req, res) => {
+  const bookSyncDbService = new BookSyncDbService();
+  bookSyncDbService.findSyncRequests().then((syncRequests) => {
+    const filteredRequests = syncRequests.filter(syncRequest => syncRequest.status != SyncStatus.IGNORE);
+    res.status(200).send(new ServerResponse(filteredRequests));
+  })
 });
 
 router.post('/upload', (req, res, next) => {

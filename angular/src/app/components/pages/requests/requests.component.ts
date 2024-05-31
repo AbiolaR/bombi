@@ -7,6 +7,9 @@ import { UploadBookDialogComponent } from '../../dialogs/upload-book-dialog/uplo
 import { UserService } from 'src/app/services/user.service';
 import { Router } from '@angular/router';
 import { MatButton } from '@angular/material/button';
+import { SyncRequest } from 'src/app/models/sync-request.model';
+import { BookService } from 'src/app/services/book.service';
+import { SyncStatus, SyncStatusUtil } from 'src/app/models/sync-status.model';
 
 @Component({
   selector: 'app-requests',
@@ -22,9 +25,13 @@ export class RequestsComponent implements OnInit {
   ADMIN_ROLE = 'admin';
 
   showError = false;
+  syncRequests: SyncRequest[] = [];
+  showUpcoming = true;
+  showWaiting = false;
+  showSent = false;
 
   constructor(private dialog: MatDialog, private userService: UserService,
-     private router: Router) {}  
+     private router: Router, private bookService: BookService) {}  
   
   ngOnInit(): void {
     let shouldRedirect = true;
@@ -32,14 +39,25 @@ export class RequestsComponent implements OnInit {
       next: (response) => {
         if (response.data === this.ADMIN_ROLE) {
           shouldRedirect = false;
+          this.fetchSyncRequests();
         }
       },
       complete: () => {
         if (shouldRedirect) {
-          this.router.navigateByUrl('home')
+          this.router.navigateByUrl('home');
         }
       }
     });
+  }
+
+  public filteredSyncRequests(): SyncRequest[] {
+    let filteredSyncRequests = this.syncRequests;
+    filteredSyncRequests = filteredSyncRequests.filter(syncRequest => {
+      return (this.showUpcoming && syncRequest.status == SyncStatus.UPCOMING)
+      || (this.showWaiting && syncRequest.status == SyncStatus.WAITING)
+      || (this.showSent && syncRequest.status == SyncStatus.SENT)
+    });
+    return filteredSyncRequests;
   }
 
   public getMetadata(event: any) {   
@@ -114,6 +132,16 @@ export class RequestsComponent implements OnInit {
     }
   }
 
+  private fetchSyncRequests() {
+    this.bookService.getSyncRequests().subscribe({
+      next: (response) => {
+        if (response.status == 0) {
+          this.syncRequests = response.data.sort(this.sortSyncRequests);
+        }
+      }
+    })
+  }
+
   private parseAuthor(author: string): string {
     if (!author.includes(', ')) {
       return author;
@@ -131,6 +159,33 @@ export class RequestsComponent implements OnInit {
       return isbn;
     }
     return '';
+  }
+
+  private sortSyncRequests(a: SyncRequest, b: SyncRequest): number {
+    if (a.status == b.status) {
+      if (a.creationDate < b.creationDate) {
+        return 1;
+      }
+    } else {
+      if (SyncStatusUtil.rank(a.status) < SyncStatusUtil.rank(b.status)) {
+        return 1;
+      }
+    }
+    return -1;
+  }
+
+  public parseSinceDate(syncRequest: SyncRequest): string {
+    const today = new Date(new Date().toLocaleDateString());
+    const requestDate = new Date(new Date(syncRequest.creationDate).toLocaleDateString());
+    if (today.getTime() == requestDate.getTime()) {
+      return 'today';
+    }
+    const differenceInDays = Math.round((today.getTime() - requestDate.getTime()) / (1000 * 3600 * 24));
+    if (differenceInDays == 1) {
+      return `${differenceInDays} day ago`;
+    } else {
+      return `${differenceInDays} days ago`;
+    }
   }
 
 }

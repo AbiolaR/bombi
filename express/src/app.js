@@ -36,6 +36,7 @@ app.use('/api/v1/books/pocketbook-cloud/providers', authorization());
 app.use('/api/v1/books/pocketbook-cloud/connect', authorization());
 app.use('/api/v1/books/pocketbook-cloud/disconnect', authorization());
 app.use('/api/v1/books/upload', authorization('admin'));
+app.use('/api/v1/books/requests', authorization('admin'));
 app.use('/api/v1/users/save', authorization());
 app.use('/api/v1/users/data', authorization());
 app.use('/api/v1/users/role', authorization());

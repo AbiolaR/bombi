@@ -45,3 +45,80 @@
 .drop-zone.drag-over {
     opacity: 50%;
 }
+
+.sync-requests {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+
+    .sync-request {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 1rem;
+        //box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+        border: solid 1px gray;
+        border-radius: 1rem;
+        width: 16rem;
+        max-width: 19;
+        height: 8rem;
+
+        .book-info {
+            display: flex;
+            flex-direction: column;
+
+            .title {
+                font-size: 1.5rem;
+                line-height: 1.5rem;
+                max-width: calc(100% - 1rem - 2.7rem);
+                overflow: hidden;
+                text-overflow: ellipsis;
+                margin-bottom: 0.5rem;
+            }
+
+        }
+        .requested-by {
+            color: gray;
+
+            .name {
+                font-weight: bold;
+            }
+        }
+
+        img {
+            position: absolute;
+            right: 0;
+            width: 4.5rem;
+            clip-path: circle();
+        }
+    }
+
+    .sync-request.IGNORE {
+        border: solid 1px gray;
+    }
+
+    .sync-request.WAITING {
+        border: solid 1px orange;
+    }
+
+    .sync-request.UPCOMING {        
+        border: solid 1px red;
+    }
+
+    .sync-request.SENT {
+        border: solid 1px green;
+    }
+}
+
+.sync-request-filter {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+@media screen and (max-width: 642px) {
+    .sync-requests {
+        justify-content: center;
+    }
+}

@@ -55,6 +55,7 @@ import { MatRadioModule } from '@angular/material/radio';
 import { RequestsComponent } from './components/pages/requests/requests.component';
 import { UploadBookDialogComponent } from './components/dialogs/upload-book-dialog/upload-book-dialog.component';
 import { HeaderComponent } from './components/header/header.component';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http);
@@ -114,6 +115,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     MatCheckboxModule,
     MatProgressBarModule,
     MatRadioModule,
+    MatSlideToggleModule,
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,

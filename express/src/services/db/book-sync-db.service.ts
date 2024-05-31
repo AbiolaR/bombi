@@ -11,7 +11,7 @@ export class BookSyncDbService {
 
     constructor() {}
 
-    async findSyncRequests(username: string, syncRequests: SyncRequest[], syncStatus: SyncStatus): Promise<SyncRequest[]> {
+    async findSyncRequests(username: string, syncRequests: SyncRequest[] = [], syncStatus: SyncStatus): Promise<SyncRequest[]> {
         let isbns = syncRequests.map((syncRequest) => syncRequest.isbn);
         let titles = syncRequests.map((syncRequest) => syncRequest.title);
         let authors = syncRequests.map((syncRequest) => syncRequest.author);

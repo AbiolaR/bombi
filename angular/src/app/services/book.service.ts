@@ -10,6 +10,7 @@ import { Book } from '../models/book';
 import { PocketBookProvider } from '../models/pocketbook-provider';
 import { Language } from '../models/language';
 import { LanguageMap } from '../models/language-map';
+import { SyncRequest } from '../models/sync-request.model';
 
 const FIFTEEN_MINUTES_IN_MS = 1000 * 60 * 15;
 
@@ -101,6 +102,11 @@ export class BookService {
   public disconnectTolino(): Observable<ServerResponse<void>> {
     const headers = { 'Authorization': `Bearer ${this.userService.getLocalUserData()?.access_token}`};
     return this.http.delete<ServerResponse<void>>(`${this.apiUrl}tolino/disconnect`, { headers });
+  }
+
+  public getSyncRequests(): Observable<ServerResponse<SyncRequest[]>> {
+    const headers = { 'Authorization': `Bearer ${this.userService.getLocalUserData()?.access_token}`};
+    return this.http.get<ServerResponse<SyncRequest[]>>(`${this.apiUrl}requests`, { headers });
   }
 
   private mapToLanguage(lang: string): LanguageMap {
