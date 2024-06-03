@@ -10,6 +10,8 @@ import { MatButton } from '@angular/material/button';
 import { SyncRequest } from 'src/app/models/sync-request.model';
 import { BookService } from 'src/app/services/book.service';
 import { SyncStatus, SyncStatusUtil } from 'src/app/models/sync-status.model';
+import { SocialReadingPlatformService } from 'src/app/services/social-reading-platform.service';
+import { MatMenu, MatMenuTrigger } from '@angular/material/menu';
 
 @Component({
   selector: 'app-requests',
@@ -20,6 +22,7 @@ export class RequestsComponent implements OnInit {
 
   @ViewChild('dropZone') dropZone: ElementRef<HTMLDivElement> | undefined;
   @ViewChild('browseButton') browseButton: MatButton | undefined;
+  @ViewChild(MatMenuTrigger) requestContextMenu: MatMenuTrigger | undefined;
 
   EPUB_FILE_TYPE = 'application/epub+zip';
   ADMIN_ROLE = 'admin';
@@ -31,7 +34,8 @@ export class RequestsComponent implements OnInit {
   showSent = false;
 
   constructor(private dialog: MatDialog, private userService: UserService,
-     private router: Router, private bookService: BookService) {}  
+     private router: Router, private bookService: BookService, 
+     private srpService: SocialReadingPlatformService) {}  
   
   ngOnInit(): void {
     let shouldRedirect = true;
@@ -57,7 +61,7 @@ export class RequestsComponent implements OnInit {
       return (this.showMissing 
           && (syncRequest.status == SyncStatus.UPCOMING && new Date(syncRequest.pubDate) < today))
       || (this.showUpcoming 
-          && (syncRequest.status == SyncStatus.UPCOMING && new Date(syncRequest.pubDate) < today))
+          && (syncRequest.status == SyncStatus.UPCOMING && new Date(syncRequest.pubDate) > today))
       || (this.showSent && syncRequest.status == SyncStatus.SENT)
     });
     return filteredSyncRequests;
@@ -92,7 +96,7 @@ export class RequestsComponent implements OnInit {
         book.author = this.parseAuthor(metadata.creator);
         book.coverUrl = url || '';
         book.title = metadata.title;
-        book.year = new Date(metadata.pubdate).getFullYear();
+        book.pubDate = new Date(metadata.pubdate);
         book.language = SyncLanguageUtil.map(metadata.language);
         book.isbn = this.parseIsbn(metadata.identifier);
 
@@ -111,6 +115,20 @@ export class RequestsComponent implements OnInit {
     });
   }
 
+  public markSent(syncRequest: SyncRequest) {
+    let changedRequest = Object.assign({}, syncRequest, { status: SyncStatus.SENT });
+    
+    this.srpService.sendSyncRequests([changedRequest]).subscribe({
+      next: (response) => {
+        if (response.status == 0) {
+          this.requestContextMenu?.closeMenu();
+          syncRequest.status = SyncStatus.SENT;
+          this.sortRequests();
+        }
+      }
+    });
+  }
+
   dragOver(event: Event) {
     event.preventDefault();
     event.stopPropagation();
@@ -121,7 +139,6 @@ export class RequestsComponent implements OnInit {
     event.stopPropagation();
     if (this.dropZone && this.browseButton) {
       this.dropZone.nativeElement.classList.add('drag-over');
-      console.log('browsebutn: ', this.browseButton)
       this.browseButton._elementRef.nativeElement.style.pointerEvents = 'none';
     }
   }
@@ -139,7 +156,7 @@ export class RequestsComponent implements OnInit {
     this.bookService.getSyncRequests().subscribe({
       next: (response) => {
         if (response.status == 0) {
-          this.syncRequests = response.data.sort(this.sortSyncRequests);
+          this.sortRequests(response.data);
         }
       }
     })
@@ -189,6 +206,20 @@ export class RequestsComponent implements OnInit {
     } else {
       return `${differenceInDays} days ago`;
     }
+  }
+
+  public status(syncRequest: SyncRequest): string {
+    if (syncRequest.status == SyncStatus.UPCOMING) {
+      let today = new Date();
+      if (new Date(syncRequest.pubDate) < today) {
+        return 'MISSING';
+      }
+    }
+    return syncRequest.status;
+  }
+
+  public sortRequests(syncRequests: SyncRequest[] = this.syncRequests) {
+    this.syncRequests = syncRequests.sort(this.sortSyncRequests); 
   }
 
 }

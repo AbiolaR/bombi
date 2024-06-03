@@ -12,5 +12,10 @@ export class Book {
     filename: string = '';
     coverUrl: string = '';
     message: string = '';
-    year: number = 0;
+    pubDate: Date | undefined;
+    
+    public get year() {
+        if (!this.pubDate) return 0;
+        return new Date(this.pubDate).getFullYear();
+    }
 }

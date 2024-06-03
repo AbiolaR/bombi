@@ -105,7 +105,7 @@ export class DownloadClusterComponent {
       let language = this.book.language == 'German' ? SyncLanguage.GERMAN : SyncLanguage.ENGLISH;
 
       let syncRequest = new SyncRequest(userData.username, this.book.isbn, this.book.title,
-        this.book.author, new Date(this.book.year), SyncStatus.WAITING, SocialReadingPlatform.NONE,
+        this.book.author, this.book.pubDate || new Date(), SyncStatus.WAITING, SocialReadingPlatform.NONE,
         language, new Date());
       action = this.srpService.sendSyncRequests([syncRequest]);
     } else {

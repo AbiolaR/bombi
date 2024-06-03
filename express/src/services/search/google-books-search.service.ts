@@ -22,7 +22,7 @@ export class GoogleBooksSearchService {
         let books = response.data.items.map(volume => 
             new Book(999999999, '', volume.volumeInfo.title, volume.volumeInfo?.authors?.at(0) || '', '', '',
                 this.parseISBN(volume), this.parseLanguage(volume),
-                new Date(volume.volumeInfo.publishedDate).getFullYear().toString(), '', '',
+                new Date(volume.volumeInfo.publishedDate), '', '',
                 volume.volumeInfo?.imageLinks?.thumbnail.replace('http://', 'https://')));
 
         return this.merge(books, previouslyFoundBooks);
@@ -39,7 +39,7 @@ export class GoogleBooksSearchService {
             let mBookIndex = mergedBooks.findIndex(mBook => 
                 this.simplify(mBook.title) == this.simplify(book.title)
                 && this.simplify(mBook.author) == this.simplify(book.author)
-                && this.simplify(mBook.year) == this.simplify(mBook.year)
+                && this.simplify(mBook.pubDate.getFullYear().toString()) == this.simplify(book.pubDate.getFullYear().toString())
                 && this.simplify(mBook.language) == this.simplify(book.language));
             let mergedBook = mergedBooks[mBookIndex];
             if (mergedBook) {

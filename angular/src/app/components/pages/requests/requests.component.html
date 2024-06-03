@@ -16,7 +16,10 @@
     <mat-slide-toggle color="primary" [(ngModel)]="showSent">Sent</mat-slide-toggle>
 </div>
 <div class="sync-requests">
-    <div *ngFor="let syncRequest of filteredSyncRequests()" class="sync-request" [ngClass]="syncRequest.status">
+    <div *ngFor="let syncRequest of filteredSyncRequests()" class="sync-request"
+     [ngClass]="status(syncRequest)" [matMenuTriggerData]="{syncRequest: syncRequest}"
+     [matMenuTriggerFor]="syncRequest.status != 'SENT' ? requestContextMenu : null"
+     >
         <div class="book-info">
             <span class="title" matTooltip="{{syncRequest.title}}">{{syncRequest.title}}</span>
             <span>{{syncRequest.author}}</span>
@@ -27,3 +30,12 @@
         <img class="lang-image" src="/assets/images/flags/{{syncRequest.language}}.svg"/>
     </div>
 </div>
+
+<button mat-button [matMenuTriggerFor]="requestContextMenu" class="hidden"></button>
+
+<mat-menu #requestContextMenu="matMenu">
+    <ng-template matMenuContent let-syncRequest="syncRequest">
+        <button mat-menu-item *ngIf="syncRequest.status != 'SENT'" 
+        (click)="markSent(syncRequest)">Mark as Sent</button>
+    </ng-template>
+</mat-menu>

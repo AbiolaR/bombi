@@ -66,6 +66,7 @@
         width: 16rem;
         max-width: 19;
         height: 8rem;
+        cursor: pointer;
 
         .book-info {
             display: flex;
@@ -106,13 +107,22 @@
         border: solid 1px orange;
     }
 
-    .sync-request.UPCOMING {        
+    .sync-request.MISSING {        
         border: solid 1px red;
+    }
+
+    .sync-request.UPCOMING {        
+        border: dashed 1px rgba(255, 0, 0, 0.5);
     }
 
     .sync-request.SENT {
         border: solid 1px green;
+        cursor: auto;
     }
+}
+
+.hidden {
+    display: none;
 }
 
 .sync-request-filter {
@@ -125,4 +135,8 @@
     .sync-requests {
         justify-content: center;
     }
+}
+
+mat-menu {
+    position: absolute;
 }

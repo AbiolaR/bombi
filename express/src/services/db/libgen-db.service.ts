@@ -78,9 +78,17 @@ export class LibgenDbService {
 
         let [foundBooks, foundLocalBooks = []] = await Promise.all([books, localBooks]);
 
-        return foundLocalBooks.concat(foundBooks.map(book => new Book(book.ID, book.MD5, book.Title, 
-            book.Author, book.Series, book.Publisher, book.Identifier.split(',')[0], book.Language, 
-            book.Year, book.Extension, `${book.Title}.${book.Extension}`, book.Coverurl)));
+        return foundLocalBooks.concat(foundBooks.map(book => {
+            let year: Date;
+            if (book.Year) {
+                year = new Date(book.Year);
+            }
+            //console.log(year)
+
+            return new Book(book.ID, book.MD5, book.Title, 
+                book.Author, book.Series, book.Publisher, book.Identifier.split(',')[0], book.Language, 
+                year, book.Extension, `${book.Title}.${book.Extension}`, book.Coverurl)
+        }));
     }
 
     private async indexedLocalSearch(searchString: String, languageQuery: any): Promise<Book[]> {
@@ -111,7 +119,7 @@ export class LibgenDbService {
 
         let books = (await Promise.all([booksByText, booksByIsbn])).flat();
         return books.map(book => new Book(book.id, '', book.title, book.author, book.series, '',
-            book.isbn, book.language, book.year, book.extension,
+            book.isbn, book.language, book.pubDate, book.extension,
             book.filename, book.coverUrl));
     }
       

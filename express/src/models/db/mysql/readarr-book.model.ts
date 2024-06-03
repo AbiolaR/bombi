@@ -7,6 +7,7 @@ export class ReadarrBook extends Model<InferAttributes<ReadarrBook>, InferCreati
     declare series: string;
     declare language: string;
     declare year: string;
+    declare pubDate: Date;
     declare isbn: string;
     declare coverUrl: string;
     declare extension: string;
@@ -20,6 +21,7 @@ export type ReadarrBookColumn =
     | 'series'
     | 'language'
     | 'year'
+    | 'pubDate'
     | 'isbn'
     | 'coverUrl'
     | 'extension'

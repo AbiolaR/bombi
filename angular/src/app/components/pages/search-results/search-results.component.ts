@@ -124,6 +124,7 @@ export class SearchResultsComponent {
   }
 
   setData(books: Book[]) {
+    books = books.map(book => Object.assign(new Book(), book));
     this.books = this.allBooks = books;
     this.fillFilterData();
     this.filterBooks();
@@ -305,21 +306,22 @@ export class SearchResultsComponent {
   }
 
   private fillDistinctSet(property: string, similarity: number) {
-    let distinctSet = new Set<string | number>;
-    let map = new Map<string | number, Set<string | number>>;
+    let distinctSet = new Set<string | number | Date | undefined>;
+    let map = new Map<string | number | Date | undefined, Set<string | number | Date | undefined>>;
 
     distinctSet = new Set(this.allBooks?.map(book => book[property as keyof typeof book]));
     distinctSet.forEach(prop => {
-      if (prop == '' || prop == 0) {
+      if (prop == '' || prop == 0 || prop == undefined) {
         return;
       }
       var cleanProperty = prop.toString().replace(/[^a-z0-9]/gi, '').toLowerCase();
       distinctSet.forEach(comparedProperty => {
+        if (!comparedProperty) return;
         var cleanComparedProperty = comparedProperty.toString().replace(/[^a-z0-9]/gi, '').toLowerCase();
         if (Array.from(cleanProperty).sort().toString() == Array.from(cleanComparedProperty).sort().toString() 
         || this.similarity(Array.from(cleanProperty).sort().toString(), Array.from(cleanComparedProperty).sort().toString()) > similarity) {
-          map.set(prop, map.get(cleanProperty)?.add(prop) || new Set<string | number>().add(comparedProperty));
-          map.set(prop, map.get(cleanProperty)?.add(comparedProperty) || new Set<string | number>().add(comparedProperty));
+          map.set(prop, map.get(cleanProperty)?.add(prop) || new Set<string | number | Date>().add(comparedProperty));
+          map.set(prop, map.get(cleanProperty)?.add(comparedProperty) || new Set<string | number | Date>().add(comparedProperty));
           if (prop != comparedProperty) {
             distinctSet.delete(comparedProperty);        
           }
