@@ -26,8 +26,8 @@ export class RequestsComponent implements OnInit {
 
   showError = false;
   syncRequests: SyncRequest[] = [];
-  showUpcoming = true;
-  showWaiting = false;
+  showMissing = true;
+  showUpcoming = false;
   showSent = false;
 
   constructor(private dialog: MatDialog, private userService: UserService,
@@ -52,9 +52,12 @@ export class RequestsComponent implements OnInit {
 
   public filteredSyncRequests(): SyncRequest[] {
     let filteredSyncRequests = this.syncRequests;
+    let today = new Date();
     filteredSyncRequests = filteredSyncRequests.filter(syncRequest => {
-      return (this.showUpcoming && syncRequest.status == SyncStatus.UPCOMING)
-      || (this.showWaiting && syncRequest.status == SyncStatus.WAITING)
+      return (this.showMissing 
+          && (syncRequest.status == SyncStatus.UPCOMING && new Date(syncRequest.pubDate) < today))
+      || (this.showUpcoming 
+          && (syncRequest.status == SyncStatus.UPCOMING && new Date(syncRequest.pubDate) < today))
       || (this.showSent && syncRequest.status == SyncStatus.SENT)
     });
     return filteredSyncRequests;

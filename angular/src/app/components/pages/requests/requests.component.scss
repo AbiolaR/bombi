@@ -23,6 +23,8 @@
     font-size: 1.5rem;
     line-height: 1.5rem;
     position: relative;
+    margin: 0 2rem;
+    text-align: center;
     
     mat-icon {
         font-size: 6rem;
@@ -50,6 +52,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 1.5rem;
+    padding-bottom: 3rem;
 
     .sync-request {
         position: relative;
@@ -75,6 +78,7 @@
                 overflow: hidden;
                 text-overflow: ellipsis;
                 margin-bottom: 0.5rem;
+                white-space: nowrap;
             }
 
         }

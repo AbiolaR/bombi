@@ -11,14 +11,14 @@
     </div>
 </div>
 <div class="sync-request-filter">
-    <mat-slide-toggle color="primary" [(ngModel)]="showUpcoming">UPCOMING</mat-slide-toggle>
-    <mat-slide-toggle color="primary" [(ngModel)]="showWaiting">WAITING</mat-slide-toggle>
-    <mat-slide-toggle color="primary" [(ngModel)]="showSent">SENT</mat-slide-toggle>
+    <mat-slide-toggle color="primary" [(ngModel)]="showMissing">Missing</mat-slide-toggle>
+    <mat-slide-toggle color="primary" [(ngModel)]="showUpcoming">Upcoming</mat-slide-toggle>
+    <mat-slide-toggle color="primary" [(ngModel)]="showSent">Sent</mat-slide-toggle>
 </div>
 <div class="sync-requests">
     <div *ngFor="let syncRequest of filteredSyncRequests()" class="sync-request" [ngClass]="syncRequest.status">
         <div class="book-info">
-            <span class="title">{{syncRequest.title}}</span>
+            <span class="title" matTooltip="{{syncRequest.title}}">{{syncRequest.title}}</span>
             <span>{{syncRequest.author}}</span>
         </div>
         <span class="requested-by">
