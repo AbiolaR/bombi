@@ -21,7 +21,10 @@
      [matMenuTriggerFor]="syncRequest.status != 'SENT' ? requestContextMenu : null"
      >
         <div class="book-info">
-            <span class="title" matTooltip="{{syncRequest.title}}">{{syncRequest.title}}</span>
+            <span class="title" matTooltip="{{syncRequest.title}}"
+             (click)="copyToClipboard(syncRequest.title)">
+                {{syncRequest.title}}
+            </span>
             <span>{{syncRequest.author}}</span>
         </div>
         <span class="requested-by">

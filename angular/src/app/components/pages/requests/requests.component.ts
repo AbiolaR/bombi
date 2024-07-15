@@ -115,6 +115,13 @@ export class RequestsComponent implements OnInit {
     });
   }
 
+  public copyToClipboard(text: string) {
+    setTimeout(() => {
+      this.requestContextMenu?.closeMenu();
+    }, 0);
+    navigator.clipboard.writeText(text);
+  }
+
   public markSent(syncRequest: SyncRequest) {
     let changedRequest = Object.assign({}, syncRequest, { status: SyncStatus.SENT });
     
