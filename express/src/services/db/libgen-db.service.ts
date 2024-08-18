@@ -83,7 +83,6 @@ export class LibgenDbService {
             if (book.Year) {
                 year = new Date(book.Year);
             }
-            //console.log(year)
 
             return new Book(book.ID, book.MD5, book.Title, 
                 book.Author, book.Series, book.Publisher, book.Identifier.split(',')[0], book.Language, 

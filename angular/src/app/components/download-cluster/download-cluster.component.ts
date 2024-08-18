@@ -1,6 +1,6 @@
 import { HttpStatusCode } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
-import { Observable, finalize } from 'rxjs';
+import { Observable } from 'rxjs';
 import { Book } from 'src/app/models/book';
 import { CustomBook } from 'src/app/models/custom-book';
 import { DownloadMode } from 'src/app/models/download-mode';
@@ -13,7 +13,8 @@ import { BookService } from 'src/app/services/book.service';
 import { EventService } from 'src/app/services/event.service';
 import { SocialReadingPlatformService } from 'src/app/services/social-reading-platform.service';
 import { UserService } from 'src/app/services/user.service';
-import { symbolName } from 'typescript';
+import { ProfileDialogComponent } from '../dialogs/profile-dialog/profile-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-download-cluster',
@@ -23,7 +24,8 @@ import { symbolName } from 'typescript';
 export class DownloadClusterComponent {
 
   constructor(private bookService: BookService, private userService: UserService,
-    private eventService: EventService, private srpService: SocialReadingPlatformService) {}
+    private eventService: EventService, private srpService: SocialReadingPlatformService,
+    private dialog: MatDialog) {}
 
   @Input({ required: true })
   book!: Book;
@@ -95,6 +97,10 @@ export class DownloadClusterComponent {
       this.eventService.openLoginMenu();
       return;
     }
+    if (!this.isEReaderSetup()) {
+      this.openProfileDialog();
+      return;
+    }
     button.classList.remove('success');
     button.classList.remove('failure');
     button.classList.add('loading');
@@ -117,6 +123,7 @@ export class DownloadClusterComponent {
         this.showResult(button, 'success');
       },
       error: (error) =>  {
+        this.userService.updateUserData().subscribe();
         this.showResult(button, 'failure');
         if (error.status == HttpStatusCode.Unauthorized) {
           this.eventService.openLoginMenu();
@@ -125,6 +132,28 @@ export class DownloadClusterComponent {
           console.warn('error while sending book');
         }
       }
+    });
+  }
+
+  isEReaderSetup(): boolean {
+    const userData = this.userService.getLocalUserData();
+    switch(userData.eReaderType) {
+      case 'K': // Kindle
+        return !!userData.eReaderEmail;
+      case 'T': // Tolino
+        return !!userData.eReaderDeviceId && !!userData.eReaderRefreshToken;
+      case 'P': // PocketBook
+        return !!userData.pocketBookConfig?.cloudConfig && !!userData.pocketBookConfig?.sendToEmail;
+      default:
+        return false;
+    }
+  }
+
+  private openProfileDialog() {
+    this.dialog.open(ProfileDialogComponent, {
+      width: '500px',
+      autoFocus: false,
+      data: true
     });
   }
 

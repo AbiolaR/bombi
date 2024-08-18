@@ -32,7 +32,7 @@ async function executeScript(command, commandArgs, user) {
         result = await new TolinoResult(stdout, user).handle();
     } catch(error) {
         console.error(error);
-        result = await new TolinoResult(error.stderr, user).handle();
+        result = await new TolinoResult(error.stdout, user).handle();
     }
     return result;
 }
@@ -49,14 +49,16 @@ class TolinoResult {
         const possibleRefreshToken = this.result.split('REFRESH_TOKEN_START')
                                                 .pop().split('REFRESH_TOKEN_END');
 
-        var token;
+        var token = '';
         if (possibleRefreshToken[1] && possibleRefreshToken[0]){
-            this.user.eReaderRefreshToken = possibleRefreshToken[0];
-            await updateUserAsync(this.user);
             token = possibleRefreshToken[0];
         } else {
             console.error('no refresh token for user: ', this.user.username);
+            this.user.eReaderDeviceId = '';
         }
+        this.user.eReaderRefreshToken = token;
+        
+        await updateUserAsync(this.user);
 
         console.log('** RESULT **: ', this.result);
 

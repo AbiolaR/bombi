@@ -45,7 +45,7 @@
                     <span *ngFor="let contact of userData?.contacts">{{contact.name}}</span>
                 </mat-card>
         </mat-expansion-panel>
-        <mat-expansion-panel class="settings-panel">
+        <mat-expansion-panel #settingsPanel class="settings-panel">
             <mat-expansion-panel-header>
                 {{ 'settings' | translate }}
             </mat-expansion-panel-header>

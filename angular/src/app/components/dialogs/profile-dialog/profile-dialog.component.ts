@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { Component, Inject, OnInit, ViewChild } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Language } from 'src/app/models/language';
 import { Router } from '@angular/router';
 import { UserData } from 'src/app/models/user-data';
@@ -29,8 +29,12 @@ export class ProfileDialogComponent implements OnInit {
   eReaderEmailSaved = false;
   isAdmin = false;
 
+  @ViewChild('settingsPanel') settingsPanel: MatExpansionPanel | undefined;
+  @ViewChild('ebrPanel') ebrPanel: MatExpansionPanel | undefined;
+
   constructor(public userService: UserService, private appService: AppService, private swPush: SwPush,
-    private router: Router, private dialogRef: MatDialogRef<ProfileDialogComponent>, private dialog: MatDialog) { }
+    private router: Router, private dialogRef: MatDialogRef<ProfileDialogComponent>, 
+    private dialog: MatDialog, @Inject(MAT_DIALOG_DATA) private missingEreader: boolean) { }
 
   ngOnInit(): void {
     this.showNotificationButton = window.Notification && Notification.permission != 'granted';
@@ -39,6 +43,10 @@ export class ProfileDialogComponent implements OnInit {
         this.userData = userData; 
         this.selectedLanguage = userData.language;
         this.eReaderEmailSaved = !!userData.eReaderEmail;
+
+        if (this.missingEreader) {
+          this.openEreaderSettings();
+        }
 
         this.userService.getRole().subscribe({
           next: (response) => {
@@ -49,6 +57,13 @@ export class ProfileDialogComponent implements OnInit {
         });
       }
     });
+  }
+
+  openEreaderSettings() {
+    this.settingsPanel!.expanded = true;
+    setTimeout(() => {
+      this.ebrPanel!.expanded = true;
+    }, 0);
   }
 
   logout(): void {
