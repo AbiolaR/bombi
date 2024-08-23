@@ -24,6 +24,10 @@ module.exports.listBooks = async (user) => {
     return await executeScript('inventory', '', user);
 }
 
+module.exports.getBooksProgress = async (user) => {
+    return await executeScript('sync', '', user);
+}
+
 async function executeScript(command, commandArgs, user) {
     const credentials = `--user "${user.eReaderDeviceId}" --password "${user.eReaderRefreshToken}"`
     var result;
@@ -60,7 +64,13 @@ class TolinoResult {
         
         await updateUserAsync(this.user);
 
-        console.log('** RESULT **: ', this.result);
+        //console.log('** RESULT **: ', this.result);
+
+        if (this.result.includes('JSON START')) {
+            const jsonString = this.result.split('JSON START').pop().split('JSON END')[0]
+                .replaceAll('\r\n', '');
+            return JSON.parse(jsonString);
+        }
 
         return { command: this.result.includes(this.SUCCESS), refresh_token: token };
     }

@@ -12,6 +12,7 @@ export class Book {
     filename: string = '';
     coverUrl: string = '';
     message: string = '';
+    progress: number = 0;
     pubDate: Date | undefined;
     
     public get year() {

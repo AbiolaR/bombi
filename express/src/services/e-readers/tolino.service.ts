@@ -4,9 +4,12 @@ import SeleniumAutomationService from "../selenium-automation.service";
 import { Type } from "selenium-webdriver/lib/logging";
 import { findUserAsync } from "../dbman";
 import { User } from "../../models/db/mongodb/user.model";
-import { listBooks, testAuth } from "../tolinoman";
+import { getBooksProgress, listBooks, testAuth } from "../tolinoman";
 import { Credentials } from "../../models/credentials";
 import { ServerResponse } from "../../models/server-response";
+import { TolinoSyncData } from "../../models/tolino-sync-data.model";
+import { TolinoInventoryData } from "../../models/tolino-inventory-data.model";
+import { Book } from "../../models/db/book.model";
 
 export class TolinoService {
 
@@ -55,8 +58,25 @@ export class TolinoService {
 
     public async listBooks(username: string) {
         let user: User = await findUserAsync(username);
+        return await listBooks(user);
+    }
 
-        await listBooks(user);
+    public async getBooksProgress(username: string) {
+        let user: User = await findUserAsync(username);
+        const syncData: TolinoSyncData = await getBooksProgress(user);
+        const bookData: TolinoInventoryData = await listBooks(user);
+        let books: Book[] = [];
+        syncData.patches.forEach(patch => {
+            const publicationId = patch.path.split('/publications/').pop().split('/').shift();
+            const inventoryItem = bookData.PublicationInventory.edata
+                .find(item => item.publicationId == publicationId);
+
+            books.push(new Book(0, '', inventoryItem.epubMetaData.title, 
+                inventoryItem.epubMetaData.author.shift()?.name, '', '', '', '', undefined, '.epub', '',
+                inventoryItem.epubMetaData.fileResource
+                    .find(resource => resource.type == 'FRONTCOVERIMAGE').resource, patch.value.progress));
+        });
+        return books;
     }
 
     public async disconnect(username: string) {

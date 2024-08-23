@@ -214,6 +214,12 @@ router.delete('/tolino/disconnect', async(req, res) => {
   res.send({ status: 0, message: 'disconnected from tolino account' });
 });
 
+router.get('/tolino/progress', async(req, res) => {
+  const tolinoService = new TolinoService();
+  const books = await tolinoService.getBooksProgress(req.body.username);
+  res.send({ status: 0, message: 'books progress from tolino account', data: books });
+});
+
 router.post('/pocketbook-cloud/providers', async (req, res) => {
   let email = req.body.email;
 
