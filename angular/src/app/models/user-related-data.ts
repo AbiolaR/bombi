@@ -9,7 +9,7 @@ export class UserRelatedData {
     username: string = '';
     email: String = '';
     eReaderEmail: String = '';
-    eReaderType: String = 'U';
+    eReaderType: string = 'U';
     eReaderRefreshToken: String = '';
     eReaderDeviceId: String = '';
     searchHistory: Map<string, string> = new Map();

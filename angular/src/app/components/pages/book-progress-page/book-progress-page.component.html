@@ -1,0 +1,27 @@
+<app-header/>
+<mat-tab-group>
+    <mat-tab label="Your Progress">
+        <div class="books">
+            <div *ngFor="let book of books" class="book">
+                <div>
+                    <img loading="lazy" class="cover" 
+                    aria-label="Book Cover" src="{{book.coverUrl}}"
+                    (click)="enlarge(book)"/>
+                    <mat-progress-bar mode="determinate" [value]="book.progress * 100"></mat-progress-bar>
+                </div>
+                <div>
+                    <h2>{{book.title}}</h2>
+                    <h3>{{book.author}}</h3>
+                    <span>{{roundedPercentageVal(book.progress)}}% read</span>
+                </div>
+                <button id="battleBtn" mat-mini-fab>
+
+                    <mat-icon aria-hidden="false" fontIcon="swords" class="material-symbols-outlined" />
+                </button>
+            </div>
+        </div>
+    </mat-tab>
+    <mat-tab label="Shared with you">
+        Nothing shared with you yet
+    </mat-tab>
+</mat-tab-group>

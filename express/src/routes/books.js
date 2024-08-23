@@ -196,6 +196,27 @@ router.post('/send', async(req, res) => {
   res.status(result.status).send(result.message);
 });
 
+router.get('/progress', async(req, res) => {
+  let books = [];
+  switch(req.query.ereader) {
+    case 'K': // Kindle
+      res.send(new ServerResponse([], 2, 'Not implemented'));
+      return;
+    case 'T': // Tolino
+      //books = await new TolinoService().getBooksProgress(req.body.username);
+      books = [  { id: 0, md5: '', title: 'Fourth Wing 01 - Flammengeküsst', author: 'Yarros, Rebecca', series: '', publisher: '', isbn: '', language: '', pubDate: undefined, extension: '.epub', filename: '', coverUrl: 'https://bosh.pageplace.de/bosh/rest/cover/308401010/bosh_10_3084010105806826712045637671', progress: 0, message: '' },  { id: 0, md5: '', title: 'Harry Potter und der Orden des Phönix', author: 'Rowling, J.K.', series: '', publisher: '', isbn: '', language: '', pubDate: undefined, extension: '.epub', filename: '', coverUrl: 'https://bosh.pageplace.de/bosh/rest/cover/308401010/bosh_10_3084010106482246648887751944', progress: 0.0083, message: '' },  { id: 0, md5: '', title: 'Harry Potter und der Halbblutprinz', author: 'J.K. Rowling', series: '', publisher: '', isbn: '', language: '', pubDate: undefined, extension: '.epub', filename: '', coverUrl: 'https://bosh.pageplace.de/bosh/rest/cover/308401010/bosh_10_3084010106666619656848046225', progress: 0.0066, message: '' },  { id: 0, md5: '', title: 'My Name Is Barbra', author: 'Barbra Streisand', series: '', publisher: '', isbn: '', language: '', pubDate: undefined, extension: '.epub', filename: '', coverUrl: 'https://bosh.pageplace.de/bosh/rest/cover/308401010/bosh_10_3084010107464870560043785461', progress: 0.0145, message: '' },  { id: 0, md5: '', title: 'The  of Azrael', author: 'Amber Nicole', series: '', publisher: '', isbn: '', language: '', pubDate: undefined, extension: '.epub', filename: '', coverUrl: 'https://bosh.pageplace.de/bosh/rest/cover/308401010/bosh_10_3084010107534643864025175413', progress: 0, message: '' },  { id: 0, md5: '', title: 'Harry Potter 3', author: 'Joanne K. Rowling', series: '', publisher: '', isbn: '', language: '', pubDate: undefined, extension: '.epub', filename: '', coverUrl: 'https://bosh.pageplace.de/bosh/rest/cover/308401010/bosh_10_3084010107622592345860667102', progress: 0.0013, message: '' },  { id: 0, md5: '', title: 'Eragon 04 - Das Erbe Der Macht', author: 'Christopher Paolini', series: '', publisher: '', isbn: '', language: '', pubDate: undefined, extension: '.epub', filename: '', coverUrl: 'https://bosh.pageplace.de/bosh/rest/cover/308401010/bosh_10_3084010107640737054873495110', progress: 0.2247, message: '' },  { id: 0, md5: '', title: 'Harry Potter - Gesamtausgabe', author: 'Joanne K. Rowling', series: '', publisher: '', isbn: '', language: '', pubDate: undefined, extension: '.epub', filename: '', coverUrl: 'https://bosh.pageplace.de/bosh/rest/cover/308401010/bosh_10_3084010108169929310734035058', progress: 0, message: '' },  { id: 0, md5: '', title: 'Ark Angel', author: 'Anthony Horowitz', series: '', publisher: '', isbn: '', language: '', pubDate: undefined, extension: '.epub', filename: '', coverUrl: 'https://bosh.pageplace.de/bosh/rest/cover/308401010/bosh_10_3084010108913743361390155178', progress: 0.024969, message: '' } ];
+      break;
+    case 'P': // PocketBook
+      res.send(new ServerResponse([], 2, 'Not implemented'));
+      return;
+    default:
+      res.send(new ServerResponse([], 1, 'Incorrect eReaderType given'));
+      return; 
+  }
+
+  res.send(new ServerResponse(books));
+});
+
 router.post('/tolino/connect', async(req, res) => {
   let credentials = req.body.credentials;
 
@@ -212,12 +233,6 @@ router.delete('/tolino/disconnect', async(req, res) => {
   let tolinoService = new TolinoService();
   await tolinoService.disconnect(req.body.username);
   res.send({ status: 0, message: 'disconnected from tolino account' });
-});
-
-router.get('/tolino/progress', async(req, res) => {
-  const tolinoService = new TolinoService();
-  const books = await tolinoService.getBooksProgress(req.body.username);
-  res.send({ status: 0, message: 'books progress from tolino account', data: books });
 });
 
 router.post('/pocketbook-cloud/providers', async (req, res) => {

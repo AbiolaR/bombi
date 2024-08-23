@@ -13,6 +13,7 @@ import { LanguageMap } from '../models/language-map';
 import { SyncRequest } from '../models/sync-request.model';
 
 const FIFTEEN_MINUTES_IN_MS = 1000 * 60 * 15;
+const FIFTEEN_SECONDS_IN_MS = 1000 * 15;
 
 @Injectable({
   providedIn: 'root'
@@ -21,6 +22,7 @@ export class BookService {
 
   private apiUrl: string = `${environment.apiServerUrl}/v1/books/`;
   private cachedSearches = new Map<string, { searchResult: Observable<SearchResult>, ttl: number }>();
+  private cachedBookProgri = new Map<string, { bookProgress: Observable<ServerResponse<Book[]>>, ttl: number }>();
 
   constructor(private http: HttpClient, private userService: UserService) { }
 
@@ -73,6 +75,23 @@ export class BookService {
     return this.http.post<ServerResponse<void>>(`${this.apiUrl}tolino/connect`,
     { credentials },
     { headers });
+  }
+
+  public getProgress(eReaderType: string): Observable<ServerResponse<Book[]>> {
+    const headers = { 'Authorization': `Bearer ${this.userService.getLocalUserData()?.access_token}`};
+    const key = eReaderType + headers.Authorization;
+    let cachedBookProgress = this.cachedBookProgri.get(key);
+
+    if (!cachedBookProgress || cachedBookProgress.ttl < Date.now()) {
+      cachedBookProgress = { 
+        bookProgress: this.http.get<ServerResponse<Book[]>>(
+          `${this.apiUrl}progress?ereader=${eReaderType}`, { headers }),
+        ttl: Date.now() + FIFTEEN_SECONDS_IN_MS 
+      };
+      this.cachedBookProgri.set(key, cachedBookProgress);
+    }
+    
+    return cachedBookProgress.bookProgress;
   }
 
   public getPocketBookProviders(email: string): Observable<ServerResponse<PocketBookProvider[]>> {

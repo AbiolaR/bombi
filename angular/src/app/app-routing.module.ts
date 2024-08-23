@@ -5,6 +5,7 @@ import { HomeComponent } from './components/pages/home/home.component';
 import { PasswordResetComponent } from './components/pages/password-reset/password-reset.component';
 import { SharedBooksComponent } from './components/pages/shared-books/shared-books.component';
 import { RequestsComponent } from './components/pages/requests/requests.component';
+import { BookProgressPageComponent } from './components/pages/book-progress-page/book-progress-page.component';
 
 const routes: Routes = [
   { path: 'home', component: HomeComponent },
@@ -12,6 +13,7 @@ const routes: Routes = [
   { path: 'shared', component: SharedBooksComponent },
   { path: 'resetPassword/:hash', component: PasswordResetComponent },
   { path: 'requests', component: RequestsComponent },
+  { path: 'progress', component: BookProgressPageComponent },
   { path: '**', redirectTo: 'home', pathMatch: 'full' }
 ];
 

@@ -56,6 +56,7 @@ import { RequestsComponent } from './components/pages/requests/requests.componen
 import { UploadBookDialogComponent } from './components/dialogs/upload-book-dialog/upload-book-dialog.component';
 import { HeaderComponent } from './components/header/header.component';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { BookProgressPageComponent } from './components/pages/book-progress-page/book-progress-page.component';
 
 export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http);
@@ -89,6 +90,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     RequestsComponent,
     UploadBookDialogComponent,
     HeaderComponent,
+    BookProgressPageComponent,
   ],
   imports: [
     BrowserModule,

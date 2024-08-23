@@ -18,7 +18,7 @@ mat-dialog-actions {
     padding: 20px 15px;
 }
 
-#lgtBtn,#messagesBtn,#requestsBtn {
+#lgtBtn,#messagesBtn,#bookProgressBtn,#requestsBtn {
     position: absolute;
     top: 18px;
     max-width: 25vw;
@@ -32,8 +32,12 @@ mat-dialog-actions {
     left: 24px;
 }
 
+#bookProgressBtn {
+    left: 84px;
+}
+
 #requestsBtn {
-    left: 88px;
+    left: 144px;
 }
 
 mat-expansion-panel {

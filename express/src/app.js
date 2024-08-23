@@ -33,10 +33,10 @@ app.use(cors({
 app.use('/api/v1/books/send', authorization());
 app.use('/api/v1/books/tolino/connect', authorization());
 app.use('/api/v1/books/tolino/disconnect', authorization());
-app.use('/api/v1/books/tolino/progress', authorization());
 app.use('/api/v1/books/pocketbook-cloud/providers', authorization());
 app.use('/api/v1/books/pocketbook-cloud/connect', authorization());
 app.use('/api/v1/books/pocketbook-cloud/disconnect', authorization());
+app.use('/api/v1/books/progress', authorization());
 app.use('/api/v1/books/upload', authorization('admin'));
 app.use('/api/v1/books/requests', authorization('admin'));
 app.use('/api/v1/users/save', authorization());

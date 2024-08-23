@@ -66,6 +66,9 @@ export class TolinoService {
         const syncData: TolinoSyncData = await getBooksProgress(user);
         const bookData: TolinoInventoryData = await listBooks(user);
         let books: Book[] = [];
+        
+        if (!syncData.patches || !bookData.PublicationInventory) return books;
+
         syncData.patches.forEach(patch => {
             const publicationId = patch.path.split('/publications/').pop().split('/').shift();
             const inventoryItem = bookData.PublicationInventory.edata

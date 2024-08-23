@@ -1,0 +1,51 @@
+mat-tab-group {
+    margin-top: 2rem;
+}
+
+.books {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.book {
+    position: relative;
+    display: flex;
+    width: 22rem;
+
+    h2 {
+        font-size: 18px;
+        margin-bottom: 0.25rem;
+    }
+
+    #battleBtn {
+        position: absolute;
+        top: 1.75rem;
+        right: 1.25rem;
+    }
+}
+
+mat-progress-bar {
+    width: 5.33em;
+}
+
+.cover {
+    position: relative;
+    z-index: 10;
+    height: 8em;
+    width: 5.33em;
+    margin: auto 1em auto 0;
+    border-radius: 4px;
+}
+
+::ng-deep.mat-mdc-tab-body:has(.cover:hover),
+::ng-deep.mat-mdc-tab-body-wrapper:has(.cover:hover),
+::ng-deep.mat-mdc-tab-body-content:has(.cover:hover) {
+    overflow: visible !important;
+}
+
+.cover:hover {
+    cursor: pointer;
+    scale: 1.2;
+}
