@@ -1,5 +1,5 @@
 <app-header/>
-<h1>Your reading progress</h1>
+<h1>{{ 'your-reading-progress' | translate }}</h1>
 <div class="books">
     <div *ngFor="let book of books" >
         <div class="book">
@@ -13,7 +13,7 @@
                 <app-book-title [title]="book.title" />
                 <h3>{{book.author}}</h3>
                 <div class="read-progress">
-                    <span>{{book.progress}}% read</span>
+                    <span>{{book.progress}}% {{ 'read' | translate }}</span>
                     <mat-icon class="done" *ngIf="book.progress > 94">
                         check_circle_outline
                     </mat-icon>

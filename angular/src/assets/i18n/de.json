@@ -83,5 +83,7 @@
   "this-book-is-not-available-yet": "Dieses Buch ist noch nicht verfügbar",
   "next": "Weiter",
   "set": "Setzen",
-  "pocketbook-sync-service": "PocketBook Sync Dienst"
+  "pocketbook-sync-service": "PocketBook Sync Dienst",
+  "your-reading-progress": "Dein Lesefortschritt",
+  "read": "gelesen"
 }
