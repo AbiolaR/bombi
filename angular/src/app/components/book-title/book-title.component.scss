@@ -1,0 +1,36 @@
+.auto-scroll:hover {
+    overflow: unset;
+    text-overflow: unset;
+    animation: scrollText 5s infinite linear;
+    animation-play-state: running;
+    width: calc(100% - 3.5rem);
+}
+
+.title-container {
+    display: flex;
+}
+
+.title {
+    display: inline-block;
+    width: calc(100% - 0.5rem);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
+    animation-play-state: paused;
+}
+
+@keyframes scrollText {
+    to {
+      transform: translateX(-100%);
+    }
+}
+
+.title-blocker {
+    //content: '';
+    height: 48px;
+    width: 48px;
+    right: 0;
+    position: absolute;
+    background-color: var(--main-background-color);
+}

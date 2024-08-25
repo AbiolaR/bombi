@@ -9,4 +9,5 @@ interface TolinoSyncPatch {
 
 interface TolinoSyncPatchValue {
     progress: number
+    modified: number
 }

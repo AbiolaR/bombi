@@ -57,6 +57,7 @@ import { UploadBookDialogComponent } from './components/dialogs/upload-book-dial
 import { HeaderComponent } from './components/header/header.component';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { BookProgressPageComponent } from './components/pages/book-progress-page/book-progress-page.component';
+import { BookTitleComponent } from "./components/book-title/book-title.component";
 
 export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http);
@@ -119,22 +120,23 @@ export function HttpLoaderFactory(http: HttpClient) {
     MatRadioModule,
     MatSlideToggleModule,
     TranslateModule.forRoot({
-      loader: {
-        provide: TranslateLoader,
-        useFactory: HttpLoaderFactory,
-        deps: [HttpClient]
-      }
+        loader: {
+            provide: TranslateLoader,
+            useFactory: HttpLoaderFactory,
+            deps: [HttpClient]
+        }
     }),
     MatBadgeModule,
     MatSidenavModule,
     MatExpansionModule,
     ServiceWorkerModule.register('custom-service-worker.js', {
-      enabled: !isDevMode(),
-      // Register the ServiceWorker as soon as the application is stable
-      // or after 30 seconds (whichever comes first).
-      registrationStrategy: 'registerWhenStable:30000'
-    })
-  ],
+        enabled: !isDevMode(),
+        // Register the ServiceWorker as soon as the application is stable
+        // or after 30 seconds (whichever comes first).
+        registrationStrategy: 'registerWhenStable:30000'
+    }),
+    BookTitleComponent
+],
   providers: [],
   bootstrap: [AppComponent]
 })

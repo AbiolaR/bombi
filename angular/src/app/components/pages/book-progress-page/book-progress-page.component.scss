@@ -2,11 +2,36 @@ mat-tab-group {
     margin-top: 2rem;
 }
 
+mat-form-field {
+    margin-top: 2rem;
+}
+
+h1 {
+    margin-top: 2rem;
+}
+
 .books {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 22rem);
     gap: 2rem;
     margin-top: 2rem;
+    padding-bottom: 4rem;
+    justify-content: center;
+}
+
+.info-container {
+    width: 100%;
+    overflow: hidden;
+}
+
+.read-progress {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    
+    .done {
+        color: var(--success-icon-color);
+    }
 }
 
 .book {
@@ -19,15 +44,33 @@ mat-tab-group {
         margin-bottom: 0.25rem;
     }
 
-    #battleBtn {
-        position: absolute;
-        top: 1.75rem;
-        right: 1.25rem;
+    --b: 1.5px;   /* thickness of the border */
+    --c: rgb(255 255 255 / 38%);   /* color of the border */
+    --w: 10px;  /* width of border */
+  
+    border: var(--b) solid #0000; /* space for the border */
+    --_g: #0000 90deg,var(--c) 0;
+    //--_p: var(--w) var(--w) border-box no-repeat;
+    background:
+        conic-gradient(from 180deg at top    var(--b) right var(--b),var(--_g)) 100% 0    / var(--_p);
+    border-radius: 4px;
+}
+
+.battleBtn {
+    //position: absolute;
+    //top: 1.75rem;
+    //right: 1.25rem;
+    border-radius: 0 0 4px 4px;
+    width: 100%;
+
+    mat-icon {
+        margin: 0;
     }
 }
 
 mat-progress-bar {
     width: 5.33em;
+    margin-bottom: 1rem;
 }
 
 .cover {

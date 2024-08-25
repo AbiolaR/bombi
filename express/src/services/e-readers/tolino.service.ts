@@ -63,9 +63,14 @@ export class TolinoService {
 
     public async getBooksProgress(username: string) {
         let user: User = await findUserAsync(username);
+        let books: Book[] = [];
+
+        if (!user.eReaderDeviceId || !user.eReaderRefreshToken) {
+            return books;
+        }
+
         const syncData: TolinoSyncData = await getBooksProgress(user);
         const bookData: TolinoInventoryData = await listBooks(user);
-        let books: Book[] = [];
         
         if (!syncData.patches || !bookData.PublicationInventory) return books;
 
@@ -75,9 +80,11 @@ export class TolinoService {
                 .find(item => item.publicationId == publicationId);
 
             books.push(new Book(0, '', inventoryItem.epubMetaData.title, 
-                inventoryItem.epubMetaData.author.shift()?.name, '', '', '', '', undefined, '.epub', '',
+                inventoryItem.epubMetaData.author.shift()?.name, '', '', '', '', 
+                new Date(patch.value.modified), '.epub', '',
                 inventoryItem.epubMetaData.fileResource
-                    .find(resource => resource.type == 'FRONTCOVERIMAGE').resource, patch.value.progress));
+                    .find(resource => resource.type == 'FRONTCOVERIMAGE').resource, 
+                    Math.round(patch.value.progress * 100)));
         });
         return books;
     }

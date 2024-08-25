@@ -6,6 +6,8 @@ import { PocketBookCloudConfig } from "../../models/db/mongodb/pocketbook-cloud-
 import { User } from "../../models/db/mongodb/user.model";
 import { Credentials } from "../../models/credentials";
 import { PocketBookProvider } from "../../models/pocket-book-provider";
+import { Book } from "../../models/db/book.model";
+import { PocketBookInventoryData } from "../../models/pocket-book-inventory-data.model";
 
 export class PocketBookCloudService {
     private static axios = applyCaseMiddleware(Axios.create());
@@ -20,6 +22,7 @@ export class PocketBookCloudService {
     private static readonly GRANT_TYPE_REFRESH = 'refresh_token';
     private static readonly REFRESH_TOKEN_ENDPOINT = '/v1.0/auth/renew-token';
     private static readonly UPLOAD_FILE_ENDPOINT = '/v1.1/files/book.epub';
+    private static readonly INVENTORY_ENDPOINT = '/v1.0/books?limit=100';
     private static readonly TOKEN_EXPIRED_ERROR_CODE = 224;
 
     private static FORMDATA_HEADERS = { 'Content-Type': 'multipart/form-data', 'Authorization': '' }
@@ -93,7 +96,6 @@ export class PocketBookCloudService {
             response = err.response;
         }
 
-
         switch (response?.status) {
             case HttpStatusCode.Ok:
                 return true;
@@ -105,6 +107,44 @@ export class PocketBookCloudService {
                 }
         }
         return false;
+    }
+
+    public static async getBooksProgress(username: string): Promise<Book[]> {
+        let books: Book[] = [];
+
+        const user: User = await findUserAsync(username);
+        if (!user || !user.pocketBookConfig?.cloudConfig) {
+            return books;
+        }
+
+        let headers = { Authorization:  `Bearer ${user.pocketBookConfig.cloudConfig.accessToken}` };
+
+        let response: AxiosResponse<PocketBookInventoryData>;
+        try {
+            response = await this.axios.get(this.API_BASE_URL + this.INVENTORY_ENDPOINT,
+                { headers: headers });
+        } catch(err) {
+            response = err.response;
+        }
+
+        switch (response?.status) {
+            case HttpStatusCode.Ok:
+                response.data.items.forEach(item => {
+                    books.push(new Book(0, '', item.metadata.title, item.metadata.authors, '', '', '',
+                        '', item.mtime, '.epub', '', item.metadata.cover.pop().path,
+                        Math.round(item.readPercent)
+                    ));
+                });
+                return books;
+            case HttpStatusCode.Unauthorized:
+                if (response?.data.errorCode == this.TOKEN_EXPIRED_ERROR_CODE) {
+                    if (await this.refreshToken(user)){
+                        return this.getBooksProgress(user.username);
+                    }
+                }
+            default:
+                return books;
+        }
     }
 
     private static async refreshToken(user: User): Promise<boolean> {

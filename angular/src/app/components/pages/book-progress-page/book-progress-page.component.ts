@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { DeviceDetectorService } from 'ngx-device-detector';
 import { Book } from 'src/app/models/book';
 import { BookService } from 'src/app/services/book.service';
 import { UserService } from 'src/app/services/user.service';
@@ -13,22 +12,24 @@ import { MatDialog } from '@angular/material/dialog';
 })
 export class BookProgressPageComponent implements OnInit {
 
-  constructor(private bookService: BookService, private userService: UserService, private dialog: MatDialog,
-    private deviceDetectorService: DeviceDetectorService,
+  constructor(private bookService: BookService, private userService: UserService, private dialog: MatDialog
   ) {}
 
-  eReaderType: string = '';
   books: Book[] = []
   
   ngOnInit(): void {
-    this.eReaderType = this.userService.getLocalUserData().eReaderType;
-    this.bookService.getProgress(this.eReaderType).subscribe({
-      next: (response) => {
+    this.getBookProgress();
+  }
+
+  getBookProgress() {
+    this.books = [];
+    this.bookService.getProgress().subscribe({
+      next: (response) => {        
         if (response.status == 0) {
-          this.books = response.data;
+          this.books = response.data.sort(this.sortByDateDesc);
         }
       }
-    })
+    });
   }
 
   enlarge(book: Book) {
@@ -40,8 +41,16 @@ export class BookProgressPageComponent implements OnInit {
     );
   }
 
-  roundedPercentageVal(percentage: number): number {
-    return Math.round(percentage * 100);
+  sortByDateDesc(a: Book, b: Book): -1 | 0 | 1 {
+    if (!a.pubDate || !b.pubDate) return 0;
+
+    if (Date.parse(a.pubDate.toString()) < Date.parse(b.pubDate.toString())) {
+      return 1;
+    } else if (Date.parse(a.pubDate.toString()) > Date.parse(b.pubDate.toString())) {
+      return -1;
+    }
+
+    return 0;
   }
 
 }

@@ -77,16 +77,16 @@ export class BookService {
     { headers });
   }
 
-  public getProgress(eReaderType: string): Observable<ServerResponse<Book[]>> {
+  public getProgress(): Observable<ServerResponse<Book[]>> {
     const headers = { 'Authorization': `Bearer ${this.userService.getLocalUserData()?.access_token}`};
-    const key = eReaderType + headers.Authorization;
+    const key = headers.Authorization;
     let cachedBookProgress = this.cachedBookProgri.get(key);
 
     if (!cachedBookProgress || cachedBookProgress.ttl < Date.now()) {
       cachedBookProgress = { 
         bookProgress: this.http.get<ServerResponse<Book[]>>(
-          `${this.apiUrl}progress?ereader=${eReaderType}`, { headers }),
-        ttl: Date.now() + FIFTEEN_SECONDS_IN_MS 
+          `${this.apiUrl}progress`, { headers }).pipe(shareReplay(1)),
+        ttl: Date.now() + FIFTEEN_MINUTES_IN_MS 
       };
       this.cachedBookProgri.set(key, cachedBookProgress);
     }
