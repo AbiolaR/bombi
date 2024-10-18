@@ -140,9 +140,12 @@ module.exports.findUserByUsernameAndCode = async (username, code) => {
     return await User.findOne({ username: username, passwordResetCode: code });
 }
 
-module.exports.createUser = (user, callback) => {  
+module.exports.createUser = (user, callback) => {
     new User(user).save((err) => {
-        if (err) callback(err);
+        if (err) {
+            console.error('Error while trying to register user: ', err)
+            callback(err); 
+        }
         callback('saved user succesfully')
     });
 }

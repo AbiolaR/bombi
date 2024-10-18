@@ -129,7 +129,7 @@ export class PocketBookConfigComponent {
   private updatePocketBookConfig() {
     this.userService.updateUserData().subscribe({
       next: (userData: UserData) => {
-        this.pocketBookConfig = userData.pocketBookConfig;
+        this.pocketBookConfig = userData.pocketBookConfig!;
         this.pocketBookConfigChange.emit(this.pocketBookConfig);
       }
     });

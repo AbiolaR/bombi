@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Credentials } from 'src/app/models/credentials';
+import { PocketBookConfig } from 'src/app/models/pocketbook-config';
 import { PocketBookSyncType } from 'src/app/models/pocketbook-sync-type.enum';
 import { UserData } from 'src/app/models/user-data';
 import { UserRelatedData } from 'src/app/models/user-related-data';
@@ -99,5 +100,9 @@ export class EReaderConfigComponent implements OnInit {
         this.userRelatedDataChange.emit(userData);
       }
     });
+  }
+
+  getPocketBookConfig() {
+    return this.userRelatedData.pocketBookConfig || new PocketBookConfig();
   }
 }

@@ -96,6 +96,7 @@ router.post('/register', async (req, res, next) => {
             user = sanitize(user);
             user.access_token = token;
             res.status(200).send(user);
+            return;
         })
     } catch (error) {
         res.send({status: 0, error: error});

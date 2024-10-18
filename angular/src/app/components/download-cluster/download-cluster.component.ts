@@ -83,7 +83,7 @@ export class DownloadClusterComponent {
   private handleDownload(button: any, filename: string, file: any) {
     const anchor = window.document.createElement('a');
     anchor.href = window.URL.createObjectURL(file);
-    anchor.download = filename;
+    anchor.download = filename.split('/').pop() || 'book.epub';
     document.body.appendChild(anchor);
     anchor.click();
     document.body.removeChild(anchor);

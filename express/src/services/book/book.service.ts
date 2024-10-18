@@ -21,7 +21,7 @@ export class BookService {
   private static readonly NON_FICTION_DOWNLOAD_URL = `${this.BASE_DOWNLOAD_URL}/main/`;
   private static readonly LIBGEN_COVERS = 'https://library.lol/';
   private static readonly SPLIT = '._-_.';
-  private static readonly TEMP_DIR = '/tmp/app.bombi/';
+  private static readonly CACHE_DIR = '/tmp/app.bombi/cache/';
   private static readonly CONVERTED_PREFIX = 'CONVERTED_';
 
 
@@ -34,7 +34,7 @@ export class BookService {
 
   static async download(book: Book, kindleMode = false): Promise<BookDownloadResponse> {
     if (!book.md5) {
-      return await this.fetchFromLocal(book, false);
+      return await this.fetchFromLocal(book, kindleMode) || await this.fetchFromLocal(book, false);
     }
     let series = book.series ? `(${book.series})` : '';
     let downloadUrl = '';
@@ -95,21 +95,25 @@ export class BookService {
 
   private static async fetchFromLocal(book: Book, kindleMode: boolean): Promise<BookDownloadResponse> {
     try {
-      let prefix = '';      
-      if (book.md5) {
-        if (kindleMode) {
-          prefix = this.CONVERTED_PREFIX;
-        }
-        prefix += book.md5 + this.SPLIT;
+      let prefix = '';
+      let fileName = book.filename;
+      if (kindleMode) {
+        prefix = this.CONVERTED_PREFIX;
       }
-      let filePath = `${this.TEMP_DIR}${prefix}${book.filename}`;      
+      if (book.md5) {
+        prefix += book.md5 + this.SPLIT;
+      } else if (kindleMode) {
+        fileName = book.filename.split('/').pop();
+      }
+
+      let filePath = `${this.CACHE_DIR}${prefix}${fileName}`;      
       if(!existsSync(filePath)) return
 
       let coverPath = '';
       if (!book.md5) {
         coverPath = `${dirname(require.main.filename)}/../static${book.coverUrl}`;
       } else {
-        coverPath = `${this.TEMP_DIR}${book.coverUrl.split('/').pop()}`
+        coverPath = `${this.CACHE_DIR}${book.coverUrl.split('/').pop()}`
       }
 
       let downloadResponse = new BookDownloadResponse(
@@ -136,7 +140,7 @@ export class BookService {
   }
 
   static async sendFileToKindle(recipient: string, book: BookBlob) {
-    if (!book.filePath.startsWith(this.TEMP_DIR + this.CONVERTED_PREFIX)) {      
+    if (!book.filePath.startsWith(this.CACHE_DIR + this.CONVERTED_PREFIX)) {      
       await EpubToolsService.makeKindleCombatible(book);
     }
     const fileName = book.filename.replace(this.CONVERTED_PREFIX, '').split(this.SPLIT).pop();

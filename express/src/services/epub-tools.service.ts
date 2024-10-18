@@ -8,7 +8,7 @@ import { Readable } from "stream";
 import path from "path";
 
 export class EpubToolsService {
-    private static readonly TEMP_DIR = '/tmp/app.bombi/';
+    private static readonly CACHE_DIR = '/tmp/app.bombi/cache/';
     private static readonly CONVERTED_PREFIX = 'CONVERTED_';
 
     public static initialize() {
@@ -21,7 +21,7 @@ export class EpubToolsService {
     }
 
     public static async saveToDiskAsync(book: BookBlob) {        
-        const filePath = path.resolve(this.TEMP_DIR, book.filename);       
+        const filePath = path.resolve(this.CACHE_DIR, book.filename);       
         await pipeline(book.data, createWriteStream(filePath));
         return filePath;
     }
@@ -39,7 +39,7 @@ export class EpubToolsService {
             zip.file(jpg, buffer);
         }
         const stream = zip.generateNodeStream({type:'nodebuffer', streamFiles:true}) as Readable;
-        return await this.saveToDiskAsync(new BookBlob(stream, filePath.split('/').pop()));;
+        return await this.saveToDiskAsync(new BookBlob(stream, this.CACHE_DIR + filePath.split('/').pop()));
     }
 
     private static async convertToAsync(book: BookBlob, fileType: 'mobi' | 'epub', deleteOriginal = false) {
@@ -49,14 +49,17 @@ export class EpubToolsService {
         const inputPath = book.filePath;
 
         const filePath = book.filePath
+                                .split('/').pop()
                                 .replace(new RegExp(extension + '$'), fileType)
-                                .replace(this.TEMP_DIR, '')
+                                .replace(this.CACHE_DIR, '')
                                 .replace(this.CONVERTED_PREFIX, '');
-        book.filePath = this.TEMP_DIR + this.CONVERTED_PREFIX + filePath;
+
+        book.filePath = this.CACHE_DIR + this.CONVERTED_PREFIX + filePath;
 
         book.filename = this.CONVERTED_PREFIX + book.filename
+                                                    .split('/').pop()
                                                     .replace(new RegExp(extension + '$'), fileType)
-                                                    .replace(this.CONVERTED_PREFIX, '');
+                                                    .replace(this.CONVERTED_PREFIX, '');        
 
         try {
             await convert({ input: inputPath, output: book.filePath, delete: deleteOriginal });
