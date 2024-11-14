@@ -5,7 +5,6 @@ const { findUserAsync } = require('../services/dbman');
 const { upload } = require('../services/tolinoman');
 const jsdom = require('jsdom');
 const axios = require('axios');
-const { TolinoService } = require('../services/e-readers/tolino.service');
 const { LibgenDbService } = require('../services/db/libgen-db.service');
 const { BookService } = require('../services/book/book.service');
 const { GoogleBooksSearchService } = require('../services/search/google-books-search.service');
@@ -14,6 +13,7 @@ const path = require('path');
 const { ServerResponse } = require('../models/server-response');
 const { BookSyncDbService } = require('../services/db/book-sync-db.service');
 const { SyncStatus } = require('../models/sync-status.model');
+const { HugendubelTolinoService } = require('../services/e-readers/hugendubel-tolino.service');
 
 const TEMP_DIR = '/tmp/app.bombi/';
 
@@ -199,11 +199,12 @@ router.post('/send', async(req, res) => {
 router.get('/progress', async(req, res) => {
   let books = [];
 
-  tolinoBooks = new TolinoService().getBooksProgress(req.body.username);
+  tolinoBooks = new HugendubelTolinoService().getBooksProgress(req.body.username);
   //tolinoBooks = [ { "id": 0, "md5": "", "title": "Fourth Wing 01 - Flammengeküsst", "author": "Yarros, Rebecca", "series": "", "publisher": "", "isbn": "", "language": "", "pubDate": "2023-10-24T12:58:38.429Z", "extension": ".epub", "filename": "", "coverUrl": "https://bosh.pageplace.de/bosh/rest/cover/308401010/bosh_10_3084010105806826712045637671", "progress": 0, "message": "" }, { "id": 0, "md5": "", "title": "Harry Potter und der Orden des Phönix", "author": "Rowling, J.K.", "series": "", "publisher": "", "isbn": "", "language": "", "pubDate": "2023-11-11T16:00:01.648Z", "extension": ".epub", "filename": "", "coverUrl": "https://bosh.pageplace.de/bosh/rest/cover/308401010/bosh_10_3084010106482246648887751944", "progress": 1, "message": "" }, { "id": 0, "md5": "", "title": "Harry Potter und der Halbblutprinz", "author": "J.K. Rowling", "series": "", "publisher": "", "isbn": "", "language": "", "pubDate": "2023-11-03T16:12:22.568Z", "extension": ".epub", "filename": "", "coverUrl": "https://bosh.pageplace.de/bosh/rest/cover/308401010/bosh_10_3084010106666619656848046225", "progress": 1, "message": "" }, { "id": 0, "md5": "", "title": "My Name Is Barbra", "author": "Barbra Streisand", "series": "", "publisher": "", "isbn": "", "language": "", "pubDate": "2023-11-25T00:32:18.645Z", "extension": ".epub", "filename": "", "coverUrl": "https://bosh.pageplace.de/bosh/rest/cover/308401010/bosh_10_3084010107464870560043785461", "progress": 1, "message": "" }, { "id": 0, "md5": "", "title": "The Book of Azrael", "author": "Amber Nicole", "series": "", "publisher": "", "isbn": "", "language": "", "pubDate": "2024-07-28T18:42:25.313Z", "extension": ".epub", "filename": "", "coverUrl": "https://bosh.pageplace.de/bosh/rest/cover/308401010/bosh_10_3084010107534643864025175413", "progress": 0, "message": "" }, { "id": 0, "md5": "", "title": "Harry Potter 3", "author": "Joanne K. Rowling", "series": "", "publisher": "", "isbn": "", "language": "", "pubDate": "2023-10-24T12:58:23.372Z", "extension": ".epub", "filename": "", "coverUrl": "https://bosh.pageplace.de/bosh/rest/cover/308401010/bosh_10_3084010107622592345860667102", "progress": 0, "message": "" }, { "id": 0, "md5": "", "title": "Eragon 04 - Das Erbe Der Macht", "author": "Christopher Paolini", "series": "", "publisher": "", "isbn": "", "language": "", "pubDate": "2024-08-24T12:51:17.921Z", "extension": ".epub", "filename": "", "coverUrl": "https://bosh.pageplace.de/bosh/rest/cover/308401010/bosh_10_3084010107640737054873495110", "progress": 24, "message": "" }, { "id": 0, "md5": "", "title": "Harry Potter - Gesamtausgabe", "author": "Joanne K. Rowling", "series": "", "publisher": "", "isbn": "", "language": "", "pubDate": "2023-11-03T15:59:08.059Z", "extension": ".epub", "filename": "", "coverUrl": "https://bosh.pageplace.de/bosh/rest/cover/308401010/bosh_10_3084010108169929310734035058", "progress": 0, "message": "" }, { "id": 0, "md5": "", "title": "Ark Angel", "author": "Anthony Horowitz", "series": "", "publisher": "", "isbn": "", "language": "", "pubDate": "2022-10-19T16:11:12.892Z", "extension": ".epub", "filename": "", "coverUrl": "https://bosh.pageplace.de/bosh/rest/cover/308401010/bosh_10_3084010108913743361390155178", "progress": 2, "message": "" } ];
   pocketBookBooks = PocketBookCloudService.getBooksProgress(req.body.username);
-
+  
   books = books.concat(...await Promise.all([tolinoBooks, pocketBookBooks]));
+  console.log(tolinoBooks)
 
   res.send(new ServerResponse(books));
 });
@@ -215,13 +216,13 @@ router.post('/tolino/connect', async(req, res) => {
     res.send({ status: 1, message: 'missing credentials' });
     return;
   }
-  let tolinoService = new TolinoService();
+  let tolinoService = new HugendubelTolinoService();
   let result = await tolinoService.connect(req.body.username, credentials);
   res.send(result)
 });
 
 router.delete('/tolino/disconnect', async(req, res) => {
-  let tolinoService = new TolinoService();
+  let tolinoService = new HugendubelTolinoService();
   await tolinoService.disconnect(req.body.username);
   res.send({ status: 0, message: 'disconnected from tolino account' });
 });
