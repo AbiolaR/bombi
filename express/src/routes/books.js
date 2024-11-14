@@ -204,7 +204,6 @@ router.get('/progress', async(req, res) => {
   pocketBookBooks = PocketBookCloudService.getBooksProgress(req.body.username);
   
   books = books.concat(...await Promise.all([tolinoBooks, pocketBookBooks]));
-  console.log(tolinoBooks)
 
   res.send(new ServerResponse(books));
 });
