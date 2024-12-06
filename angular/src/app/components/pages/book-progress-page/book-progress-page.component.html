@@ -1,6 +1,8 @@
 <app-header/>
 <h1>{{ 'your-reading-progress' | translate }}</h1>
 <div class="books">
+    <mat-spinner *ngIf="!progressFetched" />
+    <p *ngIf="progressFetched && books.length < 1" class="info">{{ 'no-progress-found' | translate }}</p>
     <div *ngFor="let book of books" >
         <div class="book">
             <div>

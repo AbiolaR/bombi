@@ -33,6 +33,11 @@ export abstract class GenericTolinoService {
     //private readonly SHORT_WAIT_DURATION = 5000;
     private readonly LONG_WAIT_DURATION = 10000;
 
+    private readonly RETRY_INTERVAL = 500;
+    private readonly MAX_RETRIES = this.LONG_WAIT_DURATION / this.RETRY_INTERVAL;
+
+    private ongoingConnections: Map<string, void> = new Map();
+
     public async connect(username: string, credentials: Credentials): Promise<ServerResponse<undefined>> {
         let tolinoCredentials: TolinoCredentials;
         try {
@@ -67,14 +72,18 @@ export abstract class GenericTolinoService {
         let user: User = await findUserAsync(username);
         let books: Book[] = [];
 
-        if (!user.eReaderDeviceId || !user.eReaderRefreshToken) {
+        if (!user.eReaderDeviceId || !user.eReaderRefreshToken
+            || !await this.freeTolinoConnection(username)
+        ) {
             return books;
         }
 
+        this.ongoingConnections.set(username);
         const syncData: TolinoSyncData = await getBooksProgress(user);
         const bookData: TolinoInventoryData = await listBooks(user);
+        this.ongoingConnections.delete(username);
         
-        if (!syncData.patches || !bookData.PublicationInventory) return books;
+        if (!syncData?.patches || !bookData?.PublicationInventory) return books;
 
         syncData.patches.forEach(patch => {
             const publicationId = patch.path.split('/publications/').pop().split('/').shift();
@@ -170,6 +179,19 @@ export abstract class GenericTolinoService {
                     'language': 'Deutsch',
                     'languageTag': 'de-DE'
             }});
+        }
+    }
+
+    private async freeTolinoConnection(username: string): Promise<boolean> {
+        if (this.ongoingConnections.has(username)) {
+            for (let i = 0; i < this.MAX_RETRIES; i++) {
+                if (!this.ongoingConnections.has(username)) {
+                    return true;                    
+                }
+                await new Promise(resolve => setTimeout(resolve, this.RETRY_INTERVAL));
+            }
+        } else {
+            return true;
         }
     }
 

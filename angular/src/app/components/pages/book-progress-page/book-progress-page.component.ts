@@ -16,6 +16,7 @@ export class BookProgressPageComponent implements OnInit {
   ) {}
 
   books: Book[] = []
+  progressFetched = false;
   
   ngOnInit(): void {
     this.getBookProgress();
@@ -25,6 +26,7 @@ export class BookProgressPageComponent implements OnInit {
     this.books = [];
     this.bookService.getProgress().subscribe({
       next: (response) => {        
+        this.progressFetched = true;
         if (response.status == 0) {
           this.books = response.data.sort(this.sortByDateDesc);
         }

@@ -85,5 +85,6 @@
   "next": "Next",
   "set": "Set",
   "your-reading-progress": "Your reading progress",
-  "read": "read"
+  "read": "read",
+  "no-progress-found": "No progress found"
 }

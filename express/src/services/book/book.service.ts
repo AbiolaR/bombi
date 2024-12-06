@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { sendFileViaEmail } from "../email";
 import { upload } from "../tolinoman";
 import { User } from "../../models/db/mongodb/user.model";
@@ -12,6 +12,7 @@ import { dirname } from "path";
 import { PocketBookCloudService } from "../e-readers/pocketbook-cloud.service";
 import { DEC } from "../secman";
 import { EpubToolsService } from "../epub-tools.service";
+import { log } from "console";
 
 export class BookService {
 
@@ -64,7 +65,7 @@ export class BookService {
         }
         return new BookDownloadResponse(new BookBlob(request.data, filename), cover);
       } catch (error) {
-        console.error(error)
+        this.logAxiosError(error, "Trying to download book with url");
       }
   }
 
@@ -73,8 +74,7 @@ export class BookService {
       const page = (await axios.get<string>(`${this.LIBGEN_MIRROR}/ads.php?md5=${md5Hash}`)).data;
       const regexDownloadURL = new RegExp(/(?<=href=")(.*)(?="><h2>GET<)/g);
 
-      let downloadUrl = page.match(regexDownloadURL).toString();
-
+      let downloadUrl = `${this.LIBGEN_MIRROR}/${page.match(regexDownloadURL).toString()}`;
       const request = await axios.get<Readable>(`${downloadUrl}`, { 
         responseType: 'stream'
       });
@@ -83,13 +83,17 @@ export class BookService {
 
       let cover = new CoverBlob();
       if (coverUrl) {
-        const coverRequest = await axios.get<Readable>(coverUrl, { responseType: 'stream' });
-        cover = new CoverBlob(coverRequest.data, coverRequest.config.url.split('/').pop());
+        try {
+          const coverRequest = await axios.get<Readable>(coverUrl, { responseType: 'stream' });
+          cover = new CoverBlob(coverRequest.data, coverRequest.config.url.split('/').pop());
+        } catch (error) {
+          this.logAxiosError(error, "Trying to download cover");
+        }
       }
       
       return new BookDownloadResponse(book, cover);
     } catch(error) {
-      console.error(error)
+      this.logAxiosError(error, "Trying to download book with md5 hash");
     }
   }
 
@@ -193,5 +197,9 @@ export class BookService {
 
   private static torrentNumber(book: Book): number {
     return Math.floor(book.id / 1000) * 1000;
+  }
+
+  private static logAxiosError(error: AxiosError, message: string = '') {
+    console.error(`[ERROR] ${message}\nAxios request failed for url ${error.config?.url} with cause: \n${error.cause}`);
   }
 }

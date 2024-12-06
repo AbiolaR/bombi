@@ -85,5 +85,6 @@
   "set": "Setzen",
   "pocketbook-sync-service": "PocketBook Sync Dienst",
   "your-reading-progress": "Dein Lesefortschritt",
-  "read": "gelesen"
+  "read": "gelesen",
+  "no-progress-found": "Kein Fortschritt gefunden"
 }

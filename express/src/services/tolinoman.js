@@ -24,7 +24,7 @@ module.exports.listBooks = async (user) => {
     return await executeScript('inventory', '', user);
 }
 
-module.exports.getBooksProgress = async (user) => {
+module.exports.getBooksProgress = async (user) => {    
     return await executeScript('sync', '', user);
 }
 
@@ -56,6 +56,9 @@ class TolinoResult {
         var token = '';
         if (possibleRefreshToken[1] && possibleRefreshToken[0]){
             token = possibleRefreshToken[0];
+            if (token.startsWith('-')) {
+                token = token.substring(1);
+            }
         } else {
             console.error('no refresh token for user: ', this.user.username);
             this.user.eReaderDeviceId = '';
