@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SearchComponent } from '../search/search.component';
 import { UserService } from 'src/app/services/user.service';
@@ -11,6 +11,9 @@ import { ProfileDialogComponent } from '../dialogs/profile-dialog/profile-dialog
   styleUrls: ['./header.component.scss']
 })
 export class HeaderComponent {
+
+  @Input()
+  searchString = '';
 
   constructor(public userService: UserService, private dialog: MatDialog) {}
 

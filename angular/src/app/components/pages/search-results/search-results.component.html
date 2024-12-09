@@ -1,5 +1,5 @@
 <div id="search-header">
-    <app-header/>
+    <app-header [searchString]="searchString"/>
     <div *ngIf="usingCorrection">
         <p>{{ 'showing-results-for' | translate }} <span class="correction" (click)="searchString = suggestion">{{suggestion}}</span></p>
     </div>

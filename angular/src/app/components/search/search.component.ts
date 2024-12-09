@@ -85,6 +85,7 @@ export class SearchComponent {
   }
 
   private saveToSearchHistory() {
+    console.warn('userdata: ', this.userData);
     if (this.userData.getNewestSearchHistoryEntry() == this.searchForm.get('input')?.value) {
       return;
     }
@@ -113,6 +114,10 @@ export class SearchComponent {
   fetchData() {
     if (!this.userService.isLoggedIn()) {
       this.userData = this.userService.getLocalUserData() || new UserData();
+      this.filteredSearchHistory = this.searchForm.get('input')?.valueChanges.pipe(      
+        startWith(''),
+        map(value => this._filter(value || '')),
+      );
     } else {
       this.userService.getUserData().subscribe({
         next: (response) => {
