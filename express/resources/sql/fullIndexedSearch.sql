@@ -73,7 +73,7 @@ FROM
                         MATCH(author) AGAINST (:search_term IN BOOLEAN MODE)
                     )
                 ) + (
-                    0.45 * (
+                    4 * (
                         MATCH(language) AGAINST (:default_language IN BOOLEAN MODE)
                     )
                 )

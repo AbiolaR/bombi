@@ -85,7 +85,6 @@ export class SearchComponent {
   }
 
   private saveToSearchHistory() {
-    console.warn('userdata: ', this.userData);
     if (this.userData.getNewestSearchHistoryEntry() == this.searchForm.get('input')?.value) {
       return;
     }
