@@ -71,7 +71,7 @@ router.post('/search/upcoming', async(req, res) => {
 router.get('/fictioncovers/*', (req, res) => {
   const url = req.url.replace('/fictioncovers/', '');
 
-  axios.get('https://library.lol/' + url, {responseType: 'stream', cache: false}).then(async (response) => {
+  axios.get('https://library.gift/' + url, {responseType: 'stream', cache: false}).then(async (response) => {
     response.data.pipe(res);
   }).catch(() => {});
 });
@@ -79,7 +79,7 @@ router.get('/fictioncovers/*', (req, res) => {
 router.get('/coversproxy/*', (req, res) => { 
   const url = req.url.replace('/coversproxy/', '');
 
-  axios.get('https://library.lol/' + url, {responseType: 'stream', cache: false}).then(async (response) => {
+  axios.get('https://library.gift/' + url, {responseType: 'stream', cache: false}).then(async (response) => {
     response.data.pipe(res);
   }).catch(() => {});
 });

@@ -17,10 +17,10 @@ import { log } from "console";
 export class BookService {
 
   private static readonly LIBGEN_MIRROR = process.env.LIBGEN_MIRROR || 'http://libgen.rocks';
-  private static readonly BASE_DOWNLOAD_URL = 'https://download.library.lol';
+  private static readonly BASE_DOWNLOAD_URL = 'https://download.library.gift';
   private static readonly FICTION_DOWNLOAD_URL = `${this.BASE_DOWNLOAD_URL}/fiction/`;
   private static readonly NON_FICTION_DOWNLOAD_URL = `${this.BASE_DOWNLOAD_URL}/main/`;
-  private static readonly LIBGEN_COVERS = 'https://library.lol/';
+  private static readonly LIBGEN_COVERS = 'https://library.gift/';
   private static readonly SPLIT = '._-_.';
   private static readonly CACHE_DIR = '/tmp/app.bombi/cache/';
   private static readonly CONVERTED_PREFIX = 'CONVERTED_';
