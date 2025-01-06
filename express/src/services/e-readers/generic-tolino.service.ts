@@ -6,10 +6,10 @@ import { ServerResponse } from "../../models/server-response";
 import { TolinoCredentials } from "../../models/tolino-credentials.model";
 import { TolinoInventoryData } from "../../models/tolino-inventory-data.model";
 import { TolinoSyncData } from "../../models/tolino-sync-data.model";
-import { findUserAsync } from "../dbman";
 import SeleniumAutomationService from "../selenium-automation.service";
 import { getBooksProgress, listBooks, testAuth } from "../tolinoman";
 import { Type } from "selenium-webdriver/lib/logging";
+import { findUser } from "../db/mongo-db.service";
 
 export abstract class GenericTolinoService {
 
@@ -50,7 +50,7 @@ export abstract class GenericTolinoService {
         if (!tolinoCredentials) {
             return new ServerResponse(undefined, 2, 'error while attempting to log in');
         }
-        let user: User = await findUserAsync(username);
+        let user: User = await findUser(username);
         user.eReaderDeviceId = tolinoCredentials.deviceId;
         user.eReaderRefreshToken = tolinoCredentials.refreshToken;
 
@@ -64,12 +64,12 @@ export abstract class GenericTolinoService {
     }
 
     public async listBooks(username: string) {
-        let user: User = await findUserAsync(username);
+        let user: User = await findUser(username);
         return await listBooks(user);
     }
 
     public async getBooksProgress(username: string): Promise<Book[]> {
-        let user: User = await findUserAsync(username);
+        let user: User = await findUser(username);
         let books: Book[] = [];
 
         if (!user.eReaderDeviceId || !user.eReaderRefreshToken
@@ -101,7 +101,7 @@ export abstract class GenericTolinoService {
     }
 
     public async disconnect(username: string) {
-        let user: User = await findUserAsync(username);
+        let user: User = await findUser(username);
         user.eReaderDeviceId = undefined;
         user.eReaderRefreshToken = undefined;
         await user.save();

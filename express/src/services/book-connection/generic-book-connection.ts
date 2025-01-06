@@ -5,10 +5,11 @@ import { ExternalLoginResult } from "../../models/external-login-result";
 import { ServerResponse } from "../../models/server-response";
 import { SyncRequest } from "../../models/sync-request.model";
 import { BookConnection } from "./book-connection.interface";
-import { findUserAsync, updateUserAsync } from "../dbman";
 import { Credentials } from "../../models/credentials";
 import SeleniumAutomationService from "../selenium-automation.service";
 import { SyncLanguage } from "../../models/sync-language.model";
+import { findUser, updateUser } from "../db/mongo-db.service";
+import { User } from "../../models/db/mongodb/user.model";
 
 export default abstract class GenericBookConnection implements BookConnection {
     PREFERED_LANGUAGE_PROPERTY: string;
@@ -50,7 +51,7 @@ export default abstract class GenericBookConnection implements BookConnection {
     }
 
     async getBooksToReadByUsername(username: string): Promise<ServerResponse<SyncRequest[]>> {
-        const user = await findUserAsync(username);
+        const user = await findUser(username);
         if (!user) {
             return new ServerResponse([], 1, 'user not found');
         }
@@ -70,13 +71,13 @@ export default abstract class GenericBookConnection implements BookConnection {
     rigidLanguage: boolean, useSyncTag: boolean): Promise<ServerResponse<SyncRequest[]>> {
         let loginResult = await this.login(credentials);
         if (loginResult.userIdent && loginResult.cookies) {            
-            await updateUserAsync({username: username, 
+            await updateUser({username: username, 
                 [this.PREFERED_LANGUAGE_PROPERTY]: preferedLanguage,
                 [this.RIGID_LANGUAGE_PROPERTY]: rigidLanguage,
                 [this.USE_SYNC_TAG_PROPRTY]: useSyncTag,
                 [this.USER_IDENT_PROPERTY]: loginResult.userIdent, 
                 [this.USER_COOKIES_PROPERTY]: loginResult.cookies
-            });            
+            } as unknown as User);            
             return await this.getBooksToReadByUsername(username);
         }
         return new ServerResponse([], 2, 'error while attempting to log in');

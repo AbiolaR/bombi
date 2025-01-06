@@ -1,13 +1,13 @@
 import Axios, { AxiosResponse, HttpStatusCode } from "axios";
 import applyCaseMiddleware from "axios-case-converter";
 import { BookBlob } from "../../models/book-blob.model";
-import { findUserAsync } from "../dbman";
 import { PocketBookCloudConfig } from "../../models/db/mongodb/pocketbook-cloud-config.model";
 import { User } from "../../models/db/mongodb/user.model";
 import { Credentials } from "../../models/credentials";
 import { PocketBookProvider } from "../../models/pocket-book-provider";
 import { Book } from "../../models/db/book.model";
 import { PocketBookInventoryData } from "../../models/pocket-book-inventory-data.model";
+import { findUser } from "../db/mongo-db.service";
 
 export class PocketBookCloudService {
     private static axios = applyCaseMiddleware(Axios.create());
@@ -43,7 +43,7 @@ export class PocketBookCloudService {
     }
 
     public static async connect(username: string, credentials: Credentials, provider: PocketBookProvider): Promise<boolean> {
-        const user: User = await findUserAsync(username);
+        const user: User = await findUser(username);
         if (!user) return;
 
         let loginData = new FormData();
@@ -73,7 +73,7 @@ export class PocketBookCloudService {
     }
 
     public static async disconnect(username: string) {
-        const user: User = await findUserAsync(username);
+        const user: User = await findUser(username);
         if (!user) return;
 
         user.pocketBookConfig.cloudConfig = undefined;
@@ -112,7 +112,7 @@ export class PocketBookCloudService {
     public static async getBooksProgress(username: string): Promise<Book[]> {
         let books: Book[] = [];
 
-        const user: User = await findUserAsync(username);
+        const user: User = await findUser(username);
         if (!user || !user.pocketBookConfig?.cloudConfig) {
             return books;
         }

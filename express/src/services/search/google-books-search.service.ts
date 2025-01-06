@@ -1,15 +1,19 @@
+import { get } from "http";
 import { Book } from "../../models/db/book.model";
 import { GoogleBook } from "../../models/google-book.model";
 import { SearchResponse } from "../../models/google-books/search-response.model";
 import { SyncLanguage } from "../../models/sync-language.model";
 import { DEC } from "../secman";
 import axios from "axios";
+import { GoogleAuthenticationService } from "../auth/google-auth.service";
+import { google } from "googleapis";
 
 export class GoogleBooksSearchService {
     private static readonly API_KEY = DEC('U2FsdGVkX19xDpW0bIUUp+Wep4V1lJ1NWJPDVrpGzuOM7el6f9PugO7EaWfeVPucqPmffkjfUZtlAb22oifz+A==');
     private static readonly SEARCH_URL = 'https://www.googleapis.com/books/v1/volumes?q=subject:fiction+intitle:';
     private static readonly UPPERCASE_REGEX = /^[A-Z]+$/;
     private static readonly ISBN = 'ISBN_13';
+    private static readonly FOR_YOU_BOOKSHELF = '8';
 
     public static async search(searchString: string, previouslyFoundBooks: Book[]): Promise<Book[]> {
         const response = await axios.get<SearchResponse>(`${this.SEARCH_URL}"${searchString}"
@@ -26,6 +30,22 @@ export class GoogleBooksSearchService {
                 volume.volumeInfo?.imageLinks?.thumbnail.replace('http://', 'https://')));
 
         return this.merge(books, previouslyFoundBooks);
+    }
+
+    public static async fetchUsersBooks(username: string): Promise<any> {
+        const auth = await GoogleAuthenticationService.getAuth(username);
+
+        //const bookshelves = await google.books({ version: 'v1', auth: auth, key: this.API_KEY }).mylibrary.bookshelves.list();
+        //const bookshelfId = bookshelves.data.items.find(bs => bs.title == 'Books for you').id;
+        /*if (!bookshelfId) {
+            return [];
+        }*/
+        const books = (await google.books({ version: 'v1', auth: auth, key: this.API_KEY }).mylibrary.bookshelves.volumes.list({ shelf: this.FOR_YOU_BOOKSHELF})).data;
+
+        console.log(books);
+
+        return books;
+
     }
 
     private static merge(books: Book[], previouslyFoundBooks: Book[]): Book[] {

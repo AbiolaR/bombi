@@ -1,7 +1,7 @@
 const util = require('util');
 const { exec } = require('child_process');
 const execAsync = util.promisify(exec);
-const { updateUserAsync } = require('./dbman');
+const { updateUser } = require('./db/mongo-db.service');
 
 const STATIC_ARGS = 'python3 resources/python/tolinoclient.py --partner 13 --use-device';
 
@@ -65,7 +65,7 @@ class TolinoResult {
         }
         this.user.eReaderRefreshToken = token;
         
-        await updateUserAsync(this.user);
+        await updateUser(this.user);
 
         //console.log('** RESULT **: ', this.result);
 

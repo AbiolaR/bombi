@@ -3,7 +3,7 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
-const dbman = require('../services/dbman');
+const userService = require('../services/db/mongo-db.service');
 const { sendPasswordResetMail } = require('../services/email');
 const { TOKEN_SECRET } = require('../services/secman');
 const { sendPushNotifications } = require('../services/notification.service'); 
@@ -13,62 +13,61 @@ const { SocialReadingPlatform } = require('../models/social-reading-platform');
 const { BookSyncDbService } = require('../services/db/book-sync-db.service');
 const { BookSyncService } = require('../services/book/book-sync.service');
 const { ServerResponse } = require('../models/server-response');
+//const { findUser } = require('../services/db/mongo-db.service');
 
 const ONE_YEAR = '8760h';
 
-router.get('/data', (req, res) => {
+router.get('/data', async (req, res) => {
     const username = req.body.username;
 
     try {
-        dbman.findUser(username, (user) => {
-            if (!user) {
-                res.status(200).send({status: 3, error: 'user doesnt exist'});
-                return;
-            } else {
-                res.status(200).send(sanitize(user._doc));
-            }
-        })
+        const user = await userService.findUser(username);
+        if (!user) {
+            res.status(200).send({status: 3, error: 'user doesnt exist'});
+            return;
+        } else {
+            res.status(200).send(sanitize(user._doc));
+        }
     } catch (error) {
         res.send({status: 0, error: error});
     }
 });
 
-router.get('/role', (req, res) => {
+router.get('/role', async (req, res) => {
     const username = req.body.username;
 
     try {
-        dbman.findUser(username, (user) => {
-            if (!user) {
-                res.status(200).send(new ServerResponse(undefined, 3, 'user does not exist'));
-                return;
-            } else {
-                res.status(200).send(new ServerResponse(user.role));
-            }
-        })
+        const user = await userService.findUser(username);
+        if (!user) {
+            res.status(200).send(new ServerResponse(undefined, 3, 'user does not exist'));
+            return;
+        } else {
+            res.status(200).send(new ServerResponse(user.role));
+        }
     } catch (error) {
         res.status(200).send(new ServerResponse(undefined, 0, error));
     }
 })
 
-router.post('/login', (req, res, next) => {
+router.post('/login', async (req, res, next) => {
     const { username, password } = req.body;
 
     try {
-        dbman.findUser(username, (user) => {
-            if (!user) {
-                res.status(200).send({status: 3, error: 'user doesnt exist'});
-                return;
-            }
-            if (bcrypt.compareSync(password, user.password)) {
-                var token = authenticateUser(user.username, user.role);
-                user = sanitize(user._doc);
-                user.access_token = token;
-                res.status(200).send(user);
-            } else {
-                res.status(200).send({status: 2, error: 'wrong password'});
-            }
-        });
+        var user = await userService.findUser(username);
+        if (!user) {
+            res.status(200).send({status: 3, error: 'user doesnt exist'});
+            return;
+        }
+        if (bcrypt.compareSync(password, user.password)) {
+            var token = authenticateUser(user.username, user.role);
+            user = sanitize(user._doc);
+            user.access_token = token;
+            res.status(200).send(user);
+        } else {
+            res.status(200).send({status: 2, error: 'wrong password'});
+        }
     } catch (error) {
+        console.error('An error occurred trying to login a user: ', error)
         res.send({status: 0, error: error});
     }    
 
@@ -82,7 +81,7 @@ router.post('/register', async (req, res, next) => {
         return;
     }
 
-    const posUser = await dbman.findUserAsync(user.username);
+    const posUser = await userService.findUser(user.username);
 
     if (posUser) {
         res.status(200).send({status: 2, error: 'user already exists'});
@@ -91,25 +90,29 @@ router.post('/register', async (req, res, next) => {
 
     try {
         user.password = bcrypt.hashSync(user.password, bcrypt.genSaltSync(10));
-        dbman.createUser(user, (result) => {
+        const createdUser = await userService.createUser(user);
+        if (createdUser) {
             var token = authenticateUser(user.username, user.role);
             user = sanitize(user);
             user.access_token = token;
             res.status(200).send(user);
             return;
-        })
+        }
     } catch (error) {
         res.send({status: 0, error: error});
     }
 });
 
-router.post('/save', (req, res, next) => {
+router.post('/save', async (req, res, next) => {
     const userdata = req.body;
 
     try {
-        dbman.updateUser(userdata, (result) => {
+        const updatedUser = await userService.updateUser(userdata);
+        if (updatedUser) {
             res.send(true);
-        })
+        } else {
+            res.send(false);
+        }
     } catch (error) {
         console.error('An error occurred trying to save a user: ', error);
         res.send(false);
@@ -119,7 +122,7 @@ router.post('/save', (req, res, next) => {
 router.post('/requestPasswordReset', async (req, res, next) => {
     const username = req.body.username;
 
-    const posUser = await dbman.findUserAsync(username);
+    const posUser = await userService.findUser(username);
 
     if (!posUser) {
         res.status(200).send({status: 1, message: 'user doesnt exists'});
@@ -129,14 +132,14 @@ router.post('/requestPasswordReset', async (req, res, next) => {
     let hash = '';
     do {
         hash = crypto.randomBytes(20).toString('hex');
-    } while (await dbman.findUserByHashAsync(hash));
-    await dbman.updateUserAsync({username: username, passwordResetHash: hash});
+    } while (await userService.findUserByHash(hash));
+    await userService.updateUser({username: username, passwordResetHash: hash});
     const result = await sendPasswordResetMail(posUser.email, hash);
     setTimeout(async () => {
-        let user = await dbman.findUserAsync(username);
+        let user = await userService.findUser(username);
         if (user.passwordResetHash == hash) {
             try {
-                dbman.updateUserAsync({username: username, passwordResetHash: ''});
+                userService.updateUser({username: username, passwordResetHash: ''});
             } catch (error) {
                 console.error('An error occurred trying to save a user: ', error);
             }
@@ -149,7 +152,7 @@ router.post('/requestPasswordReset', async (req, res, next) => {
 router.post('/resetPassword', async (req, res, next) => {
     let resetData = req.body;
 
-    let user = await dbman.findUserAsync(resetData.username);
+    let user = await userService.findUser(resetData.username);
 
     if (!user) {
         res.status(200).send({status: 1, message: 'user doesnt exists'});
@@ -158,9 +161,8 @@ router.post('/resetPassword', async (req, res, next) => {
 
     try {
         resetData.password = bcrypt.hashSync(resetData.password, bcrypt.genSaltSync(10));
-        dbman.updateUser(resetData, (result) => {
-            res.status(200).send({status: 0, message: 'password saved successfully'});
-        })
+        await userService.updateUser(resetData);
+        res.status(200).send({status: 0, message: 'password saved successfully'});
     } catch (error) {
         console.error('An error occurred trying to save a user: ', error);
         res.status(200).send({status: 1, message: 'couldnt save new password'});
@@ -170,7 +172,7 @@ router.post('/resetPassword', async (req, res, next) => {
 router.post('/validateResetHash', async (req, res, next) => {
     const hash = req.body.passwordResetHash;
 
-    const user = await dbman.findUserByHashAsync(hash);
+    const user = await userService.findUserByHash(hash);
 
     if (!user) {
         res.status(200).send({status: 1, message: 'invalid hash'});
@@ -185,18 +187,18 @@ router.post('/share', async (req, res) => {
     const contactName = req.body.contact;
     const sharedBook =  req.body.book;
     const notificationData = req.body.notificationData;
-    const user = await dbman.findUserAsync(username);
+    const user = await userService.findUser(username);
     
     if (user) {
         user.contacts.forEach(async contact => {
             if (contact.name == contactName) {
-                const dbContact = await dbman.findUserAsync(contactName);
+                const dbContact = await userService.findUser(contactName);
                 if (dbContact) {
                     dbContact.contacts.forEach(async _contact => {
                         if (_contact.name == username) {
                             _contact.sharedBooks.push(sharedBook);
                             _contact.unreadMessages = ++_contact.unreadMessages || 1;
-                            await dbman.updateUserAsync(dbContact);
+                            await userService.updateUser(dbContact);
                             await sendPushNotifications(dbContact.pushSubscriptions, 
                                 notificationData.title, notificationData.message, notificationData.actions, sharedBook);
                             return;
@@ -217,7 +219,7 @@ router.get('/shared', async (req, res) => {
 
     let data = [];
 
-    const user = await dbman.findUserAsync(username);
+    const user = await userService.findUser(username);
     if (user) {
         user.contacts.forEach(contact => {
             if (contactName) {
@@ -240,20 +242,20 @@ router.post('/friend-request/send', async (req, res) => {
     const contactUsername = req.body.contactUsername;
     const notificationData = req.body.notificationData;
 
-    const user = await dbman.findUserAsync(username);
+    const user = await userService.findUser(username);
     if (!user) {
         res.status(200).send({status: 1, message: 'user does not exist'});
         return;
     }
 
-    const contact = await dbman.findUserAsync(contactUsername);
+    const contact = await userService.findUser(contactUsername);
     if (!contact) {
         res.status(200).send({status: 2, message: 'contact does not exist'});
         return;
     }
 
     contact.friendRequests.push(username);
-    await dbman.updateUserAsync(contact);
+    await userService.updateUser(contact);
     await sendPushNotifications(contact.pushSubscriptions, 
         notificationData.title, notificationData.message, notificationData.actions);
 
@@ -265,13 +267,13 @@ router.post('/friend-request/accept', async (req, res) => {
     const contactUsername = req.body.contactUsername;
     const notificationData = req.body.notificationData;
 
-    const user = await dbman.findUserAsync(username);
+    const user = await userService.findUser(username);
     if (!user) {
         res.status(200).send({status: 1, message: 'user does not exist'});
         return;
     }
 
-    const contact = await dbman.findUserAsync(contactUsername);
+    const contact = await userService.findUser(contactUsername);
     if (!contact) {
         res.status(200).send({status: 2, message: 'contact does not exist'});
         return;
@@ -280,8 +282,8 @@ router.post('/friend-request/accept', async (req, res) => {
     contact.contacts.push({ name: username });
     user.contacts.push({ name: contactUsername });
     
-    await dbman.updateUserAsync(contact);
-    await dbman.updateUserAsync(user);
+    await userService.updateUser(contact);
+    await userService.updateUser(user);
     await sendPushNotifications(contact.pushSubscriptions, 
         notificationData.title, notificationData.message, notificationData.actions);
 
@@ -350,7 +352,7 @@ router.post('/srp-connection', async (req, res) => {
 
 router.delete('/srp-connection', async (req, res) => {
     const platform = req.body.platform;
-    const user = await dbman.findUserAsync(req.body.username);
+    const user = await userService.findUser(req.body.username);
     if (!user) {
         res.status(200).send({status: 1, message: 'user does not exist'});
         return;

@@ -4,6 +4,7 @@ var bodyParser = require('body-parser');
 var cors = require('cors');
 var books = require('./routes/books');
 var users = require('./routes/users');
+const integrationsRouter = require('./routes/integrations');
 var authorization = require('./filters/authorization');
 const fileUpload = require('express-fileupload');
 const { LibgenDbService } = require('./services/db/libgen-db.service');
@@ -50,8 +51,10 @@ app.use('/api/v1/users/srp-connection', authorization());
 app.use('/api/v1/users/srp-sync', authorization());
 app.use('/api/v1/users/srp-resync', authorization());
 app.use('/api/v1/users/srp-sync/status', authorization());
+app.use('/api/v1/integrations/google/auth-url', authorization());
 app.use('/api/v1/books', books);
 app.use('/api/v1/users', users);
+app.use('/api/v1/integrations', integrationsRouter);
 app.use('/', express.static('./static'));
 app.use('/*', express.static('./static'));
 

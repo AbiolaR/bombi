@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { TOKEN_SECRET } = require('../services/secman');
+const { findUser } = require('../services/db/mongo-db.service');
 
 const BEARER = 'Bearer ';
 
@@ -17,7 +18,12 @@ module.exports = authorizeUser = (role) => {
                             if (role && user.role !== role) {
                                 return false;
                             }
+                            const existingUser = findUser(user.username);
+                            if (!existingUser) {
+                                return false;
+                            }
                             req.body.username = user.username;
+                            req.body.user = existingUser;
                             return true;
                         }
                         return false;

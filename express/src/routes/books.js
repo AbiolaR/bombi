@@ -1,7 +1,6 @@
 var express = require('express');
 var router = express.Router();
 var mailservice = require('../services/email');
-const { findUserAsync } = require('../services/dbman');
 const { upload } = require('../services/tolinoman');
 const jsdom = require('jsdom');
 const axios = require('axios');
@@ -14,6 +13,8 @@ const { ServerResponse } = require('../models/server-response');
 const { BookSyncDbService } = require('../services/db/book-sync-db.service');
 const { SyncStatus } = require('../models/sync-status.model');
 const { HugendubelTolinoService } = require('../services/e-readers/hugendubel-tolino.service');
+const { findUser } = require('../services/db/mongo-db.service');
+const { GoogleAuthenticationService } = require('../services/auth/google-auth.service');
 
 const TEMP_DIR = '/tmp/app.bombi/';
 
@@ -156,7 +157,7 @@ router.post('/send', async(req, res) => {
     return;
   }
 
-  const user = await findUserAsync(req.body.username);
+  const user = await findUser(req.body.username);
   if (!user) {
     res.status(401).send('no user could be found');
   }
@@ -196,6 +197,22 @@ router.post('/send', async(req, res) => {
       break;  
   }
   res.status(result.status).send(result.message);
+});
+
+router.get('/google/books', async(req, res) => {
+  const username = req.body.username;
+
+  const books = await GoogleBooksSearchService.fetchUsersBooks(username);
+
+  res.send(new ServerResponse(books));
+});
+
+router.get('/google/books/delete', async(req, res) => {
+  const username = req.body.username;
+
+  const result = await GoogleAuthenticationService.removeAuth(username);
+
+  res.send(new ServerResponse(result));
 });
 
 router.get('/progress', async(req, res) => {

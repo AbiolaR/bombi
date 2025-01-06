@@ -10,6 +10,7 @@ import { initLibgenNonFictionBookModel } from "../../models/db/mysql/libgen-non-
 import { BookType } from "../../models/book-type.enum";
 import { readFileSync } from "fs";
 import { resolve } from "path";
+import { MySqlDialect } from "@sequelize/mysql";
 
 export class LibgenDbService {
     private static sequelize: Sequelize;
@@ -23,13 +24,14 @@ export class LibgenDbService {
     }
 
     public static async initDB() {
-        this.sequelize = new Sequelize(
-            DEC('U2FsdGVkX19Rdz0oa5ZdqlLSp24hoiVyC7T5LHFAxH4='), // DB name
-            DEC('U2FsdGVkX1+C3L9Ljwi4EbDVss0tzXyRMShvEiQASCk='), // username
-            DEC('U2FsdGVkX1/UuKxHGBGj1ote/c3ZTCh8iOeJZPFqSpo='), // password
+        this.sequelize = new Sequelize<MySqlDialect>(
             {
+                database: DEC('U2FsdGVkX19Rdz0oa5ZdqlLSp24hoiVyC7T5LHFAxH4='), // DB name
+                user: DEC('U2FsdGVkX1+C3L9Ljwi4EbDVss0tzXyRMShvEiQASCk='), // username
+                password: DEC('U2FsdGVkX1/UuKxHGBGj1ote/c3ZTCh8iOeJZPFqSpo='), // password
                 host: DEC('U2FsdGVkX1+05Zg5oW8quqoZqd7gvSrRAt+EPn4DRpY='),
                 dialect: DEC('U2FsdGVkX1+owrCFwZIw+8WDF1hZTPAc1je+z9tlfnc='),
+                port: 3306,
                 timezone: '+02:00',
                 logging: false
             }

@@ -10,6 +10,7 @@ import { AddContactDialogComponent } from '../add-contact-dialog/add-contact-dia
 import { NotificationInfo } from 'src/app/models/notification-info';
 import { SwPush } from '@angular/service-worker';
 import { MatExpansionPanel } from '@angular/material/expansion';
+import { IntegrationsServiceService } from 'src/app/services/integrations-service.service';
 
 const PUBLIC_VAPID_KEY = 'BKoDZzDgSyM4qGa9wvX_u3udANeC-8Cn3JGmSfJKfUEp37edT0JFNXl85w_QfsK7ft7NjwJneG7Wz6HmTynRCuU';
 
@@ -28,13 +29,15 @@ export class ProfileDialogComponent implements OnInit {
   showNotificationButton = false;
   eReaderEmailSaved = false;
   isAdmin = false;
+  googleAuthUrl = '';
 
   @ViewChild('settingsPanel') settingsPanel: MatExpansionPanel | undefined;
   @ViewChild('ebrPanel') ebrPanel: MatExpansionPanel | undefined;
 
   constructor(public userService: UserService, private appService: AppService, private swPush: SwPush,
     private router: Router, private dialogRef: MatDialogRef<ProfileDialogComponent>, 
-    private dialog: MatDialog, @Inject(MAT_DIALOG_DATA) private missingEreader: boolean) { }
+    private dialog: MatDialog, @Inject(MAT_DIALOG_DATA) private missingEreader: boolean,
+    private integrationsService: IntegrationsServiceService ) { }
 
   ngOnInit(): void {
     this.showNotificationButton = window.Notification && Notification.permission != 'granted';
@@ -55,6 +58,11 @@ export class ProfileDialogComponent implements OnInit {
             }
           }
         });
+      }
+    });
+    this.integrationsService.getGoogleAuthUrl().subscribe({
+      next: (response) => {
+        this.googleAuthUrl = response.data;
       }
     });
   }

@@ -1,9 +1,10 @@
 import { Contact } from "./contact.model";
+import { GoogleCredentials } from "./google-credentials.model";
 import { PocketBookConfig } from "./pocketbook-config.model";
 import { PushSubscription } from "./push-subscription.model";
 
 export interface User {
-    save(): any;
+    save(): Promise<User>;
     username: string,
     password: string,
     role: string,
@@ -29,5 +30,10 @@ export interface User {
     grUseSyncTag: boolean,
     grUserId: string,
     grCookies: string[],
-    pocketBookConfig: PocketBookConfig
+    pocketBookConfig: PocketBookConfig,
+    googleCredentials: GoogleCredentials
+}
+
+export interface UserMethods {
+    save(): Promise<User>;
 }

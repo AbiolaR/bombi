@@ -5,6 +5,7 @@ import { SyncUser } from "../../models/db/mysql/sync-user.model";
 import { SyncRequest } from "../../models/sync-request.model";
 import { SyncStatus } from "../../models/sync-status.model";
 import { SocialReadingPlatform } from "../../models/social-reading-platform";
+import { MySqlDialect } from "@sequelize/mysql";
 
 export class BookSyncDbService {
     private static sequelize: Sequelize;
@@ -202,13 +203,14 @@ export class BookSyncDbService {
             dbUsername = DEC('U2FsdGVkX1+pTlq+RwdEgpCFp5EWOnQOwyg2trqUz7I=');
             dbPassword = DEC('U2FsdGVkX18SW/BKlz1r6BA7x/2t27AbXRDthvN6Rf89lL45QyXFhyC1p8ZT7WdT');
         } 
-        this.sequelize = new Sequelize(
-            dbName,
-            dbUsername,
-            dbPassword,
+        this.sequelize = new Sequelize<MySqlDialect>(
             {
+                database: dbName,
+                user: dbUsername,
+                password: dbPassword,
                 host: DEC('U2FsdGVkX1+05Zg5oW8quqoZqd7gvSrRAt+EPn4DRpY='),
                 dialect: DEC('U2FsdGVkX1+owrCFwZIw+8WDF1hZTPAc1je+z9tlfnc='),
+                port: 3306,
                 timezone: '+02:00',
                 logging: false
             },

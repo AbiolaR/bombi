@@ -2,7 +2,6 @@ import axios from "axios";
 import { LibgenDbService } from "../db/libgen-db.service";
 import { SyncRequest } from "../../models/sync-request.model";
 import { BookService } from "./book.service";
-import { findAllUsersAsync, findUserAsync } from "../dbman";
 import { BookSyncDbService } from "../db/book-sync-db.service";
 import { SyncStatus } from "../../models/sync-status.model";
 import { FictionBook, LibgenBookColumn } from "../../models/db/mysql/libgen-book.model";
@@ -18,6 +17,7 @@ import { sendPushNotifications } from "../notification.service";
 import { SyncRequestBookDownload } from "../../models/sync-request-book-download";
 import { BookBlob } from "../../models/book-blob.model";
 import { CoverBlob } from "../../models/cover-blob.model";
+import { findAllUsers, findUser } from "../db/mongo-db.service";
 
 export class BookSyncService {
   private readonly LIBGEN_FICTION = 'https://library.gift/fiction/';
@@ -67,7 +67,7 @@ export class BookSyncService {
     let hostIpUpdate = this.updateHostIp();
     let tsgConnection = new TSGConnection();
     let grConnection = new GoodreadsConnection();
-    let users: User[] = await findAllUsersAsync();
+    let users: User[] = await findAllUsers();
     await hostIpUpdate;
 
     for(const user of users) {
@@ -119,7 +119,7 @@ export class BookSyncService {
   }
 
   private async attemptToDownloadBook(syncRequest: SyncRequest): Promise<SyncRequestBookDownload> {
-    const user: User = await findUserAsync(syncRequest.username);
+    const user: User = await findUser(syncRequest.username);
     if (!user) {
       console.error('user does not exist when trying to send SyncRequest');
       return;
@@ -136,7 +136,7 @@ export class BookSyncService {
 
   private async attemptToSendBook(syncRequest: SyncRequest, book: BookBlob, cover: CoverBlob): Promise<void> {
     if (book?.data) {
-      const user: User = await findUserAsync(syncRequest.username);
+      const user: User = await findUser(syncRequest.username);
       if (!user) {
         console.error('user does not exist when trying to send SyncRequest');
         return;
@@ -175,7 +175,7 @@ export class BookSyncService {
   }
 
   private async sendNotification(syncRequest: SyncRequest): Promise<void> {
-    const user: User = await findUserAsync(syncRequest.username);
+    const user: User = await findUser(syncRequest.username);
     let eReader: string;
     switch(user.eReaderType) {
       case 'K':
