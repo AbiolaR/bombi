@@ -147,7 +147,7 @@ export class PocketBookCloudService {
         }
     }
 
-    private static async refreshToken(user: User): Promise<boolean> {
+    public static async refreshToken(user: User): Promise<boolean> {
         if (!user.pocketBookConfig.cloudConfig.accessToken 
             || !user.pocketBookConfig.cloudConfig.refreshToken) return false;
 

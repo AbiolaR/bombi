@@ -143,7 +143,7 @@ export class DownloadClusterComponent {
       case 'T': // Tolino
         return !!userData.eReaderDeviceId && !!userData.eReaderRefreshToken;
       case 'P': // PocketBook
-        return !!userData.pocketBookConfig?.cloudConfig && !!userData.pocketBookConfig?.sendToEmail;
+        return !!userData.pocketBookConfig?.cloudConfig || !!userData.pocketBookConfig?.sendToEmail;
       default:
         return false;
     }

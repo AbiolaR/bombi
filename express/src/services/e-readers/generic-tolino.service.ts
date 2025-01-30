@@ -10,6 +10,7 @@ import { findUserAsync } from "../dbman";
 import SeleniumAutomationService from "../selenium-automation.service";
 import { getBooksProgress, listBooks, testAuth } from "../tolinoman";
 import { Type } from "selenium-webdriver/lib/logging";
+import { writeFile } from "fs";
 
 export abstract class GenericTolinoService {
 
@@ -31,7 +32,7 @@ export abstract class GenericTolinoService {
 
 
     //private readonly SHORT_WAIT_DURATION = 5000;
-    private readonly LONG_WAIT_DURATION = 10000;
+    private readonly LONG_WAIT_DURATION = 20000;
 
     private readonly RETRY_INTERVAL = 500;
     private readonly MAX_RETRIES = this.LONG_WAIT_DURATION / this.RETRY_INTERVAL;
@@ -114,12 +115,20 @@ export abstract class GenericTolinoService {
         await driver.get('https://webreader.mytolino.com/library/index.html');
         await driver.executeScript(this.createDB, this.RESELLER_ID);
         await driver.get(this.LOGIN_PAGE);
-        let emailField = await driver.wait(until.elementLocated(By.css(this.EMAIL_FIELD_SELECTOR)), 10000);
+        let emailField = await driver.wait(until.elementLocated(By.css(this.EMAIL_FIELD_SELECTOR)), this.LONG_WAIT_DURATION);
         emailField.sendKeys(email);
         await driver.findElement(By.css(this.PASSWORD_FIELD_SELECTOR)).sendKeys(password, Key.RETURN);
         
         await driver.wait(until.elementLocated(By.css(this.HOME_HEADER_SELECTOR)), 
-            this.LONG_WAIT_DURATION);
+            this.LONG_WAIT_DURATION).catch(() => {
+                driver.takeScreenshot().then((data) => {
+                    writeFile(`/tmp/app.bombi/cache/tolino-login-error/tolino-login-error-${Date.now()}.png`, data, 'base64', (err) => {
+                        if (err) {
+                            console.error('Error while writing screenshot: ', err);
+                        }
+                    });
+                });
+            });
 
         let refreshToken: string;
         let deviceId: string;
