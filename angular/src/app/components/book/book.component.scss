@@ -1,7 +1,7 @@
 .book {
     position: relative;
     display: flex;
-    width: 100%;
+    width: calc(100% - 2rem);
     box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
     padding: 1rem;
     border-radius: 8px;
