@@ -105,6 +105,12 @@ export class PocketBookCloudService {
                         return this.uploadBook(user, book);
                     }
                 }
+            case HttpStatusCode.Conflict:
+                if (response?.data.errorCode == 303) {
+                    return true;
+                }
+            default:
+                console.error(`[ERROR] failed to upload book ${book.filePath}`, response?.data);
         }
         return false;
     }

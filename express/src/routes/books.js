@@ -69,17 +69,17 @@ router.post('/search/upcoming', async(req, res) => {
 });
 
 router.get('/fictioncovers/*', (req, res) => {
-  const url = req.url.replace('/fictioncovers/', '');
+  const url = req.url.replace('/fictioncovers/', '').replace('-g', '');
 
-  axios.get('https://books.ms/' + url, {responseType: 'stream', cache: false}).then(async (response) => {
+  axios.get('https://libgen.vg/' + url, {responseType: 'stream', cache: false}).then(async (response) => {
     response.data.pipe(res);
   }).catch(() => {});
 });
 
 router.get('/coversproxy/*', (req, res) => { 
-  const url = req.url.replace('/coversproxy/', '');
+  const url = req.url.replace('/coversproxy/', '').replace('-g', '');
 
-  axios.get('https://books.ms/' + url, {responseType: 'stream', cache: false}).then(async (response) => {
+  axios.get('https://libgen.vg/' + url, {responseType: 'stream', cache: false}).then(async (response) => {
     response.data.pipe(res);
   }).catch(() => {});
 });

@@ -1,6 +1,6 @@
 import { pipeline } from "stream/promises";
 import { BookBlob } from "../models/book-blob.model";
-import { createWriteStream, readFileSync } from "fs";
+import { createReadStream, createWriteStream, readFileSync } from "fs";
 import { convert, setPoolSize } from "node-ebook-converter";
 import jszip from "jszip";
 import sharp from "sharp";
@@ -23,6 +23,7 @@ export class EpubToolsService {
     public static async saveToDiskAsync(book: BookBlob) {        
         const filePath = path.resolve(this.CACHE_DIR, book.filename);       
         await pipeline(book.data, createWriteStream(filePath));
+        book.data = createReadStream(filePath);
         return filePath;
     }
 

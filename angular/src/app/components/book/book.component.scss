@@ -10,7 +10,7 @@
 .book-details {
     display: flex;
     flex-direction: column;
-    max-width: calc(100% - 250px);
+    max-width: calc(100% - 13em - 5.33em - 2rem);
     width: 100%;
 }
 
@@ -28,6 +28,12 @@
 .cover.hidden {
     width: 0;
     height: 0;
+    margin: 0;
+    position: absolute;
+}
+
+.cover.placeholder.hidden {
+    display: none;
 }
 
 .cover:hover {
@@ -146,9 +152,11 @@ app-download-cluster {
 
 @media screen and (max-width: 700px) {
     .book {
-        flex-direction: column;
-        align-items: center;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: start;
         padding: 0.8em;
+        gap: 1em;
         width: calc(100% - 1.6em);
     }
 
@@ -157,8 +165,11 @@ app-download-cluster {
     }
 
     .cover {
-        height: calc(55vh - 2.5em);
-        width: fit-content;
+        height: 9em;
+        width: 6em;
+        margin-right: 0;
+        //height: calc(55vh - 2.5em);
+        //width: fit-content;
     }
 
     .cover:hover {
@@ -168,23 +179,40 @@ app-download-cluster {
     .head {
         margin: unset;
         margin-top: 0.5em;
+        margin-bottom: 1em;
+        flex-direction: column-reverse;
+        justify-content: start;
+        gap: 0.5em;
+    }
+
+    .lang {
+        margin-right: auto;
+        //position: absolute;
     }
 
     .title-container {
-        display: flex;
+        display: block;
         justify-content: center;
         align-items: center;
-        height: 3em;
+        overflow: visible;
     }
 
     .title {
-        font-size: 22px;
-        line-height: 24px;
+        display: inline;
+        font-size: 18px;
+        line-height: 20px;
+        //display: inline-block;
+        //width: 100%;
+        //white-space: nowrap;
+        //overflow: hidden;
+        //text-overflow: ellipsis;
+        white-space: wrap;
+        animation-play-state: paused;
     }
 
     .author {
-        font-size: 17px;
-        line-height: 19px;
+        font-size: 16px;
+        line-height: 18px;
     }
 
     .year {
@@ -194,12 +222,11 @@ app-download-cluster {
     }
 
     .book-details {
-        width: 100%;
-        max-width: 100%;
+        width: calc(100% - 7.33em);
+        max-width: calc(100% - 7.33em);
     }
 
     app-download-cluster {
-        margin-top: 0.5em;
         width: 100%;
         flex-direction: row;
         justify-content: space-evenly;
@@ -215,9 +242,7 @@ app-download-cluster {
 
     .share.mobile {
         display: block;
-        position: absolute;
-        top: 0.3em;
-        right: 0.3em;
+        float: right;
         backdrop-filter: blur(140px);
         box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
         transform: scale(0.9);

@@ -43,6 +43,7 @@ export class BookComponent implements OnInit {
   coverUrl = '';
   
   ngOnInit(): void {
+    
     if (!this.book?.coverUrl || !this.book?.coverUrl.replace(/\/.*covers\//, '')) {
       this.coverUrl = '/assets/images/covers/blank.png';
     } else if (this.book.coverUrl.startsWith('https://books.google.com/')
@@ -74,7 +75,7 @@ export class BookComponent implements OnInit {
     }
   }
 
-  async shareBook(contact: string) {
+   async shareBook(contact: string) {
     if (!this.book) {
       return;
     }
