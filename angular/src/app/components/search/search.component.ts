@@ -2,6 +2,7 @@ import { KeyValue } from '@angular/common';
 import { Component, Input, ViewChild } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { MatAutocompleteTrigger } from '@angular/material/autocomplete';
+import { MatDialog } from '@angular/material/dialog';
 import { MatInput } from '@angular/material/input';
 import { MatMenuTrigger } from '@angular/material/menu';
 import { Router } from '@angular/router';
@@ -9,6 +10,9 @@ import { Observable, filter, map, startWith } from 'rxjs';
 import { LanguageMap } from 'src/app/models/language-map';
 import { UserData } from 'src/app/models/user-data';
 import { UserService } from 'src/app/services/user.service';
+import { BarcodeScannerComponent } from '../dialogs/barcode-scanner/barcode-scanner-component';
+import { BookService } from 'src/app/services/book.service';
+import { CommunicationService } from 'src/app/services/communication.service';
 
 @Component({
   selector: 'app-search',
@@ -19,6 +23,9 @@ export class SearchComponent {
 
   @Input()
   searchString = '';
+
+  @Input()
+  performScan = false;
 
   languages = LanguageMap;
 
@@ -32,17 +39,21 @@ export class SearchComponent {
   @ViewChild(MatAutocompleteTrigger) searchHistoryDD: MatAutocompleteTrigger | undefined;
   @ViewChild(MatInput) searchInput: MatInput | undefined;
 
-  constructor(private router: Router, private userService: UserService) { }
+  constructor(private router: Router, private userService: UserService, private dialog: MatDialog,
+    private bookService: BookService, private communicationService: CommunicationService) { }
 
   filteredSearchHistory: Observable<Map<string, string>> | undefined;
   minimumLength: number = 4;
   searchForm = new FormGroup({ 
                     input: new FormControl(this.searchString, 
                       { updateOn: 'change'})});
-
+  scannedBarcode: string = '';
 
   ngOnInit() {
     this.fetchData();
+    if (this.performScan) {
+      this.executeBarcodeScan();
+    }
   }
 
   ngOnChanges() {
@@ -131,6 +142,44 @@ export class SearchComponent {
         }
       });
     }
+  }
+
+  scanBarcode(event: MouseEvent) {
+    event.stopPropagation();
+    event.preventDefault();
+    this.executeBarcodeScan();
+  }
+
+  executeBarcodeScan() {
+    this.scannedBarcode = '';
+    
+    const dialogRef = this.dialog.open(BarcodeScannerComponent, {
+      width: '0px',
+      height: '0px',
+      closeOnNavigation: false,
+    });
+
+    const scannedBarcodeChange = dialogRef.componentInstance.scannedBarcodeChange.subscribe((barcode) => {      
+      if (!barcode) return;
+      this.scannedBarcode = barcode;
+    });
+
+    dialogRef.afterClosed().subscribe({
+      next: () => {
+        scannedBarcodeChange.unsubscribe();
+
+        if (this.scannedBarcode) {
+          this.bookService.searchByIsbn(this.scannedBarcode).subscribe({ 
+            next: (response) => {
+              if (response.data) {
+                this.searchForm.get('input')?.setValue(response.data);
+                this.onSubmit();
+              }
+            }
+          });
+        }
+      }
+    });  
   }
 
   openMenu(event: MouseEvent) {

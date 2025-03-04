@@ -1,0 +1,8 @@
+<mat-spinner *ngIf="!stream"></mat-spinner>
+<video autoplay class="hidden"></video>
+<button color="primary" mat-fab (click)="close()" class="close-btn" aria-label="Close">
+    <mat-icon>close</mat-icon>
+</button>
+<button mat-fab (click)="toggleFlash()" class="flash-btn" *ngIf="isFlashAvailable" aria-label="Toggle Light">
+    <mat-icon>{{ isFlashOn ? 'lightbulb' : 'lightbulb_outline' }}</mat-icon>
+</button>

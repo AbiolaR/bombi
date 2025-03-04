@@ -12,6 +12,8 @@ import { MatSelect } from '@angular/material/select';
 import { LanguageMap } from 'src/app/models/language-map';
 import { AppService } from 'src/app/services/app.service';
 import { UserData } from 'src/app/models/user-data';
+import { CommunicationService } from '../../../services/communication.service';
+import { Location } from '@angular/common';
 
 const ALT_GER_LANG = 'Deutsch';
 const AUTHOR = 'author';
@@ -52,10 +54,12 @@ export class SearchResultsComponent {
   searchedUpcoming = false;
   currentEReader = 'E-Reader';
   userData: UserData = new UserData();
+  performBarcodeScan = false;
 
   constructor(private route: ActivatedRoute, private searchService: BookService, 
     private dialog: MatDialog, public userService: UserService, 
-    private eventService: EventService, private router: Router, private appService: AppService) {
+    private eventService: EventService, private router: Router, private appService: AppService,
+    private communicationService: CommunicationService, private location: Location) {
     this.userData = userService.getLocalUserData()
     this.currentEReader = this.getCurrentEReader();
     eventService.menuEvent.subscribe(this.toggleLoginMenu.bind(this))
@@ -68,6 +72,7 @@ export class SearchResultsComponent {
       this.usingCorrection = false;
       this.selectedLang = '';
       if (params['q']) {
+        this.isLoading = true;
         let advancedSearchString = this.searchString = params['q'];
         if (params['l'] && params['l'] != '') {
           this.selectedLang = params['l'];
@@ -104,8 +109,16 @@ export class SearchResultsComponent {
             }
             }
         });
+      } else if (params['scan'] == 'true') {
+        this.location.go(this.location.path().split('?')[0]);
+        this.performBarcodeScan = true;
       }
+
     });
+  }
+
+  scanBarcode() {
+    this.communicationService.triggerBarcodeScan();
   }
 
   searchForAdditionalGermanBooks() {
@@ -164,7 +177,8 @@ export class SearchResultsComponent {
   openProfileDialog() {
     let dialogRef = this.dialog.open(ProfileDialogComponent, {
       width: '500px',
-      autoFocus: false
+      autoFocus: false,
+      closeOnNavigation: false
     });
     dialogRef.afterClosed().subscribe(() => {
       this.userData = this.userService.getLocalUserData();

@@ -52,8 +52,10 @@ app.use('/api/v1/users/srp-resync', authorization());
 app.use('/api/v1/users/srp-sync/status', authorization());
 app.use('/api/v1/books', books);
 app.use('/api/v1/users', users);
-app.use('/', express.static('./static'));
-app.use('/*', express.static('./static'));
+app.use(express.static(`${__dirname}/static/`, { redirect: false }));
+app.use('*', (req, res) => {
+    res.sendFile(`${__dirname}/static/index.html`);
+});
 
 initStatics().then(() => {
     JobScheduler.scheduleJobs();

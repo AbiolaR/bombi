@@ -14,7 +14,8 @@ export class HomeComponent {
   openProfileDialog() {
     this.dialog.open(ProfileDialogComponent, {
       width: '500px',
-      autoFocus: false
+      autoFocus: false,
+      closeOnNavigation: false
     });
   }
 }

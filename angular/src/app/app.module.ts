@@ -58,6 +58,7 @@ import { HeaderComponent } from './components/header/header.component';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { BookProgressPageComponent } from './components/pages/book-progress-page/book-progress-page.component';
 import { BookTitleComponent } from "./components/book-title/book-title.component";
+import { BarcodeScannerComponent } from './components/dialogs/barcode-scanner/barcode-scanner-component';
 
 export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http);
@@ -92,6 +93,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     UploadBookDialogComponent,
     HeaderComponent,
     BookProgressPageComponent,
+    BarcodeScannerComponent
   ],
   imports: [
     BrowserModule,

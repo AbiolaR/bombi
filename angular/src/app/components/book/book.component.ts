@@ -52,8 +52,9 @@ export class BookComponent implements OnInit {
       || this.book.coverUrl.startsWith('blob:')) {
       this.coverUrl = this.book.coverUrl;
     } else {
-      this.coverUrl = environment.apiServerUrl + '/v1/books/coversproxy/' + this.book.coverUrl
+      this.coverUrl = environment.apiServerUrl + '/v1/books/coversproxy' + this.book.coverUrl
     }
+    //this.coverUrl = this.coverUrl.replace('//', '').replace('http:/', 'http://').replace('https:/', 'https://');
   }
 
   enlarge() {

@@ -2,10 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { UserData } from 'src/app/models/user-data';
 import { UserService } from 'src/app/services/user.service';
-import { ProfileDialogComponent } from '../../dialogs/profile-dialog/profile-dialog.component';
 import { Contact } from 'src/app/models/contact';
-import { DeviceDetectorService } from 'ngx-device-detector';
-import { LocationStrategy } from '@angular/common';
 import { ServerResponse } from 'src/app/models/server-response';
 
 @Component({

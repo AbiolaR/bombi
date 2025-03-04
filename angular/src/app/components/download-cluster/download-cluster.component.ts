@@ -153,7 +153,8 @@ export class DownloadClusterComponent {
     this.dialog.open(ProfileDialogComponent, {
       width: '500px',
       autoFocus: false,
-      data: true
+      data: true,
+      closeOnNavigation: false
     });
   }
 

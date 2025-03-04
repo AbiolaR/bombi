@@ -1,5 +1,5 @@
 <div id="search-header">
-    <app-header [searchString]="searchString"/>
+    <app-header [searchString]="searchString" [performScan]="performBarcodeScan" />
     <div *ngIf="usingCorrection">
         <p>{{ 'showing-results-for' | translate }} <span class="correction" (click)="searchString = suggestion">{{suggestion}}</span></p>
     </div>
@@ -61,7 +61,7 @@
     <ng-template ngFor let-book [ngForOf]="books">
         <app-book [book]="book" [userData]="userData" [currentEReader]="currentEReader"></app-book>
     </ng-template>
-    <mat-spinner *ngIf="!books || isLoading"></mat-spinner>
+    <mat-spinner *ngIf="isLoading"></mat-spinner>
 </div>
 <button mat-mini-fab color="primary" *ngIf="showScrollToTop" (click)="scrollToTop()" aria-label="Scroll to the top">
     <mat-icon>keyboard_arrow_up</mat-icon>

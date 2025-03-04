@@ -88,5 +88,20 @@
         "form_factor": "narrow",
         "label": "Mobile Bombi Search - Light Theme"
       }
+  ],
+  "shortcuts": [
+    {
+      "name": "Scan Barcode",
+      "short_name": "Scan Barcode",
+      "description": "Scan a barcode to search for a book",
+      "url": "/search?scan=true",
+      "icons": [
+        {
+          "src": "/assets/images/icons/barcode.png",
+          "sizes": "128x128",
+          "type": "image/png"
+        }
+      ]
+    }
   ]
 }

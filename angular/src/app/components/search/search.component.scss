@@ -16,9 +16,9 @@
 
 .lang {
     img {
-        margin-right: 1em;
-        height: 0.8em;
-        width: auto;
+        margin-left: -0.8rem;
+        height: var(--mdc-icon-button-icon-size);
+        width: var(--mdc-icon-button-icon-size);
         display: inline;
     }
 }
@@ -30,8 +30,8 @@
 }
 
 .clear-history {
-    position: absolute;
-    right: 0;
+    order: 3;
+    margin-right: 0 !important;
 }
 
 button {
@@ -75,5 +75,23 @@ button {
 .search-history,::ng-deep.mdc-list-item--selected {
     span {
         color: unset !important;
+    }
+}
+
+.mobile {
+    display: none;
+}
+
+@media screen and (max-width: 700px) {
+    .desktop {
+        display: none;
+    }
+
+    .mobile {
+        display: unset;
+    }
+
+    .material-symbols-outlined {
+        font-display: block;
     }
 }

@@ -254,9 +254,7 @@ app-download-cluster {
     }
 
     .book.unavailable {
-        .share.mobile {
-            top: 1.4em;
-        }
+        padding-top: 2.8em;
     }
 
     .share.desktop {
@@ -267,7 +265,8 @@ app-download-cluster {
         display: block;
         position: absolute;
         width: 100%;
-        margin-top: -0.8em;
+        top: 0;
+        left: 0;
         text-align: center;
         font-weight: 500;
         line-height: 2em;

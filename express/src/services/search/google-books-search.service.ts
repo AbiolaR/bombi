@@ -8,6 +8,7 @@ import axios from "axios";
 export class GoogleBooksSearchService {
     private static readonly API_KEY = DEC('U2FsdGVkX19xDpW0bIUUp+Wep4V1lJ1NWJPDVrpGzuOM7el6f9PugO7EaWfeVPucqPmffkjfUZtlAb22oifz+A==');
     private static readonly SEARCH_URL = 'https://www.googleapis.com/books/v1/volumes?q=subject:fiction+intitle:';
+    private static readonly ISBN_SEARCH_URL = 'https://www.googleapis.com/books/v1/volumes?q=isbn:';
     private static readonly UPPERCASE_REGEX = /^[A-Z]+$/;
     private static readonly ISBN = 'ISBN_13';
 
@@ -26,6 +27,17 @@ export class GoogleBooksSearchService {
                 volume.volumeInfo?.imageLinks?.thumbnail.replace('http://', 'https://')));
 
         return this.merge(books, previouslyFoundBooks);
+    }
+
+    public static async searchByIsbn(isbn: string): Promise<string> {
+        const response = await axios.get<SearchResponse>(`${this.ISBN_SEARCH_URL}${isbn}
+            &printType=books&key=${this.API_KEY}`);    
+        
+        if (response.data.totalItems == 0) {
+            return '';
+        }
+
+        return response.data.items[0].volumeInfo.title;
     }
 
     private static merge(books: Book[], previouslyFoundBooks: Book[]): Book[] {

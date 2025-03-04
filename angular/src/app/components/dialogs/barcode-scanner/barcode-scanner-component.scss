@@ -1,0 +1,42 @@
+@media screen and (max-width: 700px) {
+    video.hidden {
+        display: none;
+    }
+
+    video {
+        position: fixed;
+        width: 94vw;
+        height: 87vh;
+        z-index: 1001;
+        background-color: var(--main-background-color);
+        top: 11vh;
+        left: 3vw;
+        border-radius: 12px;
+        object-fit: cover;
+    }
+
+    mat-spinner {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1000;
+    }
+
+    button {
+        z-index: 1002;
+        position: fixed;
+        right: 1.5rem;
+        scale: 0.8;
+        background-color: var(--dark-color);
+        color: var(--primary-color);
+    }
+
+    .close-btn {
+        top: calc((11vh / 2) - (44.8px / 2));        
+    }
+
+    .flash-btn {
+        bottom: 1.5rem;
+    }
+}

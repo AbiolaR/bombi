@@ -82,6 +82,12 @@ app-root {
     app-root {
         width: 94%;
     }
+
+    .search-history {       
+        ::ng-deep.mat-mdc-option {
+            font-size: 0.75rem;
+        }
+    }
 }
 
 .mat-mdc-tab-body-wrapper {

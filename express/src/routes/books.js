@@ -68,6 +68,11 @@ router.post('/search/upcoming', async(req, res) => {
   res.send(bookData)
 });
 
+router.get('/search/isbn', async(req, res) => {
+  let bookTitle = await GoogleBooksSearchService.searchByIsbn(req.query.isbn);
+  res.send(new ServerResponse(bookTitle));
+});
+
 router.get('/fictioncovers/*', (req, res) => {
   const url = req.url.replace('/fictioncovers/', '').replace('-g', '');
 

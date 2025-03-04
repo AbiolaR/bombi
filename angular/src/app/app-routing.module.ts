@@ -6,14 +6,15 @@ import { PasswordResetComponent } from './components/pages/password-reset/passwo
 import { SharedBooksComponent } from './components/pages/shared-books/shared-books.component';
 import { RequestsComponent } from './components/pages/requests/requests.component';
 import { BookProgressPageComponent } from './components/pages/book-progress-page/book-progress-page.component';
+import { closeDialogGuard } from './guards/close-dialog.guard';
 
 const routes: Routes = [
-  { path: 'home', component: HomeComponent },
-  { path: 'search', component: SearchResultsComponent },
-  { path: 'shared', component: SharedBooksComponent },
-  { path: 'resetPassword/:hash', component: PasswordResetComponent },
-  { path: 'requests', component: RequestsComponent },
-  { path: 'progress', component: BookProgressPageComponent },
+  { path: 'home', component: HomeComponent, runGuardsAndResolvers: 'always', canDeactivate: [closeDialogGuard] },
+  { path: 'search', component: SearchResultsComponent, runGuardsAndResolvers: 'always', canDeactivate: [closeDialogGuard] },
+  { path: 'shared', component: SharedBooksComponent, runGuardsAndResolvers: 'always', canDeactivate: [closeDialogGuard] },
+  { path: 'resetPassword/:hash', component: PasswordResetComponent, runGuardsAndResolvers: 'always', canDeactivate: [closeDialogGuard] },
+  { path: 'requests', component: RequestsComponent, runGuardsAndResolvers: 'always', canDeactivate: [closeDialogGuard] },
+  { path: 'progress', component: BookProgressPageComponent, runGuardsAndResolvers: 'always', canDeactivate: [closeDialogGuard] },
   { path: '**', redirectTo: 'home', pathMatch: 'full' }
 ];
 

@@ -15,12 +15,16 @@ export class HeaderComponent {
   @Input()
   searchString = '';
 
+  @Input()
+  performScan = false;
+
   constructor(public userService: UserService, private dialog: MatDialog) {}
 
   openProfileDialog() {
     this.dialog.open(ProfileDialogComponent, {
       width: '500px',
-      autoFocus: false
+      autoFocus: false,
+      closeOnNavigation: false
     });
   }
 }

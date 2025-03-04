@@ -48,6 +48,10 @@ export class BookService {
     { searchString: searchString, foundBooks: foundBooks });
   }
 
+  public searchByIsbn(isbn: string): Observable<ServerResponse<string>> {
+    return this.http.get<ServerResponse<string>>(`${this.apiUrl}search/isbn?isbn=${isbn}`);
+  }
+
   private getSearchResults(searchString: String, defaultLang: string, pageNumber: number): Observable<SearchResult> {
     return this.http.get<SearchResult>
     (`${this.apiUrl}search?q=${searchString}&p=${pageNumber}&dl=${defaultLang}`);

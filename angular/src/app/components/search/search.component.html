@@ -11,18 +11,24 @@
                 <img src="/assets/images/flags/{{language.value}}.svg"></button>
         </mat-menu>
 
-        <button mat-icon-button matSuffix type="button" class="clear" aria-label="Delete Search Text" *ngIf="searchHasText()" (click)="clearSearch()">
+        <button mat-icon-button matSuffix class="clear" type="button" aria-label="Delete Search Text" *ngIf="searchHasText()" (click)="clearSearch()">
             <mat-icon>clear</mat-icon>
         </button>
 
-        <button mat-icon-button matSuffix type="button" class="lang" aria-label="Select Language" (click)="openMenu($event)" #langMenuTrigger="matMenuTrigger" [matMenuTriggerFor]="langMenu">
+        <button mat-icon-button matSuffix class="lang" type="button" *ngIf="searchHasText()" aria-label="Select Language" (click)="openMenu($event)" #langMenuTrigger="matMenuTrigger" [matMenuTriggerFor]="langMenu">
             <mat-icon *ngIf="!selectedLang">language</mat-icon>
             <img src="/assets/images/flags/{{selectedLang}}.svg" *ngIf="selectedLang">     
         </button>
         
-        <button class="search-button" mat-icon-button matSuffix type="submit" aria-label="Search" (click)="$event.stopPropagation()">
+        <button class="search-button desktop" mat-icon-button matSuffix type="submit" aria-label="Search" (click)="$event.stopPropagation()">
             <mat-icon>search</mat-icon>
         </button>
+        <button class="scan-button mobile" mat-icon-button matSuffix *ngIf="!searchHasText()" (click)="scanBarcode($event)" aria-label="Scan Barcode">
+            <span class="material-symbols-outlined">
+                barcode_scanner
+            </span>
+        </button>
+
         <mat-error *ngIf="searchForm.get('input')?.invalid">
             {{ 'please-enter-min-chars' | translate: { arg: minimumLength } }}
         </mat-error>
