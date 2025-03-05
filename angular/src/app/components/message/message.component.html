@@ -18,13 +18,13 @@
                 <span class="author">{{message.author || "author unknown"}}</span>
             </div>
             <button mat-mini-fab class="search-more mobile" color="primary" (click)="searchMore()">
-                <mat-icon>search</mat-icon>
+                <mat-icon class="material-symbols-rounded">search</mat-icon>
             </button>
             <div class="action-buttons">
                 <app-download-cluster [book]="message"
                 [ngClass]="{'unavailable' : message.id == 999999999}"></app-download-cluster>
                 <button mat-mini-fab class="search-more desktop" color="primary" (click)="searchMore()">
-                    <mat-icon>search</mat-icon>
+                    <mat-icon class="material-symbols-rounded">search</mat-icon>
                 </button>            
             </div>
         </ng-template>

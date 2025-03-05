@@ -3,12 +3,12 @@
     <button mat-fab (click)="openProfileDialog()" *ngIf="userService.getLocalUserData()?.username" aria-label="User"
     [matBadge]="userService.openNotifications()" [matBadgeHidden]="userService.openNotifications() < 1"
     matBadgePosition="below">
-        <mat-icon>perm_identity</mat-icon>
+        <mat-icon class="material-symbols-rounded">person</mat-icon>
     </button>
     <button mat-fab [matMenuTriggerFor]="loginMenu" *ngIf="!userService.getLocalUserData()?.username" aria-label="User"
     [matBadge]="userService.openNotifications()" [matBadgeHidden]="userService.openNotifications() < 1"
     matBadgePosition="below">
-        <mat-icon>perm_identity</mat-icon>
+        <mat-icon class="material-symbols-rounded">person</mat-icon>
     </button>
 </div>
 

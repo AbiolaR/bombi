@@ -2,7 +2,7 @@
 
 <div (window:resize)="isMobile()">
     <button mat-icon-button class="back-btn" (click)="openChatOverview()" *ngIf="tabIndex == 1 && isMobileDevice">
-        <mat-icon>arrow_back_ios</mat-icon>
+        <mat-icon class="material-symbols-rounded">arrow_back_ios_new</mat-icon>
     </button>
     <div class="title">
         <h2 *ngIf="chats.length > 0">{{ 'shared-with-you' | translate }}<span *ngIf="selectedContact.name"> {{ 'from' | translate }} {{selectedContact.name}}</span></h2>

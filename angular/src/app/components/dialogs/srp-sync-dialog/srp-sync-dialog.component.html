@@ -25,7 +25,7 @@
     </div>
 </div>
 <div *ngIf="!loginSuccess && setPreferedLanguage">
-    <mat-icon fontIcon="help_outline" class="help_tooltip" (click)="tooltip.show()" 
+    <mat-icon fontIcon="help" class="help_tooltip material-symbols-rounded" (click)="tooltip.show()" 
         #tooltip="matTooltip" matTooltipPosition="above"
         [matTooltip]="'the-credentials-you-enter-are-never-saved-by-bombi' | translate"></mat-icon>
     <h1 mat-dialog-title>{{ 'please-enter-your-login-credentials-for-platform' | translate: { arg: platform } }}</h1>
@@ -39,9 +39,9 @@
             <input autocomplete="new-password" matInput [(ngModel)]="credentials.password" 
             (keydown)="submit($event)" [ngClass]="{'hide-text' : isPasswordHidden}"/>
             <mat-icon matSuffix *ngIf="isPasswordHidden" (click)="isPasswordHidden = false" 
-            class="password-visibility">visibility</mat-icon>
+            class="password-visibility material-symbols-rounded">visibility</mat-icon>
             <mat-icon matSuffix *ngIf="!isPasswordHidden" (click)="isPasswordHidden = true" 
-            class="password-visibility">visibility_off</mat-icon>
+            class="password-visibility material-symbols-rounded">visibility_off</mat-icon>
         </mat-form-field>
         <p *ngIf="errorText" class="error-text">{{errorText}}</p>
     </div>
@@ -81,11 +81,11 @@
                     <div class="sync-status">
                         <mat-spinner [diameter]="25" *ngIf="book.status == syncStatus.WAITING">                            
                         </mat-spinner>
-                        <mat-icon class="success" *ngIf="book.status == syncStatus.SENT">
-                            check_circle_outline
+                        <mat-icon class="success material-symbols-rounded" *ngIf="book.status == syncStatus.SENT">
+                            check_circle
                         </mat-icon>
-                        <mat-icon class="failure" *ngIf="book.status == syncStatus.UPCOMING">
-                            highlight_off
+                        <mat-icon class="failure material-symbols-rounded" *ngIf="book.status == syncStatus.UPCOMING">
+                            cancel
                         </mat-icon>
                     </div>
                 </div>

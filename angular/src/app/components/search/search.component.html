@@ -12,21 +12,21 @@
         </mat-menu>
 
         <button mat-icon-button matSuffix class="clear" type="button" aria-label="Delete Search Text" *ngIf="searchHasText()" (click)="clearSearch()">
-            <mat-icon>clear</mat-icon>
+            <mat-icon class="material-symbols-rounded">close</mat-icon>
         </button>
 
         <button mat-icon-button matSuffix class="lang" type="button" *ngIf="searchHasText()" aria-label="Select Language" (click)="openMenu($event)" #langMenuTrigger="matMenuTrigger" [matMenuTriggerFor]="langMenu">
-            <mat-icon *ngIf="!selectedLang">language</mat-icon>
+            <mat-icon *ngIf="!selectedLang" class="material-symbols-rounded">language</mat-icon>
             <img src="/assets/images/flags/{{selectedLang}}.svg" *ngIf="selectedLang">     
         </button>
         
         <button class="search-button desktop" mat-icon-button matSuffix type="submit" aria-label="Search" (click)="$event.stopPropagation()">
-            <mat-icon>search</mat-icon>
+            <mat-icon class="material-symbols-rounded">search</mat-icon>
         </button>
         <button class="scan-button mobile" mat-icon-button matSuffix *ngIf="!searchHasText()" (click)="scanBarcode($event)" aria-label="Scan Barcode">
-            <span class="material-symbols-outlined">
+            <mat-icon class="material-symbols-rounded">
                 barcode_scanner
-            </span>
+            </mat-icon>
         </button>
 
         <mat-error *ngIf="searchForm.get('input')?.invalid">
@@ -37,10 +37,11 @@
             <mat-option 
             *ngFor="let search of filteredSearchHistory | async | keyvalue: keyDescOrder" 
             [value]="search.value">
-                <mat-icon>history</mat-icon> 
+
+                <mat-icon class="material-symbols-rounded">history</mat-icon>
                 {{search.value}} 
                 <mat-icon (click)="deleteSearchHistoryEntry(search.key, $event)"
-                 class="clear-history">clear</mat-icon>
+                 class="material-symbols-rounded clear-history">close</mat-icon>
             </mat-option>
         </mat-autocomplete>
     </mat-form-field>

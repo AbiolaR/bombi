@@ -43,9 +43,9 @@
                         <input autocomplete="new-password" matInput [(ngModel)]="credentials.password" 
                         (keydown)="submit($event)" [ngClass]="{'hide-text' : isPasswordHidden}"/>
                         <mat-icon matSuffix *ngIf="isPasswordHidden" (click)="isPasswordHidden = false" 
-                        class="password-visibility">visibility</mat-icon>
+                        class="password-visibility material-symbols-rounded">visibility</mat-icon>
                         <mat-icon matSuffix *ngIf="!isPasswordHidden" (click)="isPasswordHidden = true" 
-                        class="password-visibility">visibility_off</mat-icon>
+                        class="password-visibility material-symbols-rounded">visibility_off</mat-icon>
                     </mat-form-field>
                 </div>
                 <p *ngIf="errorText" class="error-text">{{errorText}}</p>

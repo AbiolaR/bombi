@@ -2,15 +2,15 @@
     <button id="messagesBtn" mat-mini-fab (click)="navigateTo('shared')">
         <mat-icon [matBadge]="userService.openNotifications()" aria-hidden="false"
         [matBadgeHidden]="userService.openNotifications() < 1" [matBadgeOverlap]="false"
-        class="material-icons-outlined">
+        class="material-symbols-rounded">
             mail
         </mat-icon>
     </button>
     <button id="bookProgressBtn" mat-mini-fab (click)="navigateTo('progress')">
-        <mat-icon aria-hidden="false" fontIcon="auto_stories" class="material-icons-outlined" />
+        <mat-icon aria-hidden="false" fontIcon="auto_stories" class="material-symbols-rounded" />
     </button>
     <button id="requestsBtn" mat-mini-fab (click)="navigateTo('requests')" *ngIf="isAdmin">
-        <mat-icon aria-hidden="false" fontIcon="file_upload" class="material-icons-outlined" />
+        <mat-icon aria-hidden="false" fontIcon="file_upload" class="material-symbols-rounded" />
     </button>
     <button id="lgtBtn" mat-stroked-button color="warn" (click)="logout()">
         {{ 'logout' | translate }}
@@ -42,7 +42,7 @@
                 <h3 *ngIf="!contactAmount()">{{ 'no-friends-yet' | translate }}</h3>
                 <mat-card class="contacts">
                     <button color="primary" class="add-contact" mat-raised-button (click)="openAddContactDialog()">
-                        <mat-icon>person_add</mat-icon>
+                        <mat-icon class="material-symbols-rounded">person_add</mat-icon>
                     </button>
                     <span *ngFor="let contact of userData?.contacts">{{contact.name}}</span>
                 </mat-card>

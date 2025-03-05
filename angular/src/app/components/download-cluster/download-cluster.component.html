@@ -2,8 +2,8 @@
  class="{{buttonClassList}}" aria-label="Download book" *ngIf="book.id != 999999999">
     <span class="text">{{ 'download' | translate }}</span>
     <mat-spinner [diameter]="30"></mat-spinner>
-    <mat-icon class="success">check_circle_outline</mat-icon>
-    <mat-icon class="failure">highlight_off</mat-icon>
+    <mat-icon class="success material-symbols-rounded">check_circle</mat-icon>
+    <mat-icon class="failure material-symbols-rounded">cancel</mat-icon>
 </button>
 <span class="unavailable-text" *ngIf="book.id == 999999999">{{ 'this-book-is-not-available-yet' | translate }}</span>
 <button mat-raised-button color="primary" (click)="sendToEReader($event.target)"
@@ -11,6 +11,6 @@
     <span class="text">{{ 'send-to-currentereader' | translate: { arg: currEReader } }}</span>
     <span class="text additional-text" *ngIf="book.id == 999999999">{{ 'when-available' | translate }}</span>
     <mat-spinner [diameter]="30"></mat-spinner>
-    <mat-icon class="success">check_circle_outline</mat-icon>
-    <mat-icon class="failure">highlight_off</mat-icon>
+    <mat-icon class="success material-symbols-rounded">check_circle</mat-icon>
+    <mat-icon class="failure material-symbols-rounded">cancel</mat-icon>
 </button>

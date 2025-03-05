@@ -83,10 +83,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "bombi:build:production"
+              "buildTarget": "bombi:build:production"
             },
             "development": {
-              "browserTarget": "bombi:build:development"
+              "buildTarget": "bombi:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -94,7 +94,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "bombi:build"
+            "buildTarget": "bombi:build"
           }
         },
         "test": {

@@ -12,9 +12,9 @@
         <mat-label>{{ 'password' | translate }}</mat-label>
         <input matInput [type]="isPasswordHidden ? 'password': 'text'" formControlName="password" name="password"/>
         <mat-icon matSuffix *ngIf="isPasswordHidden" (click)="isPasswordHidden = false"
-        class="password-visibility">visibility</mat-icon>
+        class="password-visibility material-symbols-rounded">visibility</mat-icon>
         <mat-icon matSuffix *ngIf="!isPasswordHidden" (click)="isPasswordHidden = true"
-        class="password-visibility">visibility_off</mat-icon>
+        class="password-visibility material-symbols-rounded">visibility_off</mat-icon>
         <mat-error *ngIf="loginForm.get('password')?.errors?.['unauthenticated']">
           {{passwordError}}
         </mat-error>

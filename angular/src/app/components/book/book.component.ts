@@ -14,7 +14,7 @@ import { Action } from 'src/app/models/action';
 import { firstValueFrom } from 'rxjs';
 import { AddMessageDialogComponent } from '../dialogs/add-message-dialog/add-message-dialog.component';
 import { environment } from 'src/environments/environment';
-import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { DomSanitizer } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 
 @Component({

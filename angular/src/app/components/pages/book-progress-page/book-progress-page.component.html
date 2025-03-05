@@ -16,15 +16,14 @@
                 <h3>{{book.author}}</h3>
                 <div class="read-progress">
                     <span>{{book.progress}}% {{ 'read' | translate }}</span>
-                    <mat-icon class="done" *ngIf="book.progress > 94">
-                        check_circle_outline
+                    <mat-icon class="done material-symbols-rounded" *ngIf="book.progress > 94">
+                        check_circle
                     </mat-icon>
                 </div>
             </div>
         </div>
         <button class="battleBtn" mat-flat-button color="accent">
-
-            <mat-icon aria-hidden="false" fontIcon="swords" class="material-symbols-outlined" />
+            <mat-icon aria-hidden="false" fontIcon="swords" class="material-symbols-rounded" />
         </button>
     </div>
 </div>

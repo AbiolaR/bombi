@@ -46,7 +46,7 @@
         <button mat-flat-button (click)="clearFilters()" *ngIf="minFilterSet(1)" 
         aria-label="Clear Filters">
             {{ 'clear-filter' | translate }}<span *ngIf="minFilterSet(2)">{{ 'clear-filter-plural-ending' | translate }}</span>
-            <mat-icon matSuffix iconPositionEnd>clear</mat-icon>
+            <mat-icon matSuffix iconPositionEnd class="material-symbols-rounded">close</mat-icon>
         </button>
     </div>
 </div>
@@ -64,7 +64,7 @@
     <mat-spinner *ngIf="isLoading"></mat-spinner>
 </div>
 <button mat-mini-fab color="primary" *ngIf="showScrollToTop" (click)="scrollToTop()" aria-label="Scroll to the top">
-    <mat-icon>keyboard_arrow_up</mat-icon>
+    <mat-icon class="material-symbols-rounded">keyboard_arrow_up</mat-icon>
 </button>
 <mat-menu #loginMenu="matMenu">
     <app-login></app-login>

@@ -4,7 +4,7 @@
     <input type="file" class="file-upload" (change)="getMetadata($event)" #fileInput>
 
     <div class="drop-hint">
-        <mat-icon fontIcon="file_upload" class="material-icons-outlined" inline="true"/>
+        <mat-icon fontIcon="file_upload" class="material-symbols-rounded" inline="true"/>
         <p>Drag and drop an epub file here to upload.</p>
         <button #browseButton mat-flat-button color="primary" (click)="fileInput.click()">Browse File</button>
         <mat-error *ngIf="showError">Only Epubs are supported</mat-error>
