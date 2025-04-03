@@ -10,6 +10,7 @@ import { AddContactDialogComponent } from '../add-contact-dialog/add-contact-dia
 import { NotificationInfo } from 'src/app/models/notification-info';
 import { SwPush } from '@angular/service-worker';
 import { MatExpansionPanel } from '@angular/material/expansion';
+import { CommunicationService } from 'src/app/services/communication.service';
 
 const PUBLIC_VAPID_KEY = 'BKoDZzDgSyM4qGa9wvX_u3udANeC-8Cn3JGmSfJKfUEp37edT0JFNXl85w_QfsK7ft7NjwJneG7Wz6HmTynRCuU';
 
@@ -28,15 +29,18 @@ export class ProfileDialogComponent implements OnInit {
   showNotificationButton = false;
   eReaderEmailSaved = false;
   isAdmin = false;
+  allowedUrls: string[] = ['/shared', '/progress', '/requests'];
 
   @ViewChild('settingsPanel') settingsPanel: MatExpansionPanel | undefined;
   @ViewChild('ebrPanel') ebrPanel: MatExpansionPanel | undefined;
 
   constructor(public userService: UserService, private appService: AppService, private swPush: SwPush,
     private router: Router, private dialogRef: MatDialogRef<ProfileDialogComponent>, 
-    private dialog: MatDialog, @Inject(MAT_DIALOG_DATA) private missingEreader: boolean) { }
+    private dialog: MatDialog, @Inject(MAT_DIALOG_DATA) private missingEreader: boolean,
+    private communicationService: CommunicationService) { }
 
   ngOnInit(): void {
+    this.communicationService.setAllowedNavigationUrls(this.allowedUrls);
     this.showNotificationButton = window.Notification && Notification.permission != 'granted';
     this.userService.updateUserData().subscribe({
       next: (userData: UserData) => {
@@ -57,6 +61,10 @@ export class ProfileDialogComponent implements OnInit {
         });
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.communicationService.setAllowedNavigationUrls([]);
   }
 
   openEreaderSettings() {
@@ -80,6 +88,7 @@ export class ProfileDialogComponent implements OnInit {
               this.userData.sanitize();
               this.userService.setUserData(this.userData.removeEmpty());
               this.eReaderEmailSaved = !!this.userData.eReaderEmail;
+              this.communicationService.changeEReaderType(this.userData.eReaderType)
             }
             this.close();
           } else {

@@ -62,6 +62,11 @@ export class SearchResultsComponent {
     private communicationService: CommunicationService, private location: Location) {
     this.userData = userService.getLocalUserData()
     this.currentEReader = this.getCurrentEReader();
+
+    communicationService.eReaderTypeChanged().subscribe(() => {
+      this.userData.eReaderType = userService.getLocalUserData().eReaderType;
+      this.currentEReader = this.getCurrentEReader();
+    });
     eventService.menuEvent.subscribe(this.toggleLoginMenu.bind(this))
 
     route.queryParams.subscribe(async params => {
