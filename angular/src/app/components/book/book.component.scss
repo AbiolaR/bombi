@@ -25,6 +25,24 @@
     border-radius: 4px;
 }
 
+.cover.skeleton {
+    background: rgba(130, 130, 130, 0.2);
+    background: -webkit-gradient(linear, left top, right top, color-stop(8%, rgba(130, 130, 130, 0.2)), color-stop(18%, rgba(130, 130, 130, 0.3)), color-stop(33%, rgba(130, 130, 130, 0.2)));
+    background: linear-gradient(to right, rgba(130, 130, 130, 0.2) 8%, rgba(130, 130, 130, 0.3));
+    animation: wave-squares 2.5s infinite ease-out;
+    background-size: 54em 10em;
+}
+
+@keyframes wave-squares {
+    0% {
+        background-position: -32em 0;
+    }
+     100% {
+        background-position: 32em 0;
+    }
+}
+
+
 .cover.hidden {
     width: 0;
     height: 0;
@@ -36,7 +54,7 @@
     display: none;
 }
 
-.cover:hover {
+.cover:not(.skeleton):hover {
     cursor: pointer;
     scale: 1.2;
 }

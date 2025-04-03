@@ -2,9 +2,9 @@
     <div class="unavailable-banner" *ngIf="book.id == 999999999">
         {{ 'not-available-yet' | translate }}
     </div>
-    <img *ngIf="!isImgLoaded" class="cover placeholder" aria-label="Book Cover Placeholder" 
-        src="/assets/images/covers/loading-cover.png"/>
-    <img (load)="isImgLoaded = true" loading="lazy" [class.hidden]="!isImgLoaded" class="cover" 
+    <!--<img *ngIf="!isImgLoaded" class="cover placeholder" aria-label="Book Cover Placeholder" 
+        src="/assets/images/covers/loading-cover.png"/>-->
+    <img (load)="isImgLoaded = true" loading="lazy" [class.skeleton]="!isImgLoaded" class="cover" 
         aria-label="Book Cover" src="{{coverUrl}}"
     (click)="enlarge()"/>
     <div class="book-details">

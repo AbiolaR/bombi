@@ -58,7 +58,7 @@ export class BookComponent implements OnInit {
   }
 
   enlarge() {
-    if (!this.deviceDetectorService.isDesktop()) {
+    if (!this.isImgLoaded) {
       return;
     }
     if (this.book) {

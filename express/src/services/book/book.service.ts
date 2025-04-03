@@ -19,7 +19,7 @@ export class BookService {
   private static readonly BASE_DOWNLOAD_URL = 'https://download.books.ms';
   private static readonly FICTION_DOWNLOAD_URL = `${this.BASE_DOWNLOAD_URL}/fiction/`;
   private static readonly NON_FICTION_DOWNLOAD_URL = `${this.BASE_DOWNLOAD_URL}/main/`;
-  private static readonly LIBGEN_COVERS = 'https://libgen.vg/';
+  private static readonly LIBGEN_COVERS = 'https://books.ms/';
   private static readonly SPLIT = '._-_.';
   private static readonly CACHE_DIR = '/tmp/app.bombi/cache/';
   private static readonly CONVERTED_PREFIX = 'CONVERTED_';

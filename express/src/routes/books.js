@@ -74,17 +74,17 @@ router.get('/search/isbn', async(req, res) => {
 });
 
 router.get('/fictioncovers/*', (req, res) => {
-  const url = req.url.replace('/fictioncovers/', '').replace('-g', '');
+  const url = req.url.replace('/fictioncovers/', '');
 
-  axios.get('https://libgen.vg/' + url, {responseType: 'stream', cache: false}).then(async (response) => {
+  axios.get('https://books.ms/' + url, {responseType: 'stream', cache: false}).then(async (response) => {
     response.data.pipe(res);
   }).catch(() => {});
 });
 
 router.get('/coversproxy/*', (req, res) => { 
-  const url = req.url.replace('/coversproxy/', '').replace('-g', '');
+  const url = req.url.replace('/coversproxy/', '');
 
-  axios.get('https://libgen.vg/' + url, {responseType: 'stream', cache: false}).then(async (response) => {
+  axios.get('https://books.ms/' + url, {responseType: 'stream', cache: false}).then(async (response) => {
     response.data.pipe(res);
   }).catch(() => {});
 });
