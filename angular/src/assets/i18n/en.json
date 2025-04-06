@@ -86,5 +86,7 @@
   "set": "Set",
   "your-reading-progress": "Your reading progress",
   "read": "read",
-  "no-progress-found": "No progress found"
+  "no-progress-found": "No progress found",
+  "fast-download-available": "Fast download available",
+  "please-login-to-send-books-to-your-e-reader": "Please login to send books to your E-Reader"
 }

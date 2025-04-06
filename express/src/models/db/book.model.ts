@@ -13,10 +13,11 @@ export class Book {
     coverUrl: string;
     message: string;
     progress: number;
+    local: boolean;
 
     constructor(id: number, md5: string, title: string, author: string, series: string, publisher: string,
     isbn: string, language: string, pubDate: Date, extension: string, filename: string, coverUrl: string, 
-    progress: number = 0, message: string = '') {
+    progress: number = 0, message: string = '', local: boolean = false) {
         this.id = id;
         this.md5 = md5;
         this.title = title;
@@ -30,6 +31,7 @@ export class Book {
         this.filename = filename;
         this.coverUrl = coverUrl;
         this.progress = progress;
-        this.message = message;    
+        this.message = message;
+        this.local = local;
     }
 }

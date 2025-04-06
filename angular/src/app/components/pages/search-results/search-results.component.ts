@@ -26,8 +26,7 @@ const BOOKS_PER_PAGE = 50;
   templateUrl: './search-results.component.html',
   styleUrls: ['./search-results.component.scss']
 })
-export class SearchResultsComponent {
-  @ViewChild(MatMenuTrigger) loginMenu: MatMenuTrigger | undefined;
+export class SearchResultsComponent {  
   @ViewChild(MatSelect) authorSelect: MatSelect | undefined;
   @ViewChild(MatSelect) yearSelect: MatSelect | undefined;
   @ViewChild(MatSelect) langSelect: MatSelect | undefined;
@@ -57,9 +56,9 @@ export class SearchResultsComponent {
   performBarcodeScan = false;
 
   constructor(private route: ActivatedRoute, private searchService: BookService, 
-    private dialog: MatDialog, public userService: UserService, 
-    private eventService: EventService, private router: Router, private appService: AppService,
-    private communicationService: CommunicationService, private location: Location) {
+    private dialog: MatDialog, public userService: UserService, private router: Router, 
+    private appService: AppService, private communicationService: CommunicationService, 
+    private location: Location) {
     this.userData = userService.getLocalUserData()
     this.currentEReader = this.getCurrentEReader();
 
@@ -67,7 +66,6 @@ export class SearchResultsComponent {
       this.userData.eReaderType = userService.getLocalUserData().eReaderType;
       this.currentEReader = this.getCurrentEReader();
     });
-    eventService.menuEvent.subscribe(this.toggleLoginMenu.bind(this))
 
     route.queryParams.subscribe(async params => {
       this.books = this.allBooks = undefined;
@@ -193,13 +191,6 @@ export class SearchResultsComponent {
     });
   }
 
-  toggleLoginMenu(state: boolean) {
-    if (state) {
-      this.loginMenu?.openMenu();
-    } else {
-      this.loginMenu?.closeMenu();
-    }
-  }
 
   scrollToTop() {
     window.scroll({top: 0, left: 0, behavior: 'smooth'});
@@ -326,8 +317,8 @@ export class SearchResultsComponent {
   }
 
   private fillDistinctSet(property: string, similarity: number) {
-    let distinctSet = new Set<string | number | Date | undefined>;
-    let map = new Map<string | number | Date | undefined, Set<string | number | Date | undefined>>;
+    let distinctSet = new Set<string | number | Date | boolean | undefined>;
+    let map = new Map<string | number | Date | boolean | undefined, Set<string | number | Date | boolean | undefined>>;
 
     distinctSet = new Set(this.allBooks?.map(book => book[property as keyof typeof book]));
     distinctSet.forEach(prop => {
@@ -340,8 +331,8 @@ export class SearchResultsComponent {
         var cleanComparedProperty = comparedProperty.toString().replace(/[^a-z0-9]/gi, '').toLowerCase();
         if (Array.from(cleanProperty).sort().toString() == Array.from(cleanComparedProperty).sort().toString() 
         || this.similarity(Array.from(cleanProperty).sort().toString(), Array.from(cleanComparedProperty).sort().toString()) > similarity) {
-          map.set(prop, map.get(cleanProperty)?.add(prop) || new Set<string | number | Date>().add(comparedProperty));
-          map.set(prop, map.get(cleanProperty)?.add(comparedProperty) || new Set<string | number | Date>().add(comparedProperty));
+          map.set(prop, map.get(cleanProperty)?.add(prop) || new Set<string | number | Date | boolean>().add(comparedProperty));
+          map.set(prop, map.get(cleanProperty)?.add(comparedProperty) || new Set<string | number | Date | boolean>().add(comparedProperty));
           if (prop != comparedProperty) {
             distinctSet.delete(comparedProperty);        
           }

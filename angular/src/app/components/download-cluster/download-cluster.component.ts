@@ -1,6 +1,6 @@
 import { HttpStatusCode } from '@angular/common/http';
-import { Component, Input } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Component, Input, ViewChild } from '@angular/core';
+import { firstValueFrom, Observable } from 'rxjs';
 import { Book } from 'src/app/models/book';
 import { CustomBook } from 'src/app/models/custom-book';
 import { DownloadMode } from 'src/app/models/download-mode';
@@ -15,6 +15,8 @@ import { SocialReadingPlatformService } from 'src/app/services/social-reading-pl
 import { UserService } from 'src/app/services/user.service';
 import { ProfileDialogComponent } from '../dialogs/profile-dialog/profile-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-download-cluster',
@@ -25,7 +27,7 @@ export class DownloadClusterComponent {
 
   constructor(private bookService: BookService, private userService: UserService,
     private eventService: EventService, private srpService: SocialReadingPlatformService,
-    private dialog: MatDialog) {}
+    private dialog: MatDialog, private snackBar: MatSnackBar, private translateService: TranslateService) {}
 
   @Input({ required: true })
   book!: Book;
@@ -91,10 +93,19 @@ export class DownloadClusterComponent {
     button.classList.remove('loading');   
   }
 
-  public sendToEReader(button: any) {   
+  public async sendToEReader(button: any) {   
     const userData = this.userService.getLocalUserData();
-    if (!userData) {
-      this.eventService.openLoginMenu();
+    if (!userData || !userData.username) {
+      let snackRef = this.snackBar.open(
+        await firstValueFrom(this.translateService.get('please-login-to-send-books-to-your-e-reader')), 
+        await firstValueFrom(this.translateService.get('login')), {
+        duration: 5000,
+        horizontalPosition: 'center',
+        verticalPosition: 'bottom'
+      });
+      snackRef.onAction().subscribe(() => {
+        this.eventService.openLoginMenu();
+      });
       return;
     }
     if (!this.isEReaderSetup()) {

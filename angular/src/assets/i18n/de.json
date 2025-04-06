@@ -86,5 +86,7 @@
   "pocketbook-sync-service": "PocketBook Sync Dienst",
   "your-reading-progress": "Dein Lesefortschritt",
   "read": "gelesen",
-  "no-progress-found": "Kein Fortschritt gefunden"
+  "no-progress-found": "Kein Fortschritt gefunden",
+  "fast-download-available": "Schneller Download verfügbar",
+  "please-login-to-send-books-to-your-e-reader": "Melde dich bitte an, um Bücher an deinen E-Reader zu senden"
 }

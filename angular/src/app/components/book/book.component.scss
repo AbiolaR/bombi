@@ -5,6 +5,11 @@
     box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
     padding: 1rem;
     border-radius: 8px;
+
+    &.local {
+        //box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px, rgba(218, 165, 32, 1) 0px 0px 7.5px -3px;
+        border: #daa520 solid 2px;
+    }
 }
 
 .book-details {
@@ -48,6 +53,21 @@
     height: 0;
     margin: 0;
     position: absolute;
+}
+
+.local-symbol {
+    color: #daa520;
+    position: absolute;
+    //transform: translateX(-50%) rotate(45deg);
+    transform-origin: center;
+    top: 1rem;
+    right: 1rem;
+    z-index: 100;
+    background-color: var(--main-background-color);
+    //background-color: black;
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+    padding: 0.25rem;
+    border-radius: 50%;
 }
 
 .cover.placeholder.hidden {
@@ -180,6 +200,13 @@ app-download-cluster {
 
     hr {
         display: none;
+    }
+
+    .local-symbol {
+        //right: -0.5rem;
+        //top: -0.5rem;
+        right: unset;
+        left: 1rem;
     }
 
     .cover {

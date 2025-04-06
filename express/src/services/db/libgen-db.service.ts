@@ -10,6 +10,8 @@ import { initLibgenNonFictionBookModel } from "../../models/db/mysql/libgen-non-
 import { BookType } from "../../models/book-type.enum";
 import { readFileSync } from "fs";
 import { resolve } from "path";
+import { BookService } from "../book/book.service";
+import { file } from "jszip";
 
 export class LibgenDbService {
     private static sequelize: Sequelize;
@@ -83,10 +85,12 @@ export class LibgenDbService {
             if (book.Year) {
                 year = new Date(book.Year);
             }
+            let fileName = `${book.Title}.${book.Extension}`;
+            let isLocal = BookService.bookFileIsLocal(fileName, book.MD5);
 
             return new Book(book.ID, book.MD5, book.Title, 
                 book.Author, book.Series, book.Publisher, book.Identifier.split(',')[0], book.Language, 
-                year, book.Extension, `${book.Title}.${book.Extension}`, book.Coverurl)
+                year, book.Extension, fileName, book.Coverurl, 0, '', isLocal);
         }));
     }
 
@@ -119,7 +123,7 @@ export class LibgenDbService {
         let books = (await Promise.all([booksByText, booksByIsbn])).flat();
         return books.map(book => new Book(book.id, '', book.title, book.author, book.series, '',
             book.isbn, book.language, book.pubDate, book.extension,
-            book.filename, book.coverUrl));
+            book.filename, book.coverUrl, 0, '', true));
     }
       
     searchOneColumn(valueList: String[], columnName: LibgenBookColumn) {

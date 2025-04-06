@@ -14,6 +14,7 @@ export class Book {
     message: string = '';
     progress: number = 0;
     pubDate: Date | undefined;
+    local: boolean = false;
     
     public get year() {
         if (!this.pubDate) return 0;

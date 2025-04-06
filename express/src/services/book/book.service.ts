@@ -101,21 +101,33 @@ export class BookService {
     }
   }
 
+  public static bookFileIsLocal(fileName: string, md5: string | undefined): boolean {
+    let filePath = this.parseLocalFilePath(fileName, md5, false);
+    if (existsSync(filePath)) {
+      return true;
+    }
+    filePath = this.parseLocalFilePath(fileName, md5, true);
+    return existsSync(filePath);
+  }
+
+  private static parseLocalFilePath(fileName: string, md5: string | undefined, kindleMode: boolean): string {
+    let prefix = '';
+    if (kindleMode) {
+      prefix = this.CONVERTED_PREFIX;
+    }
+    if (md5) {
+      prefix += md5 + this.SPLIT;
+    } else if (kindleMode) {
+      fileName = fileName.split('/').pop();
+    }
+
+    return `${this.CACHE_DIR}${prefix}${fileName}`;     
+  }
+
   private static async fetchFromLocal(book: Book, kindleMode: boolean): Promise<BookDownloadResponse> {
     try {
-      let prefix = '';
-      let fileName = book.filename;
-      if (kindleMode) {
-        prefix = this.CONVERTED_PREFIX;
-      }
-      if (book.md5) {
-        prefix += book.md5 + this.SPLIT;
-      } else if (kindleMode) {
-        fileName = book.filename.split('/').pop();
-      }
-
-      let filePath = `${this.CACHE_DIR}${prefix}${fileName}`;      
-      if(!existsSync(filePath)) return
+      let filePath = this.parseLocalFilePath(book.filename, book.md5, kindleMode);      
+      if(!existsSync(filePath)) return;
 
       let coverPath = '';
       if (!book.md5) {
