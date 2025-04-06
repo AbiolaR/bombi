@@ -85,6 +85,7 @@ export class SearchResultsComponent {
         }
         this.searchService.search(advancedSearchString, 1).subscribe({
           next: (result) => {
+            this.isLoading = false;
             if (result.books.length == 0 && result.suggestion) {
               advancedSearchString = this.suggestion = result.suggestion
               if (this.selectedLang) {
