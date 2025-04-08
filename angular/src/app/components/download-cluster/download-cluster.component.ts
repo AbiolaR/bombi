@@ -1,6 +1,6 @@
 import { HttpStatusCode } from '@angular/common/http';
 import { Component, Input, ViewChild } from '@angular/core';
-import { firstValueFrom, Observable } from 'rxjs';
+import { finalize, firstValueFrom, Observable } from 'rxjs';
 import { Book } from 'src/app/models/book';
 import { CustomBook } from 'src/app/models/custom-book';
 import { DownloadMode } from 'src/app/models/download-mode';
@@ -17,6 +17,7 @@ import { ProfileDialogComponent } from '../dialogs/profile-dialog/profile-dialog
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateService } from '@ngx-translate/core';
+import { MatButton } from '@angular/material/button';
 
 @Component({
   selector: 'app-download-cluster',
@@ -28,6 +29,9 @@ export class DownloadClusterComponent {
   constructor(private bookService: BookService, private userService: UserService,
     private eventService: EventService, private srpService: SocialReadingPlatformService,
     private dialog: MatDialog, private snackBar: MatSnackBar, private translateService: TranslateService) {}
+
+  @ViewChild('downloadBtn') downloadButton: MatButton | undefined;
+  @ViewChild('sendToEReaderBtn') sendToEReaderButton: MatButton | undefined;
 
   @Input({ required: true })
   book!: Book;
@@ -46,10 +50,13 @@ export class DownloadClusterComponent {
 
   stateDuration = 10000;
 
-  public download(button: any) {
-    button.classList.remove('success');
-    button.classList.remove('failure');
-    button.classList.add('loading');
+  isDownloading = false;
+  isSending = false;
+
+  public download() {
+    this.downloadButton?._elementRef.nativeElement.classList.remove('success');
+    this.downloadButton?._elementRef.nativeElement.classList.remove('failure');
+    this.downloadButton?._elementRef.nativeElement.classList.add('loading');
     var filename = '';
     var downloadVar = '';
     switch(this.mode) {
@@ -65,12 +72,18 @@ export class DownloadClusterComponent {
         break;  
     }
 
-    this.bookService.download(this.book).subscribe({
+    this.isDownloading = true;
+    this.bookService.download(this.book).pipe(
+      finalize(() => {
+        console.log('download complete');
+        this.isDownloading = false;
+      })
+    ).subscribe({
       next: (file) => {
-        this.handleDownload(button, filename, file);
+        this.handleDownload(this.downloadButton?._elementRef.nativeElement, filename, file);
       },
       error: (error) =>  {
-        this.showResult(button, 'failure');
+        this.showResult(this.downloadButton?._elementRef.nativeElement, 'failure');
         if (error.status == HttpStatusCode.Unauthorized) {
           this.eventService.openLoginMenu();
           console.warn('user is not authorized, please login again');
@@ -79,7 +92,6 @@ export class DownloadClusterComponent {
         }
       }
     });
-    
   }
 
   private handleDownload(button: any, filename: string, file: any) {
@@ -93,7 +105,7 @@ export class DownloadClusterComponent {
     button.classList.remove('loading');   
   }
 
-  public async sendToEReader(button: any) {   
+  public async sendToEReader() {   
     const userData = this.userService.getLocalUserData();
     if (!userData || !userData.username) {
       let snackRef = this.snackBar.open(
@@ -112,9 +124,9 @@ export class DownloadClusterComponent {
       this.openProfileDialog();
       return;
     }
-    button.classList.remove('success');
-    button.classList.remove('failure');
-    button.classList.add('loading');
+    this.sendToEReaderButton?._elementRef.nativeElement.classList.remove('success');
+    this.sendToEReaderButton?._elementRef.nativeElement.classList.remove('failure');
+    this.sendToEReaderButton?._elementRef.nativeElement.classList.add('loading');
 
     let action: Observable<ServerResponse<Boolean>>;
 
@@ -129,13 +141,18 @@ export class DownloadClusterComponent {
       action = this.bookService.sendToEReader(this.book);
     }
 
-    action.subscribe({
+    this.isSending = true;
+    action.pipe(
+      finalize(() => {
+        this.isSending = false;
+      })
+    ).subscribe({
       next: () => {
-        this.showResult(button, 'success');
+        this.showResult(this.sendToEReaderButton?._elementRef.nativeElement, 'success');
       },
       error: (error) =>  {
         this.userService.updateUserData().subscribe();
-        this.showResult(button, 'failure');
+        this.showResult(this.sendToEReaderButton?._elementRef.nativeElement, 'failure');
         if (error.status == HttpStatusCode.Unauthorized) {
           this.eventService.openLoginMenu();
           console.warn('user is not authorized, please login again');

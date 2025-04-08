@@ -12,6 +12,12 @@
     --primary-bold-color-dark: #a88cdb;
     --primary-bold-color-light: #643da9;
     --primary-bold-color: var(--primary-bold-color-light);
+    --primary-disabled-color-dark: #5a4c5c;
+    --primary-disabled-color-light: #cbbbe6;
+    --primary-bold-disabled-color-dark: #433857;
+    --primary-bold-disabled-color-light: #c1b1dc;
+    --primary-disabled-color: var(--primary-disabled-color-light);
+    --primary-bold-disabled-color: var(--primary-bold-disabled-color-light);
     --primary-opaque-color: #a88cff4d;
     --success-icon-color: #4caf50;
     --failure-icon-color: #f44336;
@@ -52,6 +58,10 @@ app-root {
 
 .dedication {
     display: none;
+}
+
+button:disabled {
+    background-color: var(--primary-disabled-color);
 }
 
 @media screen and (max-width: 1600px) {
@@ -152,6 +162,9 @@ $dark-theme: map_merge($dark-theme, (background: $dark-background));
         --autofill-color: #f5e9f7 !important;
         --accent-color: mat.get-color-from-palette($accent, 200);
         --primary-bold-color: var(--primary-bold-color-light);
+        --primary-disabled-color: var(--primary-disabled-color-light);
+        --primary-bold-disabled-color: var(--primary-bold-disabled-color-light);
+        --mdc-protected-button-disabled-container-color: var(--primary-disabled-color);
     }
 
     mat-dialog-content,mat-dialog-actions,mat-expansion-panel-header,mat-expansion-panel,.mat-expansion-panel-body {
@@ -171,6 +184,10 @@ $dark-theme: map_merge($dark-theme, (background: $dark-background));
         --autofill-color: #471d4e !important;
         --accent-color: mat.get-color-from-palette($accent, default);
         --primary-bold-color: var(--primary-bold-color-dark);
+        --primary-disabled-color: var(--primary-disabled-color-dark);
+        --primary-bold-disabled-color: var(--primary-bold-disabled-color-dark);
+        --mdc-protected-button-disabled-container-color: var(--primary-disabled-color);
+        --muted-spinner-color: var(--main-text-color);
     }
 
     mat-card,.mat-mdc-autocomplete-panel {

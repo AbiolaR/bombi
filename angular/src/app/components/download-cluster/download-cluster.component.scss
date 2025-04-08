@@ -47,7 +47,12 @@ button.failure {
 }
 
 .send-to-btn {
-    background-color: var(--primary-bold-color);
+    &:disabled {
+        background-color: var(--primary-bold-disabled-color);
+    }
+    &:not(:disabled) {
+        background-color: var(--primary-bold-color);
+    }
 }
 
 button {
