@@ -1,3 +1,5 @@
+import { GroupedBook } from "./grouped-book.model";
+
 export class Book {
     id: number = 0;
     md5: string = '';
@@ -15,6 +17,7 @@ export class Book {
     progress: number = 0;
     pubDate: Date | undefined;
     local: boolean = false;
+    groupedBooks: GroupedBook[] = [];
     
     public get year() {
         if (!this.pubDate) return 0;

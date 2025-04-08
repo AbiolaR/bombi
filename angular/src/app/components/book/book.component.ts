@@ -41,6 +41,7 @@ export class BookComponent implements OnInit {
   BOOK = DownloadMode.BOOK;
 
   coverUrl = '';
+  localBookAvailable = false;
   
   ngOnInit(): void {
     
@@ -54,6 +55,7 @@ export class BookComponent implements OnInit {
     } else {
       this.coverUrl = environment.apiServerUrl + '/v1/books/coversproxy' + this.book.coverUrl
     }
+    this.localBookAvailable = this.book?.local || this.book?.groupedBooks.some((book) => book.local) || false;
     //this.coverUrl = this.coverUrl.replace('//', '').replace('http:/', 'http://').replace('https:/', 'https://');
   }
 

@@ -226,5 +226,3 @@ WHERE
     )
 ORDER BY
     relevance DESC
-LIMIT
-    :limit OFFSET :offset;

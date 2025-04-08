@@ -14,6 +14,7 @@ import { AppService } from 'src/app/services/app.service';
 import { UserData } from 'src/app/models/user-data';
 import { CommunicationService } from '../../../services/communication.service';
 import { Location } from '@angular/common';
+import { GroupedBook } from 'src/app/models/grouped-book.model';
 
 const ALT_GER_LANG = 'Deutsch';
 const AUTHOR = 'author';
@@ -317,8 +318,8 @@ export class SearchResultsComponent {
   }
 
   private fillDistinctSet(property: string, similarity: number) {
-    let distinctSet = new Set<string | number | Date | boolean | undefined>;
-    let map = new Map<string | number | Date | boolean | undefined, Set<string | number | Date | boolean | undefined>>;
+    let distinctSet = new Set<string | number | Date | boolean | GroupedBook[] | undefined>;
+    let map = new Map<string | number | Date | boolean | GroupedBook[] | undefined, Set<string | number | Date | boolean | GroupedBook[] | undefined>>;
 
     distinctSet = new Set(this.allBooks?.map(book => book[property as keyof typeof book]));
     distinctSet.forEach(prop => {
@@ -331,8 +332,8 @@ export class SearchResultsComponent {
         var cleanComparedProperty = comparedProperty.toString().replace(/[^a-z0-9]/gi, '').toLowerCase();
         if (Array.from(cleanProperty).sort().toString() == Array.from(cleanComparedProperty).sort().toString() 
         || this.similarity(Array.from(cleanProperty).sort().toString(), Array.from(cleanComparedProperty).sort().toString()) > similarity) {
-          map.set(prop, map.get(cleanProperty)?.add(prop) || new Set<string | number | Date | boolean>().add(comparedProperty));
-          map.set(prop, map.get(cleanProperty)?.add(comparedProperty) || new Set<string | number | Date | boolean>().add(comparedProperty));
+          map.set(prop, map.get(cleanProperty)?.add(prop) || new Set<string | number | Date | boolean | GroupedBook[]>().add(comparedProperty));
+          map.set(prop, map.get(cleanProperty)?.add(comparedProperty) || new Set<string | number | Date | boolean | GroupedBook[]>().add(comparedProperty));
           if (prop != comparedProperty) {
             distinctSet.delete(comparedProperty);        
           }

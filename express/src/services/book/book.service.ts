@@ -12,6 +12,8 @@ import { dirname } from "path";
 import { PocketBookCloudService } from "../e-readers/pocketbook-cloud.service";
 import { DEC } from "../secman";
 import { EpubToolsService } from "../epub-tools.service";
+import { LibgenDbService } from "../db/libgen-db.service";
+import { GroupedBook } from "../../models/grouped-book.model";
 
 export class BookService {
 
@@ -31,11 +33,56 @@ export class BookService {
   private static readonly GOOGLE_CUSTOM_SEARCH_URL = 'https://www.googleapis.com/customsearch/v1';
   private static readonly GOOGLE_SEARCH_API_KEY = DEC('U2FsdGVkX1+OzilJcaZ0HHvEiXBKwMqai8HVF4YBD2ZT2vNmyao3/nGxc0FaZiz/HVERMeGf2eXoao0gYAj0Aw==');
   private static readonly GOOGLE_SEARCH_ENGINE_ID = DEC('U2FsdGVkX18Ojn/1fd2EQDZtxcO5EMndOFxadSUZkt7b9ogUBQ1glL0JsREgLY+9');
+  
+  static async download(book: Book, kindleMode = false, downloadCover = false): Promise<BookDownloadResponse> {    
+    const libgenDbService = new LibgenDbService();
+    book.groupedBooks.unshift(new GroupedBook(book.md5, book.id, book.local));
+    
+    let localBook: Book | undefined = undefined;
+    const localGroupedBook = book.groupedBooks.find(gb => gb.local);
 
-  static async download(book: Book, kindleMode = false): Promise<BookDownloadResponse> {
-    if (!book.md5) {
-      return await this.fetchFromLocal(book, kindleMode) || await this.fetchFromLocal(book, false);
+    if (localGroupedBook) {
+      if (!localGroupedBook.md5) {
+        localBook = await libgenDbService.findLocalBookById(localGroupedBook.id);
+      } else {
+        localBook = await libgenDbService.findBookByMd5(localGroupedBook.md5);
+      }
     }
+
+    let downloadResponse: BookDownloadResponse | undefined = undefined;
+
+    if (localBook && localBook.local) {
+      try {
+        if (localBook.coverUrl && downloadCover) {
+          localBook.coverUrl = `${this.LIBGEN_COVERS}${localBook.coverUrl}`;
+        } else { 
+          localBook.coverUrl = ''; 
+        };
+          
+        downloadResponse = await this.fetchFromLocal(localBook, kindleMode) || await this.fetchFromLocal(localBook, false);
+        if (downloadResponse) {
+          return downloadResponse;
+        }
+      } catch (error) {
+        console.error('Error fetching local book: ', error);
+      }
+    }
+
+    for (let groupedBook of book.groupedBooks) {
+      let fetchedBook = await libgenDbService.findBookByMd5(groupedBook.md5);
+      if (!fetchedBook) {
+        continue;
+      }
+      
+      downloadResponse = await this.doDownload(fetchedBook, kindleMode, downloadCover);
+      if (downloadResponse) {
+        break;
+      }
+    }    
+    return downloadResponse;
+  }
+
+  private static async doDownload(book: Book, kindleMode: boolean = false, downloadCover: boolean = false): Promise<BookDownloadResponse> {
     let series = book.series ? `(${book.series})` : '';
     let downloadUrl = '';
     if (book.coverUrl.startsWith('/fictioncover')) {
@@ -43,16 +90,22 @@ export class BookService {
     } else {
       downloadUrl = this.NON_FICTION_DOWNLOAD_URL + this.encodeUriAll(`${this.torrentNumber(book)}/${book.md5}/${series} ${book.author} - ${book.title}-${book.publisher}.${book.extension}`);
     }
-    let coverUrl = book.coverUrl.replace(/\/.*covers\//, '') ? `${this.LIBGEN_COVERS}${book.coverUrl}` : '';
-    book.coverUrl = coverUrl;
+    if (book.coverUrl && downloadCover) {
+      book.coverUrl = `${this.LIBGEN_COVERS}${book.coverUrl}`;
+    } else { 
+      book.coverUrl = ''; 
+    };
 
     const downloadReponse = await this.fetchFromLocal(book, kindleMode)
       || await this.fetchFromLocal(book, false)
-      || await this.downloadWithUrl(downloadUrl, coverUrl, `${book.md5}${this.SPLIT}${book.filename}`)
-      || await this.downloadWithMD5(book.md5, coverUrl, `${book.md5}${this.SPLIT}${book.filename}`);
+      || await this.downloadWithUrl(downloadUrl, book.coverUrl, `${book.md5}${this.SPLIT}${book.filename}`)
+      || await this.downloadWithMD5(book.md5, book.coverUrl, `${book.md5}${this.SPLIT}${book.filename}`);
 
     if (downloadReponse) {
       downloadReponse.book.filePath = downloadReponse.book.filePath || await EpubToolsService.saveToDiskAsync(downloadReponse.book);
+      if (downloadReponse.cover.data) {
+        downloadReponse.cover.filePath = downloadReponse.cover.filePath || await EpubToolsService.saveToDiskAsync(downloadReponse.cover);
+      }
     }
     return downloadReponse;
   }
@@ -146,10 +199,15 @@ export class BookService {
         if (existsSync(coverPath)) {
           data = createReadStream(coverPath);
         } else {
-          data = (await axios.get<Readable>(book.coverUrl, { responseType: 'stream' })).data;
-          coverPath = '';
+          try {
+            data = (await axios.get<Readable>(book.coverUrl, { responseType: 'stream' })).data;
+            coverPath = '';
+          } catch (error) {
+            this.logAxiosError(error, "Trying to download cover from url for local book");
+          }
         }
         cover = new CoverBlob(data, book.coverUrl.split('/').pop(), coverPath);
+        cover.filePath = cover.filePath || await EpubToolsService.saveToDiskAsync(cover);
       }
       downloadResponse.cover = cover;
 

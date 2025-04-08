@@ -166,9 +166,10 @@ router.post('/send', async(req, res) => {
     res.status(401).send('no user could be found');
   }
 
-  if (user.eReaderType != 'T') {
-    let coverUrl = bookData.coverUrl.split(/\/.*covers\//).pop();
-    bookData.coverUrl = bookData.coverUrl.replace(coverUrl, '');
+  let downloadCover = false;
+
+  if (user.eReaderType == 'T') {
+    downloadCover = true;
   }
   let kindleMode = false;
   if (user.eReaderType == 'K') {
@@ -177,7 +178,7 @@ router.post('/send', async(req, res) => {
 
   let downloadResponse;
   try {
-    downloadResponse = await BookService.download(bookData, kindleMode);
+    downloadResponse = await BookService.download(bookData, kindleMode, downloadCover);
   } catch(error) {}
 
   if (!downloadResponse) {

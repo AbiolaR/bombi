@@ -6,6 +6,7 @@ import jszip from "jszip";
 import sharp from "sharp";
 import { Readable } from "stream";
 import path from "path";
+import { CoverBlob } from "../models/cover-blob.model";
 
 export class EpubToolsService {
     private static readonly CACHE_DIR = '/tmp/app.bombi/cache/';
@@ -20,10 +21,10 @@ export class EpubToolsService {
         await this.convertToAsync(book, 'epub', true);
     }
 
-    public static async saveToDiskAsync(book: BookBlob) {        
-        const filePath = path.resolve(this.CACHE_DIR, book.filename);       
-        await pipeline(book.data, createWriteStream(filePath));
-        book.data = createReadStream(filePath);
+    public static async saveToDiskAsync(file: BookBlob | CoverBlob) {    
+        const filePath = path.resolve(this.CACHE_DIR, file.filename);       
+        await pipeline(file.data, createWriteStream(filePath));
+        file.data = createReadStream(filePath);
         return filePath;
     }
 

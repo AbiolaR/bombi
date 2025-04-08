@@ -7,11 +7,10 @@ import { Book } from "../../models/db/book.model";
 import { initReadarrBookModel } from "../../models/db/mysql/readarr-book.model.init";
 import { ReadarrBook, ReadarrBookColumn } from "../../models/db/mysql/readarr-book.model";
 import { initLibgenNonFictionBookModel } from "../../models/db/mysql/libgen-non-fiction-book.model.init";
-import { BookType } from "../../models/book-type.enum";
 import { readFileSync } from "fs";
 import { resolve } from "path";
 import { BookService } from "../book/book.service";
-import { file } from "jszip";
+import { GroupedBook } from "../../models/grouped-book.model";
 
 export class LibgenDbService {
     private static sequelize: Sequelize;
@@ -19,6 +18,7 @@ export class LibgenDbService {
     private readonly HOST_IP = 'host_ip';
     private readonly permittedExtensions = ['epub'];
     private static FULL_INDEXED_SEARCH: string;
+    private readonly SPECIAL_CHAR_REGEX = /[ $&+,:;=?@#|'<>.^*()%!-]/g;
 
     constructor() {
         
@@ -41,6 +41,34 @@ export class LibgenDbService {
         
         await this.sequelize.authenticate();
         this.initModels();
+    }
+
+    public async findLocalBookById(id: number): Promise<Book | undefined> {
+        let book = await ReadarrBook.findOne({ where: { id: id } });
+        if (!book) return undefined;
+        return new Book(book.id, '', book.title, book.author, book.series, '', book.isbn, book.language, 
+            book.pubDate, book.extension, book.filename, book.coverUrl, 0, '', true);
+    }
+    public async findBookByMd5(md5: string): Promise<Book | undefined> {
+        let book = await FictionBook.findOne({ where: { MD5: md5 } });
+        
+        if (!book) {
+            book = await NonFictionBook.findOne({ where: { MD5: md5 } });
+            if (!book) return undefined;
+            book.Coverurl = '/covers/' + book.Coverurl;
+        } else {
+            book.Coverurl = '/fictioncovers/' + book.Coverurl;
+        }
+        let year: Date;
+        if (book.Year) {
+            year = new Date(book.Year);
+        }
+        let fileName = `${book.Title}.${book.Extension}`;
+        let isLocal = BookService.bookFileIsLocal(fileName, book.MD5);
+
+        return new Book(book.ID, book.MD5, book.Title, 
+            book.Author, book.Series, book.Publisher, book.Identifier.split(',')[0], book.Language, 
+            year, book.Extension, fileName, book.Coverurl, 0, '', isLocal);
     }
 
     async indexedFullSearch(searchString: string, defaultLang: string, page: number): Promise<Book[]> {
@@ -80,7 +108,7 @@ export class LibgenDbService {
 
         let [foundBooks, foundLocalBooks = []] = await Promise.all([books, localBooks]);
 
-        return foundLocalBooks.concat(foundBooks.map(book => {
+        let allBooks = foundLocalBooks.concat(foundBooks.map(book => {
             let year: Date;
             if (book.Year) {
                 year = new Date(book.Year);
@@ -92,6 +120,22 @@ export class LibgenDbService {
                 book.Author, book.Series, book.Publisher, book.Identifier.split(',')[0], book.Language, 
                 year, book.Extension, fileName, book.Coverurl, 0, '', isLocal);
         }));
+
+        let groupedBooks = allBooks.reduce((acc: Book[], book) => {
+            let existingBookIndex = acc.findIndex((b: Book) =>
+                this.sanitizedCompare(b.title, book.title)
+                && this.sanitizedCompare(b.author, book.author)
+                && b.language == book.language);
+            if (existingBookIndex !== -1) {
+                acc[existingBookIndex].groupedBooks.push(new GroupedBook(book.md5,
+                    book.id, book.local));
+            } else {
+                acc.push(book);
+            }
+            return acc;
+        }, []);
+
+        return groupedBooks.slice(offset, limit);
     }
 
     private async indexedLocalSearch(searchString: String, languageQuery: any): Promise<Book[]> {
@@ -207,6 +251,14 @@ export class LibgenDbService {
         } catch (error) {
             console.error('Error saving uploaded book data: ', error);
         }
+    }
+
+    private sanitizedCompare(bookStringA: string, bookStringB: string): boolean {
+        return this.sanitizeBookString(bookStringA) == this.sanitizeBookString(bookStringB);
+    }
+
+    private sanitizeBookString(bookString: string): string {
+        return bookString.toLowerCase().replace(this.SPECIAL_CHAR_REGEX, '');
     }
     
     private static initModels() {
