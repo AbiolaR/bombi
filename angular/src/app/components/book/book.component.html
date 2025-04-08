@@ -1,4 +1,4 @@
-<div *ngIf="book" class="book" [ngClass]="{'unavailable' : book.id == 999999999}" [ngClass]="{'local' : localBookAvailable}">
+<div *ngIf="book" class="book" [ngClass]="{'unavailable' : book.id == 999999999, 'local' : localBookAvailable}">
     <div class="unavailable-banner" *ngIf="book.id == 999999999">
         {{ 'not-available-yet' | translate }}
     </div>
