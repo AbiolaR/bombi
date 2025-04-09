@@ -20,8 +20,8 @@ import { BookBlob } from "../../models/book-blob.model";
 import { CoverBlob } from "../../models/cover-blob.model";
 
 export class BookSyncService {
-  private readonly LIBGEN_FICTION = 'https://library.gift/fiction/';
-  private readonly LIBGEN_FICTION_COVERS = 'https://library.gift/fictioncovers/';
+  private readonly LIBGEN_FICTION = 'https://books.ms/fiction/';
+  private readonly LIBGEN_FICTION_COVERS = 'https://books.ms/fictioncovers/';
   private TEST_HASH: Promise<string>;
   private TEST_HASH_KEY = 'test_hash';
   private HOST_IP: Promise<string>;
