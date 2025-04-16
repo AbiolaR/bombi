@@ -2,7 +2,7 @@
     <div class="unavailable-banner" *ngIf="book.id == 999999999">
         {{ 'not-available-yet' | translate }}
     </div>
-    <mat-icon *ngIf="book.local" class="material-symbols-rounded local-symbol" matTooltip="{{ 'fast-download-available' | translate }}">bolt</mat-icon>
+    <mat-icon *ngIf="localBookAvailable" class="material-symbols-rounded local-symbol" matTooltip="{{ 'fast-download-available' | translate }}">bolt</mat-icon>
     <img (load)="isImgLoaded = true" loading="lazy" [class.skeleton]="!isImgLoaded" class="cover" 
         aria-label="Book Cover" src="{{coverUrl}}"
     (click)="enlarge()"/>
