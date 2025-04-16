@@ -64,7 +64,7 @@ router.get('/search', async(req, res) => {
 
 router.post('/search/upcoming', async(req, res) => {
   let bookData = {books: [], suggestion: ''};
-  bookData.books = await GoogleBooksSearchService.search(req.body.searchString, req.body.foundBooks);
+  bookData.books = await GoogleBooksSearchService.search(req.body.searchString, req.body.foundBooks, req.body.selectedLang);
   res.send(bookData)
 });
 

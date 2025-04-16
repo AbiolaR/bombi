@@ -101,7 +101,7 @@ export class SearchResultsComponent {
               });
 
             } else if (result.books.length == 0 && !result.suggestion) {
-              searchService.searchUpcoming(this.searchString, this.allBooks || []).subscribe({
+              searchService.searchUpcoming(this.searchString, this.allBooks || [], this.selectedLang).subscribe({
                 next: (result) => {
                   this.searchedUpcoming = true;
                   this.setData(result.books);
@@ -261,7 +261,7 @@ export class SearchResultsComponent {
             if (result.books.length == 0) {
               this.isLastPage = true;
               if (!this.searchedUpcoming) {
-                this.searchService.searchUpcoming(this.searchString, this.allBooks || []).subscribe({
+                this.searchService.searchUpcoming(this.searchString, this.allBooks || [], this.selectedLang).subscribe({
                   next: (upcomingBooks) => {
                     this.setData(this.allBooks?.concat(upcomingBooks.books) || []);
                   }

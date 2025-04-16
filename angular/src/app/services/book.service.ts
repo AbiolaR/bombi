@@ -43,9 +43,9 @@ export class BookService {
     return cachedSearch.searchResult;
   }
 
-  public searchUpcoming(searchString: String, foundBooks: Book[]): Observable<SearchResult> {
+  public searchUpcoming(searchString: String, foundBooks: Book[], selectedLang: string): Observable<SearchResult> {
     return this.http.post<SearchResult>(`${this.apiUrl}search/upcoming`,
-    { searchString: searchString, foundBooks: foundBooks });
+    { searchString: searchString, foundBooks: foundBooks, selectedLang: selectedLang });
   }
 
   public searchByIsbn(isbn: string): Observable<ServerResponse<string>> {

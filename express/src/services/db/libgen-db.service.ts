@@ -66,9 +66,10 @@ export class LibgenDbService {
         }
         let fileName = `${book.Title}.${book.Extension}`;
         let isLocal = BookService.bookFileIsLocal(fileName, book.MD5);
+        let isbns = book.Identifier.split(',').filter(isbn => isbn.length > 0);
 
         return new Book(book.ID, book.MD5, book.Title, 
-            book.Author, book.Series, book.Publisher, book.Identifier.split(','), book.ASIN,
+            book.Author, book.Series, book.Publisher, isbns, book.ASIN,
             book.Language, year, book.Extension, fileName, book.Coverurl, 0, '', isLocal);
     }
 
@@ -116,9 +117,10 @@ export class LibgenDbService {
             }
             let fileName = `${book.Title}.${book.Extension}`;
             let isLocal = BookService.bookFileIsLocal(fileName, book.MD5);
+            let isbns = book.Identifier.split(',').filter(isbn => isbn.length > 0);
 
             return new Book(book.ID, book.MD5, book.Title, 
-                book.Author, book.Series, book.Publisher, book.Identifier.split(','), book.ASIN,
+                book.Author, book.Series, book.Publisher, isbns, book.ASIN,
                 book.Language, year, book.Extension, fileName, book.Coverurl, 0, '', isLocal);
         }));
 
@@ -142,6 +144,10 @@ export class LibgenDbService {
                 if (!acc[existingBookIndex].coverUrl.replace(/\/.*covers\//, '') && book.coverUrl) {
                     acc[existingBookIndex].coverUrl = book.coverUrl;
                 }
+                if (!acc[existingBookIndex].asin) {
+                    acc[existingBookIndex].asin = book.asin;
+                }
+                acc[existingBookIndex].isbn = [...new Set([...acc[existingBookIndex].isbn, ...book.isbn])];
             } else {
                 acc.push(book);
             }
@@ -179,8 +185,8 @@ export class LibgenDbService {
 
         let books = (await Promise.all([booksByText, booksByIsbn])).flat();
         return books.map(book => new Book(book.id, '', book.title, book.author, book.series, 
-            '', book.isbn.split(','), '', book.language, book.pubDate, book.extension,
-            book.filename, book.coverUrl, 0, '', true));
+            '', book.isbn.split(',').filter(isbn => isbn.length > 0), '', book.language,
+            book.pubDate, book.extension, book.filename, book.coverUrl, 0, '', true));
     }
       
     searchOneColumn(valueList: String[], columnName: LibgenBookColumn) {

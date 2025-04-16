@@ -1,3 +1,4 @@
+import { identifier } from "@sequelize/core/types/expression-builders/identifier";
 import { Book } from "../../models/db/book.model";
 import { GoogleBook } from "../../models/google-book.model";
 import { SearchResponse } from "../../models/google-books/search-response.model";
@@ -10,9 +11,10 @@ export class GoogleBooksSearchService {
     private static readonly SEARCH_URL = 'https://www.googleapis.com/books/v1/volumes?q=subject:fiction+intitle:';
     private static readonly ISBN_SEARCH_URL = 'https://www.googleapis.com/books/v1/volumes?q=isbn:';
     private static readonly UPPERCASE_REGEX = /^[A-Z]+$/;
-    private static readonly ISBN = 'ISBN_13';
+    private static readonly ISBN = 'ISBN_10';
+    private static readonly ISBN_13 = 'ISBN_13';
 
-    public static async search(searchString: string, previouslyFoundBooks: Book[]): Promise<Book[]> {
+    public static async search(searchString: string, previouslyFoundBooks: Book[], selectedLang: string): Promise<Book[]> {
         const response = await axios.get<SearchResponse>(`${this.SEARCH_URL}"${searchString}"
             &printType=books&key=${this.API_KEY}`);    
         
@@ -26,7 +28,7 @@ export class GoogleBooksSearchService {
                 new Date(volume.volumeInfo.publishedDate), '', '',
                 volume.volumeInfo?.imageLinks?.thumbnail.replace('http://', 'https://')));
 
-        return this.merge(books, previouslyFoundBooks);
+        return this.merge(books, previouslyFoundBooks, selectedLang);
     }
 
     public static async searchByIsbn(isbn: string): Promise<string> {
@@ -40,12 +42,15 @@ export class GoogleBooksSearchService {
         return response.data.items[0].volumeInfo.title;
     }
 
-    private static merge(books: Book[], previouslyFoundBooks: Book[]): Book[] {
+    private static merge(books: Book[], previouslyFoundBooks: Book[], selectedLang: string): Book[] {
         let mergedBooks: Book[] = [];
 
         books.forEach(book => {
             if (previouslyFoundBooks.find(pfBook => 
             this.simplify(pfBook.title) == this.simplify(book.title))) {
+                return;
+            }
+            if (selectedLang && book.language != selectedLang) {
                 return;
             }
             let mBookIndex = mergedBooks.findIndex(mBook => 
@@ -77,15 +82,31 @@ export class GoogleBooksSearchService {
     }
 
     private static parseISBN(volume: GoogleBook): string[] {
-        return volume.volumeInfo.industryIdentifiers?.find(identifier => 
-            identifier.type == this.ISBN
-        )?.identifier.split(',') || []
+        return volume.volumeInfo.industryIdentifiers?.filter(identifier => 
+            [this.ISBN, this.ISBN_13].includes(identifier.type)
+        ).map(identifier => identifier.identifier) || [];
     }
 
     private static parseLanguage(volume: GoogleBook): SyncLanguage {
         switch (volume.volumeInfo.language) {
             case 'de':
                 return SyncLanguage.GERMAN
+            case 'es':
+                return SyncLanguage.SPANISH
+            case 'fr':
+                return SyncLanguage.FRENCH
+            case 'it':
+                return SyncLanguage.ITALIAN
+            case 'nl':
+                return SyncLanguage.DUTCH
+            case 'pt':
+                return SyncLanguage.PORTUGUESE
+            case 'pl':
+                return SyncLanguage.POLISH
+            case 'ru':
+                return SyncLanguage.RUSSIAN
+            case 'ja':
+                return SyncLanguage.JAPANESE                
             default:
                 return SyncLanguage.ENGLISH
         } 
