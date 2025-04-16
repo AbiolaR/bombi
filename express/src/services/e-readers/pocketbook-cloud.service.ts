@@ -80,7 +80,7 @@ export class PocketBookCloudService {
         await user.save();
     }
 
-    public static async uploadBook(user: User, book: BookBlob): Promise<boolean> {
+    public static async uploadBook(user: User, book: BookBlob, retry: boolean = true): Promise<boolean> {
         if (!user.pocketBookConfig.cloudConfig.accessToken 
             || !user.pocketBookConfig.cloudConfig.refreshToken) return false;
         
@@ -101,8 +101,8 @@ export class PocketBookCloudService {
                 return true;
             case HttpStatusCode.Unauthorized:
                 if (response?.data.errorCode == this.TOKEN_EXPIRED_ERROR_CODE) {
-                    if (await this.refreshToken(user)){
-                        return this.uploadBook(user, book);
+                    if (await this.refreshToken(user) && retry) {
+                        return this.uploadBook(user, book, false);
                     }
                 }
             case HttpStatusCode.Conflict:
@@ -110,7 +110,10 @@ export class PocketBookCloudService {
                     return true;
                 }
             default:
-                console.error(`[ERROR] failed to upload book ${book.filePath}`, response?.data);
+                console.error(`[ERROR] failed to upload book ${book.filePath}. Will attempt again: (${retry})\nResponse data: `, response?.data);
+        }
+        if (retry) {
+            return this.uploadBook(user, book, false);
         }
         return false;
     }
