@@ -46,8 +46,9 @@ export class LibgenDbService {
     public async findLocalBookById(id: number): Promise<Book | undefined> {
         let book = await ReadarrBook.findOne({ where: { id: id } });
         if (!book) return undefined;
-        return new Book(book.id, '', book.title, book.author, book.series, '', [book.isbn], book.language, 
-            book.pubDate, book.extension, book.filename, book.coverUrl, 0, '', true);
+        return new Book(book.id, '', book.title, book.author, book.series, '', [book.isbn], 
+            '', book.language, book.pubDate, book.extension, book.filename, book.coverUrl, 0, 
+            '', true);
     }
     public async findBookByMd5(md5: string): Promise<Book | undefined> {
         let book = await FictionBook.findOne({ where: { MD5: md5 } });
@@ -67,8 +68,8 @@ export class LibgenDbService {
         let isLocal = BookService.bookFileIsLocal(fileName, book.MD5);
 
         return new Book(book.ID, book.MD5, book.Title, 
-            book.Author, book.Series, book.Publisher, book.Identifier.split(','), book.Language, 
-            year, book.Extension, fileName, book.Coverurl, 0, '', isLocal);
+            book.Author, book.Series, book.Publisher, book.Identifier.split(','), book.ASIN,
+            book.Language, year, book.Extension, fileName, book.Coverurl, 0, '', isLocal);
     }
 
     async indexedFullSearch(searchString: string, defaultLang: string, page: number): Promise<Book[]> {
@@ -117,14 +118,19 @@ export class LibgenDbService {
             let isLocal = BookService.bookFileIsLocal(fileName, book.MD5);
 
             return new Book(book.ID, book.MD5, book.Title, 
-                book.Author, book.Series, book.Publisher, book.Identifier.split(','), book.Language, 
-                year, book.Extension, fileName, book.Coverurl, 0, '', isLocal);
+                book.Author, book.Series, book.Publisher, book.Identifier.split(','), book.ASIN,
+                book.Language, year, book.Extension, fileName, book.Coverurl, 0, '', isLocal);
         }));
 
         let groupedBooks = allBooks.reduce((acc: Book[], book) => {
             let existingBookIndex = acc.findIndex((b: Book) => {
                 if (b.asin && book.asin && b.asin == book.asin) {
                     return true;
+                }
+                if (b.isbn[0] && book.isbn[0]) {
+                    if (b.isbn.some(isbn => book.isbn.includes(isbn))) {
+                        return true;
+                    }
                 }
                 return this.sanitizedCompare(b.title, book.title)
                 && this.sanitizedCompare(b.author, book.author)
@@ -133,6 +139,9 @@ export class LibgenDbService {
             if (existingBookIndex !== -1) {
                 acc[existingBookIndex].groupedBooks.push(new GroupedBook(book.md5,
                     book.id, book.local));
+                if (!acc[existingBookIndex].coverUrl.replace(/\/.*covers\//, '') && book.coverUrl) {
+                    acc[existingBookIndex].coverUrl = book.coverUrl;
+                }
             } else {
                 acc.push(book);
             }
@@ -169,8 +178,8 @@ export class LibgenDbService {
         });
 
         let books = (await Promise.all([booksByText, booksByIsbn])).flat();
-        return books.map(book => new Book(book.id, '', book.title, book.author, book.series, '',
-            book.isbn.split(','), book.language, book.pubDate, book.extension,
+        return books.map(book => new Book(book.id, '', book.title, book.author, book.series, 
+            '', book.isbn.split(','), '', book.language, book.pubDate, book.extension,
             book.filename, book.coverUrl, 0, '', true));
     }
       

@@ -20,7 +20,7 @@ export class Book {
     groupedBooks: GroupedBook[] = [];
 
     constructor(id: number, md5: string, title: string, author: string, series: string, publisher: string,
-    isbn: string[], language: string, pubDate: Date, extension: string, filename: string, coverUrl: string, 
+    isbn: string[], asin: string, language: string, pubDate: Date, extension: string, filename: string, coverUrl: string, 
     progress: number = 0, message: string = '', local: boolean = false, groupedBooks: GroupedBook[] = []) {
         this.id = id;
         this.md5 = md5;
@@ -29,6 +29,7 @@ export class Book {
         this.series = series;
         this.publisher = publisher;
         this.isbn = isbn;
+        this.asin = asin;
         this.language = language;
         this.pubDate = pubDate;
         this.extension = extension;

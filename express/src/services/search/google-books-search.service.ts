@@ -22,7 +22,7 @@ export class GoogleBooksSearchService {
 
         let books = response.data.items.map(volume => 
             new Book(999999999, '', volume.volumeInfo.title, volume.volumeInfo?.authors?.at(0) || '', '', '',
-                this.parseISBN(volume), this.parseLanguage(volume),
+                this.parseISBN(volume), '', this.parseLanguage(volume),
                 new Date(volume.volumeInfo.publishedDate), '', '',
                 volume.volumeInfo?.imageLinks?.thumbnail.replace('http://', 'https://')));
 
