@@ -92,7 +92,7 @@ export abstract class GenericTolinoService {
                 .find(item => item.publicationId == publicationId);
 
             books.push(new Book(0, '', inventoryItem.epubMetaData.title, 
-                inventoryItem.epubMetaData.author.shift()?.name, '', '', '', '', 
+                inventoryItem.epubMetaData.author.shift()?.name, '', '', [], '', 
                 new Date(patch.value.modified), '.epub', '',
                 inventoryItem.epubMetaData.fileResource
                     .find(resource => resource.type == 'FRONTCOVERIMAGE').resource, 

@@ -136,7 +136,7 @@ export class PocketBookCloudService {
         switch (response?.status) {
             case HttpStatusCode.Ok:
                 response.data.items.forEach(item => {
-                    books.push(new Book(0, '', item.metadata.title, item.metadata.authors, '', '', '',
+                    books.push(new Book(0, '', item.metadata.title, item.metadata.authors, '', '', [],
                         '', item.mtime, '.epub', '', item.metadata.cover.pop().path,
                         Math.round(item.readPercent)
                     ));

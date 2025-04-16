@@ -3,7 +3,7 @@ import { GroupedBook } from "./grouped-book.model";
 export class Book {
     id: number = 0;
     md5: string = '';
-    isbn: string = '';
+    isbn: string[] = [];
     title: string = '';
     author: string = '';
     series: string = '';

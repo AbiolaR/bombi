@@ -46,7 +46,7 @@ export class LibgenDbService {
     public async findLocalBookById(id: number): Promise<Book | undefined> {
         let book = await ReadarrBook.findOne({ where: { id: id } });
         if (!book) return undefined;
-        return new Book(book.id, '', book.title, book.author, book.series, '', book.isbn, book.language, 
+        return new Book(book.id, '', book.title, book.author, book.series, '', [book.isbn], book.language, 
             book.pubDate, book.extension, book.filename, book.coverUrl, 0, '', true);
     }
     public async findBookByMd5(md5: string): Promise<Book | undefined> {
@@ -67,7 +67,7 @@ export class LibgenDbService {
         let isLocal = BookService.bookFileIsLocal(fileName, book.MD5);
 
         return new Book(book.ID, book.MD5, book.Title, 
-            book.Author, book.Series, book.Publisher, book.Identifier.split(',')[0], book.Language, 
+            book.Author, book.Series, book.Publisher, book.Identifier.split(','), book.Language, 
             year, book.Extension, fileName, book.Coverurl, 0, '', isLocal);
     }
 
@@ -117,15 +117,19 @@ export class LibgenDbService {
             let isLocal = BookService.bookFileIsLocal(fileName, book.MD5);
 
             return new Book(book.ID, book.MD5, book.Title, 
-                book.Author, book.Series, book.Publisher, book.Identifier.split(',')[0], book.Language, 
+                book.Author, book.Series, book.Publisher, book.Identifier.split(','), book.Language, 
                 year, book.Extension, fileName, book.Coverurl, 0, '', isLocal);
         }));
 
         let groupedBooks = allBooks.reduce((acc: Book[], book) => {
-            let existingBookIndex = acc.findIndex((b: Book) =>
-                this.sanitizedCompare(b.title, book.title)
+            let existingBookIndex = acc.findIndex((b: Book) => {
+                if (b.asin && book.asin && b.asin == book.asin) {
+                    return true;
+                }
+                return this.sanitizedCompare(b.title, book.title)
                 && this.sanitizedCompare(b.author, book.author)
-                && b.language == book.language);
+                && b.language == book.language
+            });
             if (existingBookIndex !== -1) {
                 acc[existingBookIndex].groupedBooks.push(new GroupedBook(book.md5,
                     book.id, book.local));
@@ -166,7 +170,7 @@ export class LibgenDbService {
 
         let books = (await Promise.all([booksByText, booksByIsbn])).flat();
         return books.map(book => new Book(book.id, '', book.title, book.author, book.series, '',
-            book.isbn, book.language, book.pubDate, book.extension,
+            book.isbn.split(','), book.language, book.pubDate, book.extension,
             book.filename, book.coverUrl, 0, '', true));
     }
       
@@ -245,9 +249,20 @@ export class LibgenDbService {
     }
 
     static async createLocalBook(book: Book) {
-        book.isbn = book.isbn;
+        let localBook = { 
+            id: book.id, 
+            title: book.title, 
+            author: book.author, 
+            series: book.series,
+            language: book.language,
+            year: book.pubDate.getFullYear().toString(),
+            isbn: book.isbn.join(','),
+            coverUrl: book.coverUrl,
+            extension: book.extension,
+            filename: book.filename
+        };
         try {
-            await ReadarrBook.create(book);
+            await ReadarrBook.create(localBook);
         } catch (error) {
             console.error('Error saving uploaded book data: ', error);
         }

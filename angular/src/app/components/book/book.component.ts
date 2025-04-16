@@ -57,6 +57,7 @@ export class BookComponent implements OnInit {
     }
     this.localBookAvailable = this.book?.local || this.book?.groupedBooks.some((book) => book.local) || false;
     //this.coverUrl = this.coverUrl.replace('//', '').replace('http:/', 'http://').replace('https:/', 'https://');
+    console.warn('book:', this.book);
   }
 
   enlarge() {

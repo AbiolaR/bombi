@@ -76,10 +76,10 @@ export class GoogleBooksSearchService {
         return string.replace(/[^a-z]/gi, '').toLowerCase();
     }
 
-    private static parseISBN(volume: GoogleBook): string {
+    private static parseISBN(volume: GoogleBook): string[] {
         return volume.volumeInfo.industryIdentifiers?.find(identifier => 
             identifier.type == this.ISBN
-        )?.identifier || ''
+        )?.identifier.split(',') || []
     }
 
     private static parseLanguage(volume: GoogleBook): SyncLanguage {

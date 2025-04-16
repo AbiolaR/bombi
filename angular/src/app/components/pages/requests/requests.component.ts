@@ -98,7 +98,7 @@ export class RequestsComponent implements OnInit {
         book.title = metadata.title;
         book.pubDate = new Date(metadata.pubdate);
         book.language = SyncLanguageUtil.map(metadata.language);
-        book.isbn = this.parseIsbn(metadata.identifier);
+        book.isbn = [this.parseIsbn(metadata.identifier)];
 
         const formData = new FormData();
         formData.set('bookFile', file);
