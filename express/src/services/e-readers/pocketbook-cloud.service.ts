@@ -174,13 +174,15 @@ export class PocketBookCloudService {
                 this.API_BASE_URL + this.REFRESH_TOKEN_ENDPOINT, refreshData,
                 { headers: headers });
         } catch(err) {
-            console.error(err);
+            response = err.response;
         }
 
         if (response?.status == HttpStatusCode.Ok) {
             this.saveAuthData(user, response.data);
             return true;
         }
+        this.disconnect(user.username);
+        console.error(`[ERROR] failed to refresh token for user ${user.username}. Response data: `, response?.data);
         return false;
     }
 

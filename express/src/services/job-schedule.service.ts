@@ -7,7 +7,7 @@ import { User } from "../models/db/mongodb/user.model";
 export class JobScheduler {
     private static DAILY_UPDATE_UPCOMING_EXPRESSION = '0 7 * * *';
     private static HOURLY_SYNC_EXPRESSION = '0 8-23,0-2 * * *';
-    private static WEEKLY_POCKETBOOK_AUTH_REFRESH_EXPRESSION = '0 0 * * 0';
+    private static DAILY_POCKETBOOK_AUTH_REFRESH_EXPRESSION = '0 6 * * *';
 
     public static scheduleJobs() {
         const isProd = process.env.STAGE == 'prod' ? true : false;
@@ -17,8 +17,8 @@ export class JobScheduler {
         if (isProd && !scheduledJobs[this.hourlySync.name]) {
             scheduleJob(this.hourlySync.name, this.HOURLY_SYNC_EXPRESSION, this.hourlySync);
         }
-        if (isProd && !scheduledJobs[this.weeklyPocketBookAuthRefresh.name]) {
-            scheduleJob(this.weeklyPocketBookAuthRefresh.name, this.WEEKLY_POCKETBOOK_AUTH_REFRESH_EXPRESSION, this.weeklyPocketBookAuthRefresh);
+        if (isProd && !scheduledJobs[this.pocketBookAuthRefresh.name]) {
+            scheduleJob(this.pocketBookAuthRefresh.name, this.DAILY_POCKETBOOK_AUTH_REFRESH_EXPRESSION, this.pocketBookAuthRefresh);
         }
     }
 
@@ -47,15 +47,17 @@ export class JobScheduler {
         }
     }
 
-    private static async weeklyPocketBookAuthRefresh() {
+    private static async pocketBookAuthRefresh() {
+        console.info('[INFO] Starting PocketBook auth refresh job');
         try {
             const users = (await findAllUsersAsync())
                 .filter((user: User) => user.pocketBookConfig?.cloudConfig);
             for (const user of users) {
                 await PocketBookCloudService.refreshToken(user);
             }
+            console.info('[INFO] PocketBook auth refresh job completed');
         } catch(error) {
-            console.error('[ERROR] during weekly PocketBook auth refresh\n', error);
+            console.error('[ERROR] during PocketBook auth refresh\n', error);
         }
     }
 }
