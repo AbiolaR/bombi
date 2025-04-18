@@ -101,9 +101,9 @@ router.post('/upload', (req, res, next) => {
   const bookFile = req.files.bookFile;
   const coverFile = req.files.coverFile;
   const bookData = JSON.parse(req.body.bookData);
-  const bookFilePath = path.join('..', 'books', bookData.author, bookData.title, bookFile.name);
+  const bookFilePath = path.join('books', bookData.author, bookData.title, bookFile.name);
   
-  bookData.filename = bookFilePath;
+  bookData.filename = path.join('..', bookFilePath);
   bookData.coverUrl = '';
 
   bookFile.mv(path.join(TEMP_DIR, bookFilePath), (error) => {

@@ -69,7 +69,12 @@ export class BookService {
     }
 
     for (let groupedBook of book.groupedBooks) {
-      let fetchedBook = await libgenDbService.findBookByMd5(groupedBook.md5);
+      let fetchedBook: Book | undefined = undefined;
+      if (groupedBook.md5) {
+        fetchedBook = await libgenDbService.findBookByMd5(groupedBook.md5);
+      } else {
+        fetchedBook = await libgenDbService.findLocalBookById(groupedBook.id);
+      }
       if (!fetchedBook) {
         continue;
       }

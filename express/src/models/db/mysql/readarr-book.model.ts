@@ -6,7 +6,7 @@ export class ReadarrBook extends Model<InferAttributes<ReadarrBook>, InferCreati
     declare author: string;
     declare series: string;
     declare language: string;
-    declare year: string;
+    declare year: number;
     declare pubDate: Date;
     declare isbn: string;
     declare coverUrl: string;

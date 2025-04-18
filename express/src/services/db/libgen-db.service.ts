@@ -135,7 +135,7 @@ export class LibgenDbService {
                     }
                 }
                 return this.sanitizedCompare(b.title, book.title)
-                && this.sanitizedCompare(b.author, book.author)
+                && this.sanitizedAuthorCompare(b.author, book.author)
                 && b.language == book.language
             });
             if (existingBookIndex !== -1) {
@@ -146,6 +146,9 @@ export class LibgenDbService {
                 }
                 if (!acc[existingBookIndex].asin) {
                     acc[existingBookIndex].asin = book.asin;
+                }
+                if (!acc[existingBookIndex].pubDate) {
+                    acc[existingBookIndex].pubDate = book.pubDate;
                 }
                 acc[existingBookIndex].isbn = [...new Set([...acc[existingBookIndex].isbn, ...book.isbn])];
             } else {
@@ -186,7 +189,8 @@ export class LibgenDbService {
         let books = (await Promise.all([booksByText, booksByIsbn])).flat();
         return books.map(book => new Book(book.id, '', book.title, book.author, book.series, 
             '', book.isbn.split(',').filter(isbn => isbn.length > 0), '', book.language,
-            book.pubDate, book.extension, book.filename, book.coverUrl, 0, '', true));
+            new Date(book.year?.toString()), book.extension, book.filename, 
+            book.coverUrl, 0, '', true));
     }
       
     searchOneColumn(valueList: String[], columnName: LibgenBookColumn) {
@@ -270,7 +274,7 @@ export class LibgenDbService {
             author: book.author, 
             series: book.series,
             language: book.language,
-            year: book.pubDate.getFullYear().toString(),
+            year: new Date(book.pubDate.toString()).getFullYear(),
             isbn: book.isbn.join(','),
             coverUrl: book.coverUrl,
             extension: book.extension,
@@ -281,6 +285,12 @@ export class LibgenDbService {
         } catch (error) {
             console.error('Error saving uploaded book data: ', error);
         }
+    }
+
+    private sanitizedAuthorCompare(authorA: string, authorB: string): boolean {
+        authorA = authorA.replace(/;.*/, '').split(', ').reverse().join(' ');
+        authorB = authorB.replace(/;.*/, '').split(', ').reverse().join(' ');
+        return this.sanitizedCompare(authorA, authorB);
     }
 
     private sanitizedCompare(bookStringA: string, bookStringB: string): boolean {
